@@ -1,4 +1,4 @@
-# Verity — Verifiable Encrypted Search
+# Vault — Verifiable Encrypted Search
 
 ## Overview
 
