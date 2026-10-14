@@ -64,18 +64,14 @@
 ## Phase Details
 
 ### Phase 1: Cryptographic Primitives Engine & Key Derivation
-- **Status:** **In Planning (Active)**
+- **Status:** **COMPLETED** (24 / 24 automated tests passing)
 - **Directory:** `Vault_planing/01-crypto-primitives/`
-- **Goal:** Build the foundational cryptographic core in TypeScript using standard Web Crypto API (`SubtleCrypto`). Provide domain-separated key derivation from a user master password, deterministic PRF trapdoors, and authenticated document payload encryption.
-- **Core Deliverables:**
-  - `kdf.ts`: PBKDF2 key derivation with 5 domain-separated subkeys ($K_{trap}, K_{addr}, K_{mask}, K_{enc}, K_{auth}$).
-  - `trapdoors.ts`: Deterministic HMAC-SHA256 PRF keyword tokens and blind index location labels.
-  - `cipher.ts`: Authenticated AES-256-GCM document encryption/decryption with random IVs and integrity tags.
-  - Automated test suite validating test vectors, tamper resistance, and bit-flip detection.
+- **Goal:** Built the foundational cryptographic core in TypeScript using standard Web Crypto API (`SubtleCrypto`). Provides domain-separated key derivation from a user master password, deterministic PRF trapdoors, and authenticated document payload encryption.
 
 ### Phase 2: Client Indexer & Substring N-Gram Engine
-- **Status:** Backlog
-- **Goal:** Extract text from client documents, normalize, and generate inverted index mappings supporting both exact keywords and arbitrary substring queries via 3-gram sliding windows.
+- **Status:** **In Planning (Active)**
+- **Directory:** `Vault_planing/02-indexer-and-substring/`
+- **Goal:** Extract text from client documents, normalize, and generate inverted index mappings supporting both exact keywords and arbitrary substring queries via 3-gram sliding windows. Provides client-side false-positive candidate pruning.
 
 ### Phase 3: Blind Inverted Index & Dynamic Multi-Map
 - **Status:** Backlog
