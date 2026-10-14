@@ -104,7 +104,7 @@ export function utf8Decode(bytes: Uint8Array): string {
 }
 
 /**
- * Concatenate multiple Uint8Arrays into one
+ * Concatenate multiple Uint8Arrays
  */
 export function concatBytes(...arrays: Uint8Array[]): Uint8Array {
   let totalLength = 0;

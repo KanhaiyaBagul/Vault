@@ -12,7 +12,7 @@ import {
   concatBytes,
 } from "../../src/crypto/utils.ts";
 
-describe("Wave 1: Cryptographic Utilities (utils.ts)", () => {
+describe("Cryptographic Utilities (utils.ts)", () => {
   it("randomBytes generates correct length and non-zero entropy", () => {
     const bytes1 = randomBytes(16);
     const bytes2 = randomBytes(16);
