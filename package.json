@@ -4,7 +4,7 @@
   "description": "Verifiable Searchable Symmetric Encryption (SSE) Engine",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-strip-types --test tests/crypto/*.test.ts"
+    "test": "node --experimental-strip-types --test tests/**/*.test.ts"
   },
   "keywords": [
     "sse",

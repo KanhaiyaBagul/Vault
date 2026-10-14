@@ -1,10 +1,12 @@
 # Project Execution State
 
 **Active Milestone:** Milestone 1 — Verifiable Searchable Symmetric Encryption Engine  
-**Completed Phase:** Phase 1 — Cryptographic Primitives Engine & Key Derivation  
-**Next Phase:** Phase 2 — Client Indexer & Substring N-Gram Engine  
+**Completed Phases:** 
+- Phase 1 — Cryptographic Primitives Engine & Key Derivation (24/24 tests)
+- Phase 2 — Client Indexer & Substring N-Gram Engine (20/20 tests)
+**Next Phase:** Phase 3 — Blind Inverted Index & Dynamic Multi-Map
 **Execution Mode:** Interactive (`--interactive`)  
-**Status:** Phase 1 Complete (All 24 Automated Tests Passing)  
+**Status:** Phase 2 Complete (All 44 Automated Tests Passing)  
 
 ---
 
@@ -13,23 +15,26 @@
 | Phase | Description | Status | Tests Passing |
 | :--- | :--- | :---: | :---: |
 | **Phase 1** | Cryptographic Primitives Engine & Key Derivation | **COMPLETED** | 24 / 24 |
-| **Phase 2** | Client Indexer & Substring N-Gram Engine | **READY TO START** | — |
-| **Phase 3** | Blind Inverted Index & Dynamic Multi-Map | Planned | — |
+| **Phase 2** | Client Indexer & Substring N-Gram Engine | **COMPLETED** | 20 / 20 |
+| **Phase 3** | Blind Inverted Index & Dynamic Multi-Map | **READY TO START** | — |
 | **Phase 4** | Verifiability Engine (Merkle Tree Proofs & Soundness) | Planned | — |
 | **Phase 5** | Untrusted Server Backend & Zero-Knowledge Audit Logger | Planned | — |
 | **Phase 6** | Client Integration, Boolean Queries & Verification | Planned | — |
 
 ---
 
-## Phase 1 Wave Status (All Complete)
+## Phase 2 Wave Status (All Complete)
 
-- [x] **Wave 1: Foundation & Utilities**
-  - [x] Task 1.1: Project Setup (`package.json`, `tsconfig.json`)
-  - [x] Task 1.2: Cryptographic Utilities (`src/crypto/utils.ts` & `tests/crypto/utils.test.ts`)
-- [x] **Wave 2: Key Derivation & PRF Trapdoors**
-  - [x] Task 2.1: Key Derivation Module (`src/crypto/kdf.ts` & `tests/crypto/kdf.test.ts`)
-  - [x] Task 2.2: PRF Trapdoor & Addressing (`src/crypto/trapdoors.ts` & `tests/crypto/trapdoors.test.ts`)
-- [x] **Wave 3: Authenticated Payload Cipher & Automated Verification**
-  - [x] Task 3.1: Authenticated AES-256-GCM Cipher (`src/crypto/cipher.ts`)
-  - [x] Task 3.2: Automated Cryptographic Test Suite (`tests/crypto/cipher.test.ts`)
-  - [x] Task 3.3: Bit-Flip Tamper Resistance Verification
+- [x] **Wave 1: Tokenizer & N-Gram Sliding Window Engine**
+  - [x] Task 1.1: Text Normalization & Word Extractor (`src/indexer/tokenizer.ts`)
+  - [x] Task 1.2: Character N-Gram Generator (`src/indexer/ngrams.ts`)
+  - [x] Task 1.3: Unit Tests (`tests/indexer/tokenizer.test.ts`, `tests/indexer/ngrams.test.ts`)
+- [x] **Wave 2: Substring Query Decomposer & Candidate Pruner**
+  - [x] Task 2.1: Query Parser & Decomposer (`src/indexer/query_parser.ts`)
+  - [x] Task 2.2: Local Client Candidate Pruner
+  - [x] Task 2.3: Unit Tests (`tests/indexer/query_parser.test.ts`)
+- [x] **Wave 3: Plaintext Inverted Index Multi-Map & Regression**
+  - [x] Task 3.1: Plaintext Inverted Index (`src/indexer/inverted_index.ts`)
+  - [x] Task 3.2: Module Entry Point (`src/indexer/index.ts`)
+  - [x] Task 3.3: Integration Tests (`tests/indexer/inverted_index.test.ts`)
+  - [x] Task 3.4: Full Regression Run (All 44 tests green)
