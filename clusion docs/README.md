@@ -43,6 +43,7 @@ This documentation suite extracts the battle-tested mathematical foundations of 
 | **[04_BRIDGING_THE_GAPS_VERIFIABILITY_SUBSTRING.md](file:///k:/Coding%20Projects/Vault/clusion%20docs/04_BRIDGING_THE_GAPS_VERIFIABILITY_SUBSTRING.md)** | Concrete cryptographic designs for **Verifiability** (Merkle Authenticated Inverted Indexes), **Substring Search** (N-gram blind indexing), and **Untrusted Server Audit Logging**. |
 | **[05_SYSTEM_ARCHITECTURE_AND_API.md](file:///k:/Coding%20Projects/Vault/clusion%20docs/05_SYSTEM_ARCHITECTURE_AND_API.md)** | End-to-end Client-Server architecture, network protocol, API specification, and Web Crypto API / Node.js cryptographic porting guide. |
 | **[06_IMPLEMENTATION_BLUEPRINT.md](file:///k:/Coding%20Projects/Vault/clusion%20docs/06_IMPLEMENTATION_BLUEPRINT.md)** | Practical, step-by-step engineering roadmap to implement the engine from scratch, complete with core code contracts and verification tests. |
+| **[07_LEGACY_VS_MODERN_CODE_SPEC.md](file:///k:/Coding%20Projects/Vault/clusion%20docs/07_LEGACY_VS_MODERN_CODE_SPEC.md)** | Detailed code-by-code contrast between 10-year-old legacy Clusion Java and the modern 2026 Web Crypto TypeScript implementation. |
 
 ---
 

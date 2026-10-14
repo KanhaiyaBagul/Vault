@@ -2,7 +2,21 @@
 
 **Project:** Verity / Vault  
 **Domain:** Encrypted Databases / Cryptographic Engineering / Cloud Security  
-**Objective:** Construct a cryptographic search engine from scratch implementing Searchable Symmetric Encryption (using cryptographic trapdoors, blind indexes, and inverted index token hashing) that enables an untrusted server to execute substring or boolean keyword queries over ciphertext with verifiable cryptographic proofs and a zero-knowledge audit log.
+
+### Official Problem Statement (Problem 2 — 2 of 5 Teams)
+> **Problem Statement:** Storing sensitive enterprise documents in third-party cloud storage leaves proprietary data exposed to insider attacks, while standard end-to-end encryption completely breaks server-side keyword indexing and full-text search capabilities.  
+> **Objective:** Construct a cryptographic search engine from scratch implementing Searchable Symmetric Encryption (using cryptographic trapdoors, blind indexes, and inverted index token hashing) that enables an untrusted server to execute substring or boolean keyword queries over ciphertext.  
+> **Expected Outcome:** A server-client architecture where the client uploads fully encrypted document payloads along with encrypted search tokens. The server returns exact matching document IDs for search queries without learning the underlying keywords, the query contents, or the plaintext files (proven via an untrusted server audit log showing only opaque hashes and ciphertexts).
+
+### 10-Year Clusion Code Modernization Directive
+> [!IMPORTANT]
+> The **Clusion** library (`k:/Coding Projects/Vault/Clusion`) is an academic Java codebase from 2014–2016. While its underlying mathematical SSE papers (Cash et al. 2Lev, DynRH forward privacy, Kamara-Moataz IEX boolean) are mathematically sound, **the raw implementation is 10 years old and cannot be used as-is**.
+> 
+> **Our engineering policy across all phases:**
+> 1. **Discard Legacy Insecurities:** Completely eliminate deprecated `PBKDF2WithHmacSHA1`, malleable unauthenticated AES-CTR, and non-standard Bouncy Castle CMAC.
+> 2. **Modern Production Primitives:** Implement native Web Crypto API (`SubtleCrypto`), `PBKDF2-HMAC-SHA256` (100k iter) + `HKDF-Expand`, and authenticated `AES-256-GCM` (IND-CCA2).
+> 3. **Bridge Missing Capabilities:** Clusion has **zero verifiability**, **zero substring search**, and **zero audit logging**. We build Authenticated Inverted Indexes (Merkle trees), N-gram blind indexing, and tamper-evident audit logging from scratch.
+> 4. **Modern Architecture:** Transform single-JVM `System.in` console loops into a real Client-Server architecture (React Client + Node.js/PostgreSQL Server).
 
 ---
 
