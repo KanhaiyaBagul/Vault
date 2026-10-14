@@ -69,13 +69,14 @@
 - **Goal:** Built the foundational cryptographic core in TypeScript using standard Web Crypto API (`SubtleCrypto`). Provides domain-separated key derivation from a user master password, deterministic PRF trapdoors, and authenticated document payload encryption.
 
 ### Phase 2: Client Indexer & Substring N-Gram Engine
-- **Status:** **In Planning (Active)**
+- **Status:** **COMPLETED** (20 / 20 automated tests passing; 44 / 44 project total)
 - **Directory:** `Vault_planing/02-indexer-and-substring/`
-- **Goal:** Extract text from client documents, normalize, and generate inverted index mappings supporting both exact keywords and arbitrary substring queries via 3-gram sliding windows. Provides client-side false-positive candidate pruning.
+- **Goal:** Extracted text from client documents, normalized, and generated inverted index mappings supporting both exact keywords and arbitrary substring queries via 3-gram sliding windows. Provides client-side false-positive candidate pruning.
 
 ### Phase 3: Blind Inverted Index & Dynamic Multi-Map
-- **Status:** Backlog
-- **Goal:** Adapt Clusion's `RH-2Lev` and `DynRH` to construct encrypted blind indexes where the server stores opaque tokens without learning document IDs or query terms. Forward-secure state management.
+- **Status:** **In Planning (Active)**
+- **Directory:** `Vault_planing/03-blind-index-multimap/`
+- **Goal:** Adapt Clusion's `RH-2Lev` and `DynRH` to construct encrypted blind indexes where the server stores opaque tokens without learning document IDs or query terms. Forward-secure state management and response-hiding encryption.
 
 ### Phase 4: Verifiability Engine & Cryptographic Proofs
 - **Status:** Backlog
