@@ -1,0 +1,22 @@
+{
+  "name": "vault-sse-engine",
+  "version": "1.0.0",
+  "description": "Verifiable Searchable Symmetric Encryption (SSE) Engine Core",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test tests/crypto/utils.test.ts tests/crypto/kdf.test.ts tests/crypto/trapdoors.test.ts tests/crypto/cipher.test.ts",
+    "test:utils": "node --experimental-strip-types --test tests/crypto/utils.test.ts",
+    "test:kdf": "node --experimental-strip-types --test tests/crypto/kdf.test.ts",
+    "test:trapdoors": "node --experimental-strip-types --test tests/crypto/trapdoors.test.ts",
+    "test:cipher": "node --experimental-strip-types --test tests/crypto/cipher.test.ts"
+  },
+  "keywords": [
+    "searchable-symmetric-encryption",
+    "sse",
+    "cryptography",
+    "web-crypto",
+    "verifiable-search"
+  ],
+  "author": "Vault Team",
+  "license": "GPL-3.0-or-later"
+}
