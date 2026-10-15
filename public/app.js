@@ -418,8 +418,11 @@ class VaultAppController {
     // Proof Card
     this.proofOverallBadge = document.getElementById("proofOverallBadge");
     this.metricCompleteness = document.getElementById("metricCompleteness");
+    this.metricCompletenessSub = document.getElementById("metricCompletenessSub");
     this.metricSoundness = document.getElementById("metricSoundness");
+    this.metricSoundnessSub = document.getElementById("metricSoundnessSub");
     this.metricAuth = document.getElementById("metricAuth");
+    this.metricAuthSub = document.getElementById("metricAuthSub");
     this.merkleDetails = document.getElementById("merkleDetails");
     this.merkleRecomputedRoot = document.getElementById("merkleRecomputedRoot");
     this.merkleCommittedRoot = document.getElementById("merkleCommittedRoot");
@@ -1003,40 +1006,71 @@ class VaultAppController {
 
   updateProofCard(report, commitment) {
     if (report.isValid) {
-      this.proofOverallBadge.className = "badge badge-emerald";
-      this.proofOverallBadge.textContent = "SOUND & COMPLETE (100%)";
+      if (this.proofOverallBadge) {
+        this.proofOverallBadge.className = "badge badge-emerald";
+        this.proofOverallBadge.textContent = "SOUND & COMPLETE (100%)";
+      }
 
-      this.metricCompleteness.textContent = "100%";
-      this.metricCompleteness.style.color = "var(--neon-emerald)";
-      this.metricCompletenessSub.textContent = `All ${report.verifiedRecordCount} records verified`;
+      if (this.metricCompleteness) {
+        this.metricCompleteness.textContent = "100%";
+        this.metricCompleteness.style.color = "var(--neon-emerald)";
+      }
+      if (this.metricCompletenessSub) {
+        this.metricCompletenessSub.textContent = `All ${report.verifiedRecordCount} records verified`;
+      }
 
-      this.metricSoundness.textContent = "100%";
-      this.metricSoundness.style.color = "var(--neon-emerald)";
-      this.metricSoundnessSub.textContent = "Zero forgeries detected";
+      if (this.metricSoundness) {
+        this.metricSoundness.textContent = "100%";
+        this.metricSoundness.style.color = "var(--neon-emerald)";
+      }
+      if (this.metricSoundnessSub) {
+        this.metricSoundnessSub.textContent = "Zero forgeries detected";
+      }
 
-      this.metricAuth.textContent = "VALID";
-      this.metricAuth.style.color = "var(--neon-emerald)";
-      this.metricAuthSub.textContent = "HMAC(K_auth) signature passed";
+      if (this.metricAuth) {
+        this.metricAuth.textContent = "VALID";
+        this.metricAuth.style.color = "var(--neon-emerald)";
+      }
+      if (this.metricAuthSub) {
+        this.metricAuthSub.textContent = "HMAC(K_auth) signature passed";
+      }
 
-      this.merkleDetails.style.display = "flex";
-      this.merkleRecomputedRoot.textContent = report.recomputedRoot;
-      this.merkleCommittedRoot.textContent = report.committedRoot;
+      if (this.merkleDetails) this.merkleDetails.style.display = "flex";
+      if (this.merkleRecomputedRoot) this.merkleRecomputedRoot.textContent = report.recomputedRoot;
+      if (this.merkleCommittedRoot) this.merkleCommittedRoot.textContent = report.committedRoot;
     } else {
-      this.proofOverallBadge.className = "badge badge-crimson";
-      this.proofOverallBadge.textContent = `VIOLATION: ${report.errorCode}`;
+      if (this.proofOverallBadge) {
+        this.proofOverallBadge.className = "badge badge-crimson";
+        this.proofOverallBadge.textContent = `VIOLATION: ${report.errorCode}`;
+      }
 
-      this.metricCompleteness.textContent = report.errorCode === "DROPPED_RECORDS" ? "FAILED" : "N/A";
-      this.metricCompleteness.style.color = "var(--neon-crimson)";
+      if (this.metricCompleteness) {
+        this.metricCompleteness.textContent = report.errorCode === "DROPPED_RECORDS" ? "FAILED" : "N/A";
+        this.metricCompleteness.style.color = "var(--neon-crimson)";
+      }
+      if (this.metricCompletenessSub) {
+        this.metricCompletenessSub.textContent = report.errorCode === "DROPPED_RECORDS" ? "Omission Detected" : "Completeness Rejected";
+      }
 
-      this.metricSoundness.textContent = report.errorCode === "FABRICATED_RECORDS" ? "FORGERY" : "REJECTED";
-      this.metricSoundness.style.color = "var(--neon-crimson)";
+      if (this.metricSoundness) {
+        this.metricSoundness.textContent = report.errorCode === "FABRICATED_RECORDS" ? "FORGERY" : "REJECTED";
+        this.metricSoundness.style.color = "var(--neon-crimson)";
+      }
+      if (this.metricSoundnessSub) {
+        this.metricSoundnessSub.textContent = report.errorCode === "FABRICATED_RECORDS" ? "Fabrication Caught" : "Root Mismatch";
+      }
 
-      this.metricAuth.textContent = report.errorCode === "COMMITMENT_INVALID" ? "INVALID" : "REJECTED";
-      this.metricAuth.style.color = "var(--neon-crimson)";
+      if (this.metricAuth) {
+        this.metricAuth.textContent = report.errorCode === "COMMITMENT_INVALID" ? "INVALID" : "REJECTED";
+        this.metricAuth.style.color = "var(--neon-crimson)";
+      }
+      if (this.metricAuthSub) {
+        this.metricAuthSub.textContent = "Signature / Root Rejected";
+      }
 
-      this.merkleDetails.style.display = "flex";
-      this.merkleRecomputedRoot.textContent = report.recomputedRoot || "[Tampered]";
-      this.merkleCommittedRoot.textContent = commitment?.rootHashHex || "[Unknown]";
+      if (this.merkleDetails) this.merkleDetails.style.display = "flex";
+      if (this.merkleRecomputedRoot) this.merkleRecomputedRoot.textContent = report.recomputedRoot || "[Tampered]";
+      if (this.merkleCommittedRoot) this.merkleCommittedRoot.textContent = commitment?.rootHashHex || "[Unknown]";
     }
   }
 
