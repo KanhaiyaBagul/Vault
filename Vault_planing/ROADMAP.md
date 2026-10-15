@@ -84,8 +84,9 @@
 - **Goal:** Implemented Authenticated Inverted Indexes (AII) with Merkle trees over postings lists to prove mathematically that search results returned by an untrusted cloud server are complete (zero dropped IDs), sound (zero fabricated/tampered IDs), and fresh (zero stale replays). Validated with an active adversary tamper test suite (`attacker_tamper.test.ts`).
 
 ### Phase 5: Untrusted Server Backend & Audit Logger
-- **Status:** Backlog
-- **Goal:** Stand up the untrusted cloud REST microservice storing encrypted blobs, executing blind trapdoor evaluations over ciphertext, and producing tamper-evident audit logs showing only opaque hashes.
+- **Status:** **Active (In Progress)**
+- **Directory:** `Vault_planing/05-server-backend-audit/`
+- **Goal:** Stand up the untrusted cloud REST microservice storing encrypted document blobs, executing blind trapdoor evaluations over ciphertext, and producing tamper-evident zero-knowledge audit logs linking operations via SHA-256 hash chains.
 
 ### Phase 6: Client Integration, Boolean Queries & Verification
 - **Status:** Backlog

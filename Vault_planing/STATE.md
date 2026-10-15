@@ -8,7 +8,7 @@
 - Phase 4 — Verifiability Engine (Merkle Tree Proofs & Soundness) (14/14 tests)
 **Active Phase:** Phase 5 — Untrusted Server Backend & Zero-Knowledge Audit Logger  
 **Execution Mode:** Interactive (`--interactive`)  
-**Status:** Ready for Phase 5 Planning  
+**Status:** Plan Approved — Ready for Execution  
 
 ---
 
@@ -20,24 +20,22 @@
 | **Phase 2** | Client Indexer & Substring N-Gram Engine | **COMPLETED** | 20 / 20 |
 | **Phase 3** | Blind Inverted Index & Dynamic Multi-Map | **COMPLETED** | 21 / 21 |
 | **Phase 4** | Verifiability Engine (Merkle Tree Proofs & Soundness) | **COMPLETED** | 14 / 14 |
-| **Phase 5** | Untrusted Server Backend & Zero-Knowledge Audit Logger | Planned | — |
+| **Phase 5** | Untrusted Server Backend & Zero-Knowledge Audit Logger | **ACTIVE** | Planning Complete |
 | **Phase 6** | Client Integration, Boolean Queries & Verification | Planned | — |
 
 ---
 
-## Phase 4 Wave Status
+## Phase 5 Wave Status
 
-- [x] **Wave 1: Cryptographic Accumulator & Merkle Tree Core**
-  - [x] Task 1.1: Canonical leaf hashing & binary Merkle tree builder (`src/verifiability/merkle_tree.ts`)
-  - [x] Task 1.2: Inclusion proof generation and path verification
-  - [x] Task 1.3: Unit tests (`tests/verifiability/merkle_tree.test.ts`)
-- [x] **Wave 2: Authenticated Index & Token Commitments**
-  - [x] Task 2.1: Token commitment generator via $K_{auth}$ (`src/verifiability/authenticated_index.ts`)
-  - [x] Task 2.2: Client AuthenticatedIndex State Tracker
-  - [x] Task 2.3: Unit tests (`tests/verifiability/authenticated_index.test.ts`)
-- [x] **Wave 3: Prover, Verifier & Active Attacker Defense**
-  - [x] Task 3.1: Server Proof Bundler (`src/verifiability/server_prover.ts`)
-  - [x] Task 3.2: Client Verification Engine (`src/verifiability/client_verifier.ts`)
-  - [x] Task 3.3: Module entry point (`src/verifiability/index.ts`)
-  - [x] Task 3.4: Active attacker tamper test suite (`tests/verifiability/attacker_tamper.test.ts`)
-  - [x] Task 3.5: Full project regression verification (All 79 tests across 18 suites green)
+- [ ] **Wave 1: Storage & Hash-Chained Audit Logger**
+  - [ ] Task 1.1: Encrypted Blob Object Store (`src/server/blob_store.ts`)
+  - [ ] Task 1.2: Zero-Knowledge Audit Logger (`src/server/audit_logger.ts`)
+  - [ ] Task 1.3: Unit tests (`tests/server/blob_store.test.ts`, `tests/server/audit_logger.test.ts`)
+- [ ] **Wave 2: Search Controller & REST API Microservice**
+  - [ ] Task 2.1: Search & Prover Controller (`src/server/search_controller.ts`)
+  - [ ] Task 2.2: Native Node.js REST API Server (`src/server/server_app.ts`)
+  - [ ] Task 2.3: Module entry point (`src/server/index.ts`)
+- [ ] **Wave 3: End-to-End REST Integration & Regression**
+  - [ ] Task 3.1: Full REST API integration tests (`tests/server/server_app.test.ts`)
+  - [ ] Task 3.2: Tamper-evident log verification tests
+  - [ ] Task 3.3: Full project regression verification (`npm test`)
