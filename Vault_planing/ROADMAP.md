@@ -88,6 +88,7 @@
 - **Directory:** `Vault_planing/05-server-backend-audit/`
 - **Goal:** Built the untrusted cloud REST microservice storing encrypted document blobs (`EncryptedBlobStore`), executing blind trapdoor evaluations over ciphertext (`ServerSearchController`), and producing tamper-evident zero-knowledge audit logs (`ZeroKnowledgeAuditLogger`) linking operations via SHA-256 hash chains.
 
-### Phase 6: Client Integration, Boolean Queries & Verification
-- **Status:** Backlog
-- **Goal:** Integrate end-to-end client search flows with Kamara-Moataz IEX boolean evaluation, automated verification tests, and simulated cloud insider attack demonstrations.
+### Phase 6: Client Integration, Interactive Web UI & Verification
+- **Status:** **Active (In Progress)**
+- **Directory:** `Vault_planing/06-client-integration-ui/`
+- **Goal:** Integrate end-to-end client search flows with Kamara-Moataz IEX boolean evaluation, build an interactive split-screen web application dashboard with "Untrusted Cloud Lens", live Merkle proof verification badges, attacker simulation controls, and zero-knowledge audit log visualizers.

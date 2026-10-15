@@ -9,7 +9,7 @@
 - Phase 5 — Untrusted Server Backend & Zero-Knowledge Audit Logger (11/11 tests)
 **Active Phase:** Phase 6 — Client Integration, Interactive Web UI & Verification  
 **Execution Mode:** Interactive (`--interactive`)  
-**Status:** Ready for Phase 6 Planning  
+**Status:** Plan Approved — Ready for Execution  
 
 ---
 
@@ -22,21 +22,22 @@
 | **Phase 3** | Blind Inverted Index & Dynamic Multi-Map | **COMPLETED** | 21 / 21 |
 | **Phase 4** | Verifiability Engine (Merkle Tree Proofs & Soundness) | **COMPLETED** | 14 / 14 |
 | **Phase 5** | Untrusted Server Backend & Zero-Knowledge Audit Logger | **COMPLETED** | 11 / 11 |
-| **Phase 6** | Client Integration, Interactive Web UI & Verification | Planned | — |
+| **Phase 6** | Client Integration, Interactive Web UI & Verification | **ACTIVE** | Planning Complete |
 
 ---
 
-## Phase 5 Wave Status
+## Phase 6 Wave Status
 
-- [x] **Wave 1: Storage & Hash-Chained Audit Logger**
-  - [x] Task 1.1: Encrypted Blob Object Store (`src/server/blob_store.ts`)
-  - [x] Task 1.2: Zero-Knowledge Audit Logger (`src/server/audit_logger.ts`)
-  - [x] Task 1.3: Unit tests (`tests/server/blob_store.test.ts`, `tests/server/audit_logger.test.ts`)
-- [x] **Wave 2: Search Controller & REST API Microservice**
-  - [x] Task 2.1: Search & Prover Controller (`src/server/search_controller.ts`)
-  - [x] Task 2.2: Native Node.js REST API Server (`src/server/server_app.ts`)
-  - [x] Task 2.3: Module entry point (`src/server/index.ts`)
-- [x] **Wave 3: End-to-End REST Integration & Regression**
-  - [x] Task 3.1: Full REST API integration tests (`tests/server/server_app.test.ts`)
-  - [x] Task 3.2: Tamper-evident log verification tests
-  - [x] Task 3.3: Full project regression verification (All 90 tests across 21 suites green)
+- [ ] **Wave 1: Boolean Query Engine & Unified Client SDK**
+  - [ ] Task 1.1: Boolean Query Evaluator (`src/client/boolean_query.ts`)
+  - [ ] Task 1.2: Unified Client SDK (`src/client/vault_client.ts`)
+  - [ ] Task 1.3: Unit tests (`tests/client/boolean_query.test.ts`, `tests/client/vault_client.test.ts`)
+- [ ] **Wave 2: Interactive Web Application Dashboard**
+  - [ ] Task 2.1: Semantic HTML5 Dashboard (`public/index.html`)
+  - [ ] Task 2.2: Cyber Dark-Mode Styling (`public/styles.css`)
+  - [ ] Task 2.3: Frontend Controller (`public/app.js`)
+  - [ ] Task 2.4: Static file serving in VaultServerApp (`src/server/server_app.ts`)
+- [ ] **Wave 3: End-to-End Verification & Demonstration**
+  - [ ] Task 3.1: Full HTTP UI & SDK integration tests (`tests/client/ui_routes.test.ts`)
+  - [ ] Task 3.2: Active cloud attacker simulation tests
+  - [ ] Task 3.3: Full project regression run (100% green)
