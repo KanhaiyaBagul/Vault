@@ -7,7 +7,7 @@
 - Phase 3 — Blind Inverted Index & Dynamic Multi-Map (21/21 tests)
 **Active Phase:** Phase 4 — Verifiability Engine (Merkle Tree Proofs & Soundness)  
 **Execution Mode:** Interactive (`--interactive`)  
-**Status:** Ready for Phase 4 Planning  
+**Status:** Plan Approved — Ready for Execution  
 
 ---
 
@@ -18,24 +18,25 @@
 | **Phase 1** | Cryptographic Primitives Engine & Key Derivation | **COMPLETED** | 24 / 24 |
 | **Phase 2** | Client Indexer & Substring N-Gram Engine | **COMPLETED** | 20 / 20 |
 | **Phase 3** | Blind Inverted Index & Dynamic Multi-Map | **COMPLETED** | 21 / 21 |
-| **Phase 4** | Verifiability Engine (Merkle Tree Proofs & Soundness) | Planned | — |
+| **Phase 4** | Verifiability Engine (Merkle Tree Proofs & Soundness) | **ACTIVE** | Planning Complete |
 | **Phase 5** | Untrusted Server Backend & Zero-Knowledge Audit Logger | Planned | — |
 | **Phase 6** | Client Integration, Boolean Queries & Verification | Planned | — |
 
 ---
 
-## Phase 3 Wave Status
+## Phase 4 Wave Status
 
-- [x] **Wave 1: Client State & Blind Index Entry Builder**
-  - [x] Task 1.1: Client State Manager (`src/engine/state_manager.ts`)
-  - [x] Task 1.2: Blind Index Entry Builder (`src/engine/blind_index.ts`)
-  - [x] Task 1.3: Unit Tests (`tests/engine/state_manager.test.ts`, `tests/engine/blind_index.test.ts`)
-- [x] **Wave 2: Untrusted Server Blind Multi-Map Store**
-  - [x] Task 2.1: In-memory Server Blind Store (`src/engine/server_store.ts`)
-  - [x] Task 2.2: Opaque Trapdoor Evaluator
-  - [x] Task 2.3: Unit Tests (`tests/engine/server_store.test.ts`)
-- [x] **Wave 3: Client SSE Engine, Resolver & Regression**
-  - [x] Task 3.1: Client Query Generator & Result Resolver (`src/engine/client_engine.ts`)
-  - [x] Task 3.2: Module Entry Point (`src/engine/index.ts`)
-  - [x] Task 3.3: End-to-End Search Tests (`tests/engine/e2e_search.test.ts`, `tests/engine/client_engine.test.ts`)
-  - [x] Task 3.4: Full Regression Run (All 65 tests across 15 suites green)
+- [ ] **Wave 1: Cryptographic Accumulator & Merkle Tree Core**
+  - [ ] Task 1.1: Canonical leaf hashing & binary Merkle tree builder (`src/verifiability/merkle_tree.ts`)
+  - [ ] Task 1.2: Inclusion proof generation and path verification
+  - [ ] Task 1.3: Unit tests (`tests/verifiability/merkle_tree.test.ts`)
+- [ ] **Wave 2: Authenticated Index & Token Commitments**
+  - [ ] Task 2.1: Token commitment generator via $K_{auth}$ (`src/verifiability/authenticated_index.ts`)
+  - [ ] Task 2.2: Client AuthenticatedIndex State Tracker
+  - [ ] Task 2.3: Unit tests (`tests/verifiability/authenticated_index.test.ts`)
+- [ ] **Wave 3: Prover, Verifier & Active Attacker Defense**
+  - [ ] Task 3.1: Server Proof Bundler (`src/verifiability/server_prover.ts`)
+  - [ ] Task 3.2: Client Verification Engine (`src/verifiability/client_verifier.ts`)
+  - [ ] Task 3.3: Module entry point (`src/verifiability/index.ts`)
+  - [ ] Task 3.4: Active attacker tamper test suite (`tests/verifiability/attacker_tamper.test.ts`)
+  - [ ] Task 3.5: Full project regression verification (`npm test`)
