@@ -108,9 +108,9 @@
 
 ## 3. Success Criteria Checklist
 
-- [ ] Encrypted blob store safely persists and isolates document ciphertexts.
-- [ ] Audit logger builds tamper-evident SHA-256 hash chains.
-- [ ] Modifying an audit log entry immediately breaks chain verification.
-- [ ] REST API routes index, search, and blob downloads without errors.
-- [ ] Server log exposes zero plaintext keywords, document titles, or contents.
-- [ ] All automated tests pass with 100% green status.
+- [x] Encrypted blob store safely persists and isolates document ciphertexts.
+- [x] Audit logger builds tamper-evident SHA-256 hash chains.
+- [x] Modifying an audit log entry immediately breaks chain verification.
+- [x] REST API routes index, search, and blob downloads without errors.
+- [x] Server log exposes zero plaintext keywords, document titles, or contents.
+- [x] All automated tests pass with 100% green status.

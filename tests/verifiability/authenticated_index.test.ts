@@ -38,8 +38,8 @@ describe("Authenticated Index & Token Commitments (authenticated_index.ts)", asy
     const isValid = await verifyTokenCommitment(subkeys.kAuth, tag, 5, rootHex, validCommit);
     assert.ok(isValid);
 
-    // Tampered commitment string fails
-    const tamperedCommit = "f" + validCommit.slice(1);
+    // Tampered commitment string fails (guaranteed bit flip)
+    const tamperedCommit = (validCommit[0] === "0" ? "1" : "0") + validCommit.slice(1);
     const isTamperedValid = await verifyTokenCommitment(subkeys.kAuth, tag, 5, rootHex, tamperedCommit);
     assert.equal(isTamperedValid, false);
 
