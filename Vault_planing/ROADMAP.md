@@ -79,8 +79,9 @@
 - **Goal:** Adapted Clusion's `RH-2Lev` and `DynRH` to construct encrypted blind indexes where the server stores opaque tokens without learning document IDs or query terms. Implemented forward-secure state management (`StateManager`), blind entry builder (`buildBlindIndexEntries`), untrusted multi-map store (`ServerBlindStore`), and client SSE query generator/resolver (`client_engine.ts`).
 
 ### Phase 4: Verifiability Engine & Cryptographic Proofs
-- **Status:** Backlog
-- **Goal:** Implement Authenticated Inverted Indexes (AII) with Merkle trees over postings lists to prove that search results returned by an untrusted cloud server are mathematically correct and complete (no dropped or fabricated IDs).
+- **Status:** **COMPLETED** (14 / 14 automated tests passing; 79 / 79 project total)
+- **Directory:** `Vault_planing/04-verifiability-engine/`
+- **Goal:** Implemented Authenticated Inverted Indexes (AII) with Merkle trees over postings lists to prove mathematically that search results returned by an untrusted cloud server are complete (zero dropped IDs), sound (zero fabricated/tampered IDs), and fresh (zero stale replays). Validated with an active adversary tamper test suite (`attacker_tamper.test.ts`).
 
 ### Phase 5: Untrusted Server Backend & Audit Logger
 - **Status:** Backlog

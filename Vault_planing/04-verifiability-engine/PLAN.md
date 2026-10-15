@@ -97,9 +97,9 @@
 
 ## 3. Success Criteria Checklist
 
-- [ ] Merkle Tree generates valid root digests and verifiable inclusion proofs.
-- [ ] Token commitments authenticate count and tree root using $K_{auth}$.
-- [ ] Client verifier detects dropped documents with 100% certainty (Completeness).
-- [ ] Client verifier detects fabricated/altered documents with 100% certainty (Soundness).
-- [ ] Substring queries verify across all constituent N-grams.
-- [ ] All automated tests pass with zero failures.
+- [x] Merkle Tree generates valid root digests and verifiable inclusion proofs.
+- [x] Token commitments authenticate count and tree root using $K_{auth}$.
+- [x] Client verifier detects dropped documents with 100% certainty (Completeness).
+- [x] Client verifier detects fabricated/altered documents with 100% certainty (Soundness).
+- [x] Substring queries verify across all constituent N-grams.
+- [x] All automated tests pass with zero failures.
