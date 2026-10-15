@@ -74,9 +74,9 @@
 - **Goal:** Extracted text from client documents, normalized, and generated inverted index mappings supporting both exact keywords and arbitrary substring queries via 3-gram sliding windows. Provides client-side false-positive candidate pruning.
 
 ### Phase 3: Blind Inverted Index & Dynamic Multi-Map
-- **Status:** **In Planning (Active)**
+- **Status:** **COMPLETED** (21 / 21 automated tests passing; 65 / 65 project total)
 - **Directory:** `Vault_planing/03-blind-index-multimap/`
-- **Goal:** Adapt Clusion's `RH-2Lev` and `DynRH` to construct encrypted blind indexes where the server stores opaque tokens without learning document IDs or query terms. Forward-secure state management and response-hiding encryption.
+- **Goal:** Adapted Clusion's `RH-2Lev` and `DynRH` to construct encrypted blind indexes where the server stores opaque tokens without learning document IDs or query terms. Implemented forward-secure state management (`StateManager`), blind entry builder (`buildBlindIndexEntries`), untrusted multi-map store (`ServerBlindStore`), and client SSE query generator/resolver (`client_engine.ts`).
 
 ### Phase 4: Verifiability Engine & Cryptographic Proofs
 - **Status:** Backlog
