@@ -6,6 +6,8 @@
  */
 
 import * as http from "node:http";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { EncryptedBlobStore, type EncryptedBlobPayload } from "./blob_store.ts";
 import { ZeroKnowledgeAuditLogger } from "./audit_logger.ts";
 import { ServerBlindStore, type SearchTrapdoorToken } from "../engine/server_store.ts";
@@ -90,6 +92,36 @@ export class VaultServerApp {
     }
 
     try {
+      // 0. Static web asset delivery from public/
+      if (method === "GET" && !pathname.startsWith("/api/")) {
+        const publicDir = path.resolve(process.cwd(), "public");
+        const relPath = pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
+        const safePath = path.normalize(relPath).replace(/^(\.\.[\/\\])+/, "");
+        const fullPath = path.join(publicDir, safePath);
+
+        if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+          const ext = path.extname(fullPath).toLowerCase();
+          const mimeTypes: Record<string, string> = {
+            ".html": "text/html; charset=utf-8",
+            ".css": "text/css; charset=utf-8",
+            ".js": "application/javascript; charset=utf-8",
+            ".json": "application/json",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".svg": "image/svg+xml",
+            ".ico": "image/x-icon",
+          };
+          const contentType = mimeTypes[ext] ?? "application/octet-stream";
+          const content = fs.readFileSync(fullPath);
+          res.writeHead(200, {
+            "Content-Type": contentType,
+            "Content-Length": content.length,
+            "Access-Control-Allow-Origin": "*",
+          });
+          res.end(content);
+          return;
+        }
+      }
       // 1. Health check: GET /api/v1/health
       if (method === "GET" && pathname === "/api/v1/health") {
         this.sendJson(res, 200, {
