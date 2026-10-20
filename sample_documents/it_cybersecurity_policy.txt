@@ -1,0 +1,12 @@
+GLOBAL IT & CYBERSECURITY OPERATING POLICY
+DOCUMENT ID: SEC-POLICY-2026-V4
+CLASSIFICATION: INTERNAL ENTERPRISE STANDARD
+
+1. SCOPE & OBJECTIVE
+This policy mandates zero-trust cryptographic protections for all corporate data at rest and in transit. All third-party cloud integrations must enforce hardware security modules (HSM), AES-256-GCM encryption, and continuous tamper-evident audit logging.
+
+2. ACCESS CONTROL & IDENTITY GOVERNANCE
+Multi-factor authentication (MFA) with FIDO2 hardware security keys is required for all engineering, finance, and treasury systems. Access permissions are reviewed on a quarterly cycle according to strict least-privilege principles.
+
+3. AUDIT TRAILS & CRYPTOGRAPHIC COMPLIANCE
+All database queries, key derivations, and document downloads must be logged to an immutable hash chain. Independent external compliance auditors will perform annual verification of cryptographic accumulator roots and system integrity.
