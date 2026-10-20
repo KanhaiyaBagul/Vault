@@ -6,3 +6,5 @@
 
 export * from "./boolean_query.ts";
 export * from "./vault_client.ts";
+export * from "./client_logger.ts";
+export * from "./client_storage.ts";

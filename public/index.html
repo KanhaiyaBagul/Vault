@@ -62,9 +62,12 @@
           <span class="status-dot dot-warn"></span>
           <span class="chip-text">Vault Status: <strong id="vaultStatusText">LOCKED</strong></span>
         </div>
-        <div class="security-chip" id="cloudStorageChip" title="Active Third-Party Cloud Object Store">
+        <div class="security-chip interactive" id="cloudStorageChip" role="button" tabindex="0" title="Click to configure Cloud Storage (Supabase, S3, Disk)" aria-haspopup="dialog">
           <span class="status-dot dot-cyan" id="cloudStatusDot"></span>
           <span class="chip-text">Cloud: <strong id="cloudStatusText">LOCAL (SIM)</strong></span>
+          <svg class="chip-action-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
         </div>
         <div class="security-chip" id="auditStatusChip">
           <span class="status-dot dot-emerald"></span>
@@ -93,7 +96,13 @@
         <div class="input-row">
           <div class="input-field-group flex-2">
             <label for="masterPasswordInput" class="field-label">Master Password</label>
-            <input type="password" id="masterPasswordInput" class="input-text" placeholder="Enter high-entropy enterprise master password..." value="EnterpriseVault2026!Secure">
+            <div class="input-password-wrap">
+              <input type="password" id="masterPasswordInput" class="input-text" placeholder="Enter high-entropy enterprise master password..." value="EnterpriseVault2026!Secure">
+              <button type="button" class="btn-toggle-pw" data-target="masterPasswordInput" aria-label="Toggle password visibility" title="Show/hide master password">
+                <svg class="icon-eye" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+            <div class="field-error-msg" id="masterPasswordError" style="display: none;"></div>
           </div>
           <div class="btn-group-align">
             <button id="btnDeriveKeys" class="btn btn-primary">
@@ -188,10 +197,12 @@
             <div class="input-field-group">
               <label for="docIdInput" class="field-label">Document Filename / ID</label>
               <input type="text" id="docIdInput" class="input-text" placeholder="e.g. audit_report_2026.pdf">
+              <div class="field-error-msg" id="docIdError" style="display: none;"></div>
             </div>
             <div class="input-field-group">
               <label for="docContentInput" class="field-label">Document Content</label>
               <textarea id="docContentInput" class="input-textarea" rows="3" placeholder="Enter plaintext content to tokenize, encrypt with AES-256-GCM, and index..."></textarea>
+              <div class="field-error-msg" id="docContentError" style="display: none;"></div>
             </div>
             <div class="ingest-actions">
               <button id="btnEncryptIndex" class="btn btn-primary flex-1">
@@ -201,6 +212,53 @@
                 Encrypt, Commit &amp; Upload
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- Ingested Document Vault Manager -->
+        <div class="panel card-glass doc-vault-panel" id="docVaultPanel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <h3 class="card-title">Ingested Document Vault</h3>
+              <span class="badge" id="vaultDocCountBadge">0 DOCUMENTS</span>
+            </div>
+            <div class="vault-tools-wrap">
+              <button type="button" class="btn btn-sm btn-outline" id="btnExportVaultBackup" title="Export encrypted client vault state backup">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Backup
+              </button>
+            </div>
+          </div>
+          <p class="card-hint">
+            Client-side inventory of encrypted documents committed to cloud storage. Decrypt on demand in client enclave or purge with zero residual leakage.
+          </p>
+
+          <div class="table-wrap doc-vault-table-wrap">
+            <table class="data-table" id="docVaultTable">
+              <thead>
+                <tr>
+                  <th>Document Name</th>
+                  <th>Target Provider</th>
+                  <th>Payload Size</th>
+                  <th>3-Grams</th>
+                  <th>Ingested</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="docVaultTableBody">
+                <tr>
+                  <td colspan="6" class="table-empty">No documents in vault yet. Upload files or load sample corpus above.</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -219,6 +277,7 @@
               Search
             </button>
           </div>
+          <div class="field-error-msg" id="searchError" style="display: none; margin-top: 0.5rem;"></div>
 
           <!-- Query Parsing Breakdown -->
           <div class="query-breakdown" id="queryBreakdown" style="display: none;">
@@ -239,11 +298,21 @@
           <!-- Decrypted Results Container -->
           <div class="results-container" id="resultsContainer">
             <div class="empty-state">
-              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <p>Initialize Vault and execute a search query to view verified decrypted records.</p>
+              <div class="empty-state-icon">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+              <h4 class="empty-state-title">Awaiting Search Query</h4>
+              <p class="empty-state-desc">Unlock the vault enclave and search enterprise keywords over ciphertext. The untrusted server evaluates trapdoors without learning queries or plaintext content.</p>
+              <div class="empty-suggestions">
+                <span class="suggestion-label">Try searching:</span>
+                <button type="button" class="btn-chip-suggest" data-query="tax">tax</button>
+                <button type="button" class="btn-chip-suggest" data-query="audit AND compliance">audit AND compliance</button>
+                <button type="button" class="btn-chip-suggest" data-query="payroll">payroll</button>
+                <button type="button" class="btn-chip-suggest" data-query="quarter">quarter</button>
+              </div>
             </div>
           </div>
         </div>
@@ -310,13 +379,19 @@
               </h3>
               <span class="badge" id="cloudProviderBadge">PROVIDER: LOCAL MEMORY</span>
             </div>
-            <button type="button" class="btn btn-sm btn-outline" id="btnToggleCloudConfig">Configure Credentials</button>
+            <button type="button" class="btn btn-sm btn-outline" id="btnToggleCloudConfig" title="Configure Cloud Credentials &amp; Storage">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              Configure Credentials
+            </button>
           </div>
           <p class="card-hint">
             The untrusted cloud stores <strong>only opaque AES-256-GCM ciphertexts</strong> and blind indexes. Zero plaintext keywords, filenames, or encryption keys are ever shared.
           </p>
 
-          <div class="proof-metrics" style="margin-bottom: 0.5rem;">
+          <div class="proof-metrics">
             <div class="metric-box">
               <span class="metric-label">Active Provider</span>
               <span class="metric-val" id="cloudActiveProviderName">MEMORY (SIM)</span>
@@ -332,89 +407,6 @@
               <span class="metric-val" id="cloudStoredBlobsCount">0 Blobs</span>
               <span class="metric-sub">Zero Plaintext</span>
             </div>
-          </div>
-
-          <!-- Collapsible Configuration Form -->
-          <div class="cloud-config-drawer" id="cloudConfigDrawer" style="display: none; margin-top: 1rem; border-top: 1px solid var(--hairline); padding-top: 1rem;">
-            <div class="input-row" style="margin-bottom: 0.85rem;">
-              <div class="input-field-group flex-1">
-                <label for="selectCloudProvider" class="field-label">Target Storage Provider</label>
-                <select id="selectCloudProvider" class="input-text" style="height: 40px; padding: 0 0.75rem;">
-                  <option value="memory">Local Memory (Fast Zero-Setup Simulation)</option>
-                  <option value="disk">Local Disk Vault (.vault_storage/)</option>
-                  <option value="s3">Amazon AWS S3 / Cloudflare R2 / MinIO</option>
-                  <option value="supabase">Supabase Object Storage (REST API)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- S3 Config Fields -->
-            <div id="cloudS3Fields" style="display: none; flex-direction: column; gap: 0.75rem; margin-bottom: 0.85rem;">
-              <div class="input-row">
-                <div class="input-field-group flex-1">
-                  <label for="inputS3Bucket" class="field-label">S3 Bucket Name</label>
-                  <input type="text" id="inputS3Bucket" class="input-text" placeholder="vault-encrypted-blobs" value="vault-encrypted-blobs">
-                </div>
-                <div class="input-field-group flex-1">
-                  <label for="inputS3Region" class="field-label">Region</label>
-                  <input type="text" id="inputS3Region" class="input-text" placeholder="us-east-1" value="us-east-1">
-                </div>
-              </div>
-              <div class="input-row">
-                <div class="input-field-group flex-1">
-                  <label for="inputS3Endpoint" class="field-label">Custom Endpoint URL (Optional for R2/MinIO)</label>
-                  <input type="text" id="inputS3Endpoint" class="input-text" placeholder="e.g. https://<account>.r2.cloudflarestorage.com or http://localhost:9000">
-                </div>
-              </div>
-              <div class="input-row">
-                <div class="input-field-group flex-1">
-                  <label for="inputS3AccessKey" class="field-label">Access Key ID</label>
-                  <input type="text" id="inputS3AccessKey" class="input-text" placeholder="AKIAIOSFODNN7EXAMPLE">
-                </div>
-                <div class="input-field-group flex-1">
-                  <label for="inputS3SecretKey" class="field-label">Secret Access Key</label>
-                  <input type="password" id="inputS3SecretKey" class="input-text" placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY">
-                </div>
-              </div>
-            </div>
-
-            <!-- Supabase Config Fields -->
-            <div id="cloudSupabaseFields" style="display: none; flex-direction: column; gap: 0.75rem; margin-bottom: 0.85rem;">
-              <div class="input-row">
-                <div class="input-field-group flex-1">
-                  <label for="inputSupabaseUrl" class="field-label">Supabase Project URL</label>
-                  <input type="text" id="inputSupabaseUrl" class="input-text" placeholder="https://yourproject.supabase.co">
-                </div>
-                <div class="input-field-group flex-1">
-                  <label for="inputSupabaseBucket" class="field-label">Bucket Name</label>
-                  <input type="text" id="inputSupabaseBucket" class="input-text" placeholder="vault-encrypted-blobs" value="vault-encrypted-blobs">
-                </div>
-              </div>
-              <div class="input-row">
-                <div class="input-field-group flex-1">
-                  <label for="inputSupabaseKey" class="field-label">Service Role / API Key</label>
-                  <input type="password" id="inputSupabaseKey" class="input-text" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
-                </div>
-              </div>
-            </div>
-
-            <!-- Disk Config Fields -->
-            <div id="cloudDiskFields" style="display: none; margin-bottom: 0.85rem;">
-              <div class="input-field-group">
-                <label for="inputDiskPath" class="field-label">Local Disk Storage Path</label>
-                <input type="text" id="inputDiskPath" class="input-text" value="./.vault_storage">
-              </div>
-            </div>
-
-            <div class="btn-group-align" style="justify-content: flex-end; gap: 0.75rem;">
-              <button type="button" id="btnTestCloudPing" class="btn btn-outline">
-                Test Connection / Ping
-              </button>
-              <button type="button" id="btnSaveCloudConfig" class="btn btn-primary">
-                Save &amp; Switch Provider
-              </button>
-            </div>
-            <div id="cloudFeedbackMsg" style="margin-top: 0.5rem; font-size: 0.85rem; font-family: var(--font-mono); display: none;"></div>
           </div>
         </div>
 
@@ -516,6 +508,57 @@
       </section>
     </main>
 
+    <!-- Client Security & Audit Activity Log Console -->
+    <section class="panel client-log-panel" aria-labelledby="clientLogSectionTitle">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+          <h2 id="clientLogSectionTitle" class="panel-title">Client Security &amp; Audit Activity Console</h2>
+          <span class="tag">Zero-Knowledge Telemetry &bull; SHA-256 Chained Integrity</span>
+        </div>
+        <div class="btn-group-align">
+          <button id="btnExportClientAuditLog" class="btn btn-sm btn-outline" title="Export cryptographic audit log as verifiable JSON">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Audit Log (JSON)
+          </button>
+          <button id="btnClearClientLogs" class="btn btn-sm btn-outline" title="Clear local telemetry buffer">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs & Chain Status -->
+      <div class="client-log-toolbar">
+        <div class="filter-pill-group">
+          <button type="button" class="log-filter-btn active" data-filter="ALL">All Events (<span id="countLogAll">0</span>)</button>
+          <button type="button" class="log-filter-btn" data-filter="INGESTION">Ingestion (<span id="countLogIngest">0</span>)</button>
+          <button type="button" class="log-filter-btn" data-filter="SEARCH">Search (<span id="countLogSearch">0</span>)</button>
+          <button type="button" class="log-filter-btn" data-filter="SECURITY">Security &amp; Tamper (<span id="countLogSecurity">0</span>)</button>
+          <button type="button" class="log-filter-btn" data-filter="KEY_MANAGEMENT">Key Enclave (<span id="countLogKey">0</span>)</button>
+          <button type="button" class="log-filter-btn" data-filter="CLOUD">Cloud (<span id="countLogCloud">0</span>)</button>
+        </div>
+        <div class="log-chain-status">
+          <span class="status-dot dot-emerald" id="clientLogChainDot"></span>
+          <span class="chip-text">Chain: <strong id="clientLogChainText">VERIFIED SOUND</strong></span>
+        </div>
+      </div>
+
+      <div class="client-log-feed monospace" id="clientLogFeed">
+        <div class="log-feed-empty">No client activity recorded yet. Unlock the vault or upload a document to stream events.</div>
+      </div>
+    </section>
+
     <!-- Tamper-Evident Zero-Knowledge Audit Chain Viewer -->
     <section class="panel audit-panel" aria-labelledby="auditSectionTitle">
       <div class="panel-header">
@@ -570,6 +613,190 @@
       </div>
     </footer>
   </div>
+
+  <!-- Global Cloud Storage Settings Drawer / Modal -->
+  <div class="cloud-modal-backdrop" id="cloudModalBackdrop" style="display: none;">
+    <div class="cloud-modal-container" id="cloudConfigDrawer" role="dialog" aria-modal="true" aria-labelledby="cloudModalTitle">
+      <div class="cloud-modal-header">
+        <div class="cloud-modal-title-group">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
+          <h2 id="cloudModalTitle" class="cloud-modal-title">Cloud Storage Settings &amp; Credentials</h2>
+          <span class="badge" id="modalCloudProviderBadge">PROVIDER: LOCAL MEMORY</span>
+        </div>
+        <button type="button" class="cloud-modal-close" id="btnCloseCloudModal" aria-label="Close Cloud Storage Settings">&times;</button>
+      </div>
+
+      <div class="cloud-modal-body">
+        <!-- Persistent Data Locality Callout Notice -->
+        <div class="cloud-notice-box">
+          <div class="cloud-notice-icon">ℹ️</div>
+          <div class="cloud-notice-text">
+            <strong>Data Locality &amp; Multi-Cloud Architecture:</strong>
+            Switching storage providers changes the target for subsequent uploads and searches. Existing encrypted blobs remain preserved on their respective storage provider with zero plaintext leakage.
+          </div>
+        </div>
+
+        <div class="proof-metrics" style="margin-bottom: 0.85rem;">
+          <div class="metric-box">
+            <span class="metric-label">Active Provider</span>
+            <span class="metric-val" id="modalActiveProviderName">MEMORY (SIM)</span>
+            <span class="metric-sub" id="modalStorageUri">memory://vault</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Latency / Health</span>
+            <span class="metric-val" id="modalLatencyVal">0.1 ms</span>
+            <span class="metric-sub" id="modalPingStatus">HEALTHY</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Stored Ciphertexts</span>
+            <span class="metric-val" id="modalStoredBlobsCount">0 Blobs</span>
+            <span class="metric-sub">Zero Plaintext</span>
+          </div>
+        </div>
+
+        <div class="input-row" style="margin-bottom: 0.85rem;">
+          <div class="input-field-group flex-1">
+            <label for="selectCloudProvider" class="field-label">Target Storage Provider</label>
+            <select id="selectCloudProvider" class="input-text" style="height: 40px; padding: 0 0.75rem;">
+              <option value="memory">Local Memory (Fast Zero-Setup Simulation)</option>
+              <option value="disk">Local Disk Vault (.vault_storage/)</option>
+              <option value="s3">Amazon AWS S3 / Cloudflare R2 / MinIO</option>
+              <option value="supabase">Supabase Object Storage (REST API)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- S3 Config Fields -->
+        <div id="cloudS3Fields" style="display: none; flex-direction: column; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div class="input-row">
+            <div class="input-field-group flex-1">
+              <label for="inputS3Bucket" class="field-label">S3 Bucket Name</label>
+              <input type="text" id="inputS3Bucket" class="input-text" placeholder="vault-encrypted-blobs" value="vault-encrypted-blobs">
+            </div>
+            <div class="input-field-group flex-1">
+              <label for="inputS3Region" class="field-label">Region</label>
+              <input type="text" id="inputS3Region" class="input-text" placeholder="us-east-1" value="us-east-1">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-field-group flex-1">
+              <label for="inputS3Endpoint" class="field-label">Custom Endpoint URL (Optional for R2/MinIO)</label>
+              <input type="text" id="inputS3Endpoint" class="input-text" placeholder="e.g. https://<account>.r2.cloudflarestorage.com or http://localhost:9000">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-field-group flex-1">
+              <label for="inputS3AccessKey" class="field-label">Access Key ID</label>
+              <input type="text" id="inputS3AccessKey" class="input-text" placeholder="AKIAIOSFODNN7EXAMPLE">
+            </div>
+            <div class="input-field-group flex-1">
+              <label for="inputS3SecretKey" class="field-label">Secret Access Key</label>
+              <div class="input-password-wrap">
+                <input type="password" id="inputS3SecretKey" class="input-text" placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY">
+                <button type="button" class="btn-toggle-pw" data-target="inputS3SecretKey" aria-label="Toggle secret key visibility" title="Show/hide secret key">
+                  <svg class="icon-eye" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supabase Config Fields -->
+        <div id="cloudSupabaseFields" style="display: none; flex-direction: column; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div class="input-row">
+            <div class="input-field-group flex-1">
+              <label for="inputSupabaseUrl" class="field-label">Supabase Project URL</label>
+              <input type="text" id="inputSupabaseUrl" class="input-text" placeholder="https://yourproject.supabase.co">
+            </div>
+            <div class="input-field-group flex-1">
+              <label for="inputSupabaseBucket" class="field-label">Bucket Name</label>
+              <input type="text" id="inputSupabaseBucket" class="input-text" placeholder="vault-encrypted-blobs" value="vault-encrypted-blobs">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-field-group flex-1">
+              <label for="inputSupabaseKey" class="field-label">Service Role / API Key</label>
+              <div class="input-password-wrap">
+                <input type="password" id="inputSupabaseKey" class="input-text" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                <button type="button" class="btn-toggle-pw" data-target="inputSupabaseKey" aria-label="Toggle API key visibility" title="Show/hide API key">
+                  <svg class="icon-eye" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disk Config Fields -->
+        <div id="cloudDiskFields" style="display: none; margin-bottom: 0.85rem;">
+          <div class="input-field-group">
+            <label for="inputDiskPath" class="field-label">Local Disk Storage Path</label>
+            <input type="text" id="inputDiskPath" class="input-text" value="./.vault_storage">
+          </div>
+        </div>
+
+        <div class="btn-group-align" style="justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+          <button type="button" id="btnTestCloudPing" class="btn btn-outline">
+            Test Connection / Ping
+          </button>
+          <button type="button" id="btnSaveCloudConfig" class="btn btn-primary">
+            Save &amp; Switch Provider
+          </button>
+        </div>
+        <div id="cloudFeedbackMsg" style="margin-top: 0.75rem; display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secure Decrypted Document Viewer Modal -->
+  <div class="cloud-modal-backdrop" id="docViewerModalBackdrop" style="display: none;">
+    <div class="cloud-modal doc-viewer-modal" role="dialog" aria-modal="true" aria-labelledby="docViewerTitle">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <h3 id="docViewerTitle" class="modal-title">Decrypted Document Viewer</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="btnCloseDocViewer" aria-label="Close document viewer">&times;</button>
+      </div>
+
+      <div class="doc-viewer-meta-bar" id="docViewerMetaBar">
+        <span class="meta-item">Document: <strong id="viewerDocName">-</strong></span>
+        <span class="meta-item">Provider: <strong id="viewerProvider">-</strong></span>
+        <span class="meta-item">Ciphertext Size: <strong id="viewerSize">-</strong></span>
+        <span class="meta-item">Opaque Ref: <code class="monospace" id="viewerOpaqueRef">-</code></span>
+      </div>
+
+      <div class="doc-viewer-body">
+        <label class="field-label">Decrypted Plaintext Content (Client Enclave Only):</label>
+        <textarea id="viewerDecryptedContent" class="input-textarea monospace" rows="10" readonly></textarea>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.15rem;">
+        <button type="button" class="btn btn-outline" id="btnCopyDecryptedContent">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copy Content
+        </button>
+        <button type="button" class="btn btn-primary" id="btnDownloadDecryptedFile">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download Plaintext
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notification System -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <script src="/app.js" type="module"></script>
 </body>

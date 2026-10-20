@@ -46,6 +46,8 @@ import {
 } from "./boolean_query.ts";
 import type { EncryptedBlobPayload } from "../server/blob_store.ts";
 import type { AuditVerificationReport } from "../server/audit_logger.ts";
+import { ClientSecurityLogger } from "./client_logger.ts";
+import { ClientVaultStorage, type IngestedDocumentMeta } from "./client_storage.ts";
 
 export interface ClientIndexedDocument {
   docId: string;
@@ -72,7 +74,10 @@ export class VaultClient {
   private salt?: Uint8Array;
   public readonly stateManager: StateManager;
   public readonly authManager: AuthenticatedIndexManager;
+  public readonly logger: ClientSecurityLogger;
+  public readonly storage: ClientVaultStorage;
   private readonly tokenPostingsMap: Map<string, PostingLeafInput[]> = new Map();
+  private readonly documentManifest: Map<string, IngestedDocumentMeta> = new Map();
 
   public readonly serverBaseUrl: string;
 
@@ -80,6 +85,8 @@ export class VaultClient {
     this.serverBaseUrl = serverBaseUrl;
     this.stateManager = new StateManager();
     this.authManager = new AuthenticatedIndexManager();
+    this.logger = new ClientSecurityLogger();
+    this.storage = new ClientVaultStorage();
   }
 
   /**
@@ -107,7 +114,21 @@ export class VaultClient {
       iterations
     );
 
-    return bytesToHex(this.salt);
+    const saltHexStr = bytesToHex(this.salt);
+
+    await this.logger.logEvent(
+      "KEY_MANAGEMENT",
+      "KEY_DERIVATION",
+      {
+        kdf: "PBKDF2-SHA256",
+        iterations,
+        saltHex: saltHexStr,
+        subkeysDerived: "K_enc, K_trap, K_addr, K_mask, K_auth",
+      },
+      "SUCCESS"
+    );
+
+    return saltHexStr;
   }
 
   private checkInitialized(): VaultSubkeys {
@@ -203,12 +224,125 @@ export class VaultClient {
       throw new Error(`Cloud upload failed (${res.status}): ${err.error ?? "Unknown error"}`);
     }
 
+    const meta: IngestedDocumentMeta = {
+      docId,
+      docRef: opaqueDocRef,
+      sizeBytes: contentBytes.length,
+      tokenCount: entries.length,
+      uploadedAt: blobPayload.uploadedAt,
+      provider: "CLOUD",
+    };
+    this.documentManifest.set(docId, meta);
+
+    await this.logger.logEvent(
+      "INGESTION",
+      "DOC_ENCRYPTED",
+      {
+        cipher: "AES-256-GCM",
+        ivHex: serializedBlob.ivHex,
+        sizeBytes: contentBytes.length,
+        tokenCount: entries.length,
+      },
+      "SUCCESS",
+      { docRef: opaqueDocRef, docId }
+    );
+
+    await this.logger.logEvent(
+      "CLOUD",
+      "CLOUD_BLOB_COMMIT",
+      {
+        endpoint: "/api/v1/index",
+        sizeBytes: contentBytes.length,
+        entriesCount: entries.length,
+      },
+      "SUCCESS",
+      { docRef: opaqueDocRef, docId }
+    );
+
     return {
       docId,
       docRef: opaqueDocRef,
       entryCount: entries.length,
       sizeBytes: contentBytes.length,
     };
+  }
+
+  /**
+   * Deletes a document by ID from client manifest and sends cloud purge request.
+   */
+  public async deleteDocument(docId: string): Promise<boolean> {
+    const subkeys = this.checkInitialized();
+    const opaqueDocRef = await computeOpaqueDocRef(subkeys.kAddr, docId);
+
+    const res = await fetch(`${this.serverBaseUrl}/api/v1/blobs/${opaqueDocRef}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok && res.status !== 404) {
+      throw new Error(`Failed to delete document from cloud (HTTP ${res.status})`);
+    }
+
+    this.documentManifest.delete(docId);
+
+    await this.logger.logEvent(
+      "INGESTION",
+      "DOC_DELETED",
+      {
+        deletedDocId: docId,
+        purgedOpaqueRef: opaqueDocRef,
+      },
+      "SUCCESS",
+      { docRef: opaqueDocRef, docId }
+    );
+
+    return true;
+  }
+
+  /**
+   * Returns list of currently ingested documents in the client vault.
+   */
+  public listDocuments(): IngestedDocumentMeta[] {
+    return Array.from(this.documentManifest.values());
+  }
+
+  /**
+   * Persists client vault state (manifest, counters, commitments, logs)
+   * encrypted at rest using AES-256-GCM.
+   */
+  public async persistVaultState(): Promise<void> {
+    const subkeys = this.checkInitialized();
+    await this.storage.saveEncryptedState(subkeys.kEnc, {
+      documents: this.listDocuments(),
+      keywordCounters: this.stateManager.exportState(),
+      authCommitments: this.authManager.exportState(),
+      logs: this.logger.exportState(),
+    });
+  }
+
+  /**
+   * Restores client vault state from encrypted storage using K_enc.
+   */
+  public async restoreVaultState(): Promise<boolean> {
+    const subkeys = this.checkInitialized();
+    const state = await this.storage.loadEncryptedState(subkeys.kEnc);
+    if (!state) return false;
+
+    this.documentManifest.clear();
+    for (const doc of state.documents) {
+      this.documentManifest.set(doc.docId, doc);
+    }
+
+    if (state.keywordCounters) {
+      this.stateManager.importState(state.keywordCounters);
+    }
+    if (state.authCommitments) {
+      this.authManager.importState(state.authCommitments);
+    }
+    if (state.logs) {
+      this.logger.importState(state.logs);
+    }
+
+    return true;
   }
 
   /**

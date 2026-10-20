@@ -88,7 +88,7 @@ export class VaultServerApp {
     if (method === "OPTIONS") {
       res.writeHead(204, {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       });
       res.end();
@@ -237,6 +237,35 @@ export class VaultServerApp {
         this.sendJson(res, 200, {
           success: true,
           blob,
+        });
+        return;
+      }
+
+      // 4a. Delete Blob: DELETE /api/v1/blobs/:ref
+      if (method === "DELETE" && pathname.startsWith("/api/v1/blobs/")) {
+        const docRef = pathname.replace("/api/v1/blobs/", "").trim();
+        const exists = await this.blobStore.hasBlobAsync(docRef);
+
+        if (!exists) {
+          this.sendJson(res, 404, {
+            success: false,
+            error: `Encrypted blob '${docRef}' not found to delete`,
+          });
+          return;
+        }
+
+        await this.blobStore.deleteBlobAsync(docRef);
+
+        // Record deletion in audit log
+        await this.auditLogger.logOperation("DELETE_BLOB", {
+          docRef,
+          provider: this.blobStore.getProviderName(),
+        });
+
+        this.sendJson(res, 200, {
+          success: true,
+          docRef,
+          deleted: true,
         });
         return;
       }

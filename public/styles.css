@@ -42,8 +42,8 @@
   --ink: #1A1715;                    /* Warm dark ink for display headlines */
   --body: #3E3A36;                   /* Warm dark body text */
   --body-strong: #252320;            /* Emphasized labels and sub-headings */
-  --muted: #736D66;                  /* Secondary text, hints, placeholders */
-  --muted-soft: #918B82;             /* Fine print, captions */
+  --muted: #5A544E;                  /* Secondary text, hints, placeholders (WCAG AA >= 5.5:1 on cream) */
+  --muted-soft: #736D66;             /* Fine print, captions, subtext (WCAG AA compliant) */
 
   /* Text on Dark Product Chrome */
   --on-dark: #FAF8F5;                /* Cream text on dark rust product chrome */
@@ -292,6 +292,39 @@ body {
 .security-chip strong {
   color: var(--ink);
   font-weight: 500;
+}
+
+.security-chip.interactive {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.18s ease;
+}
+
+.security-chip.interactive:hover {
+  background: var(--surface-card);
+  border-color: var(--primary);
+  box-shadow: 0 2px 6px rgba(181, 84, 58, 0.12);
+  transform: translateY(-1px);
+}
+
+.security-chip.interactive:active {
+  transform: translateY(0);
+}
+
+.security-chip.interactive:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.chip-action-icon {
+  margin-left: 0.15rem;
+  color: var(--muted);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.security-chip.interactive:hover .chip-action-icon {
+  color: var(--primary);
+  transform: translateY(1px);
 }
 
 .status-dot {
@@ -551,6 +584,44 @@ body {
 .btn-group-align {
   display: flex;
   gap: 0.75rem;
+}
+
+.input-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-password-wrap .input-text {
+  padding-right: 2.6rem;
+}
+
+.btn-toggle-pw {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.btn-toggle-pw:hover {
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+
+.btn-toggle-pw:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
 }
 
 /* Collapsible Advanced Crypto Details */
@@ -945,11 +1016,82 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 2.8rem 1.5rem;
+  padding: 2.5rem 1.5rem;
   color: var(--muted);
+  background: var(--canvas);
+  border: 1px dashed var(--hairline);
+  border-radius: var(--radius-md);
   text-align: center;
-  font-size: 0.86rem;
+}
+
+.empty-state-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surface-card);
+  border: 1px solid var(--hairline);
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.empty-state-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+}
+
+.empty-state-desc {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 440px;
+  margin-bottom: 1.15rem;
+}
+
+.empty-suggestions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.suggestion-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin-right: 0.15rem;
+}
+
+.btn-chip-suggest {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  color: var(--body-strong);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-chip-suggest:hover {
+  background: var(--primary-dim);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(181, 84, 58, 0.12);
+}
+
+.btn-chip-suggest:active {
+  transform: translateY(0);
 }
 
 .doc-result-card {
@@ -1309,3 +1451,685 @@ body {
     align-items: stretch;
   }
 }
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 0.75rem 0.6rem;
+    gap: 1rem;
+  }
+  .app-header {
+    padding: 0.85rem 1rem;
+  }
+  .brand-title {
+    font-size: 1.3rem;
+  }
+  .header-badges {
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .security-chip {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.72rem;
+  }
+  .cloud-modal-container {
+    max-width: 96vw;
+    margin: 0.5rem;
+  }
+  .cloud-modal-header {
+    padding: 1rem 1.15rem;
+  }
+  .cloud-modal-body {
+    padding: 1.15rem;
+  }
+  .toast-container {
+    bottom: 1rem;
+    right: 1rem;
+    width: calc(100vw - 2rem);
+  }
+  .empty-suggestions {
+    gap: 0.35rem;
+  }
+}
+
+/* ==========================================================================
+   Toast Notification System (Claude Warm-Editorial Palette)
+   ========================================================================== */
+
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+  max-width: 440px;
+  width: calc(100vw - 2rem);
+}
+
+.vault-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.9rem 1.1rem;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px -4px rgba(26, 23, 21, 0.15), 0 2px 6px -1px rgba(26, 23, 21, 0.08);
+  color: var(--body);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  animation: toastSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(16px) scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.vault-toast.toast-exit {
+  transform: translateY(10px) scale(0.95);
+  opacity: 0;
+}
+
+.vault-toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.vault-toast-content {
+  flex: 1;
+}
+
+.vault-toast-title {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.15rem;
+  font-size: 0.92rem;
+}
+
+.vault-toast-msg {
+  color: var(--body);
+  font-size: 0.85rem;
+}
+
+.vault-toast-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  margin: -0.2rem -0.2rem 0 0.25rem;
+  border-radius: var(--radius-xs);
+  transition: color 0.15s ease, background 0.15s ease;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vault-toast-close:hover {
+  color: var(--ink);
+  background-color: var(--surface-hover);
+}
+
+.vault-toast.toast-success {
+  border-left: 4px solid var(--accent-olive);
+}
+.vault-toast.toast-success .vault-toast-icon {
+  color: var(--accent-olive);
+}
+
+.vault-toast.toast-error {
+  border-left: 4px solid var(--danger);
+}
+.vault-toast.toast-error .vault-toast-icon {
+  color: var(--danger);
+}
+
+.vault-toast.toast-warning {
+  border-left: 4px solid var(--warning);
+}
+.vault-toast.toast-warning .vault-toast-icon {
+  color: var(--warning);
+}
+
+.vault-toast.toast-info {
+  border-left: 4px solid var(--primary);
+}
+.vault-toast.toast-info .vault-toast-icon {
+  color: var(--primary);
+}
+
+/* ==========================================================================
+   Inline Form Validation & Error States
+   ========================================================================== */
+
+.field-error-msg {
+  font-size: 0.82rem;
+  color: var(--danger);
+  margin-top: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  animation: fadeIn 0.2s ease;
+  font-weight: 500;
+}
+
+.field-error-msg::before {
+  content: "⚠";
+  font-size: 0.85rem;
+}
+
+input.has-error,
+textarea.has-error,
+select.has-error {
+  border-color: var(--danger) !important;
+  background-color: rgba(181, 58, 58, 0.03) !important;
+  box-shadow: 0 0 0 3px rgba(181, 58, 58, 0.15) !important;
+}
+
+/* ==========================================================================
+   Button Loading Spinners & Double-Submission Prevention
+   ========================================================================== */
+
+.btn.is-loading {
+  position: relative !important;
+  pointer-events: none !important;
+  color: transparent !important;
+}
+
+.btn.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: calc(50% - 8px);
+  left: calc(50% - 8px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: btnSpin 0.65s linear infinite;
+}
+
+.btn-outline.is-loading::after,
+.btn-secondary.is-loading::after {
+  border: 2px solid rgba(34, 18, 14, 0.2);
+  border-top-color: var(--ink);
+}
+
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Cloud Storage Settings Modal / Drawer
+   ========================================================================== */
+
+.cloud-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(26, 23, 21, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.cloud-modal-container {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 36px rgba(26, 23, 21, 0.2);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(18px) scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.cloud-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.6rem;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-soft);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.cloud-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cloud-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+
+.cloud-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-xs);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.cloud-modal-close:hover {
+  color: var(--ink);
+  background: var(--surface-hover);
+}
+
+.cloud-modal-body {
+  padding: 1.5rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+/* Data Locality Callout Box */
+.cloud-notice-box {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.85rem 1.1rem;
+  background: rgba(111, 127, 95, 0.08);
+  border: 1px solid rgba(111, 127, 95, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--body);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.cloud-notice-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: -1px;
+}
+
+.cloud-notice-text strong {
+  color: var(--ink);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+/* Actionable Cloud Feedback Card */
+.cloud-feedback-card {
+  padding: 0.95rem 1.15rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  animation: fadeIn 0.2s ease;
+}
+
+.cloud-feedback-card .feedback-icon {
+  font-size: 1.15rem;
+  font-weight: bold;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.cloud-feedback-card .feedback-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cloud-feedback-card .feedback-text strong {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.cloud-feedback-card .feedback-hint {
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  opacity: 0.9;
+  margin-top: 0.2rem;
+  padding-top: 0.25rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.cloud-feedback-card.is-success {
+  background: rgba(111, 127, 95, 0.12);
+  border: 1px solid var(--accent-olive);
+  color: #26381C;
+}
+.cloud-feedback-card.is-success .feedback-icon {
+  color: var(--accent-olive);
+}
+
+.cloud-feedback-card.is-error {
+  background: rgba(181, 58, 58, 0.08);
+  border: 1px solid var(--danger);
+  color: #7D1D1D;
+}
+.cloud-feedback-card.is-error .feedback-icon {
+  color: var(--danger);
+}
+
+.cloud-feedback-card.is-loading {
+  background: rgba(181, 84, 58, 0.08);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+/* ============================================================================
+   Phase 14: Document Vault Manager, Client Security Log & Plaintext Viewer
+   ============================================================================ */
+
+/* Ingested Document Vault Panel */
+.doc-vault-panel {
+  margin-top: 1.5rem;
+}
+
+.vault-tools-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.doc-vault-table-wrap {
+  margin-top: 0.85rem;
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+
+.doc-actions-cell {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.btn-table-action {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--body);
+  border-radius: var(--radius-sm);
+  padding: 0.22rem 0.55rem;
+  font-size: 0.76rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+.btn-table-action:hover {
+  background: var(--canvas);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-table-action.action-delete:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(181, 58, 58, 0.08);
+}
+
+/* Client Security & Audit Activity Console */
+.client-log-panel {
+  margin-top: 2rem;
+  border-top: 2px solid var(--hairline);
+  padding-top: 1.5rem;
+}
+
+.client-log-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 0.65rem 0.95rem;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+}
+
+.filter-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.log-filter-btn {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+.log-filter-btn:hover {
+  color: var(--body-strong);
+  border-color: var(--muted);
+}
+
+.log-filter-btn.active {
+  background: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+}
+
+.log-chain-status {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--body);
+}
+
+.client-log-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 0.85rem;
+  background: #181412;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: #D6CEC5;
+}
+
+.log-feed-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #8C827A;
+  font-style: italic;
+  font-family: var(--font-sans);
+}
+
+.log-item-row {
+  display: flex;
+  flex-direction: column;
+  padding: 0.6rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.log-item-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.log-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.log-item-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.log-item-seq {
+  color: #8C827A;
+  font-size: 0.74rem;
+}
+
+.log-item-time {
+  color: #A39990;
+  font-size: 0.74rem;
+}
+
+.log-cat-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.log-cat-INGESTION { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.log-cat-SEARCH { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+.log-cat-SECURITY { background: rgba(181, 84, 58, 0.2); color: #F0A080; border: 1px solid rgba(181, 84, 58, 0.4); }
+.log-cat-KEY_MANAGEMENT { background: rgba(167, 139, 250, 0.15); color: #c084fc; border: 1px solid rgba(167, 139, 250, 0.3); }
+.log-cat-CLOUD { background: rgba(111, 127, 95, 0.2); color: #A4B892; border: 1px solid rgba(111, 127, 95, 0.4); }
+
+.log-item-event {
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.log-item-status {
+  font-size: 0.7rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: var(--radius-pill);
+}
+
+.log-item-status.status-SUCCESS { color: #86efac; background: rgba(134, 239, 172, 0.1); }
+.log-item-status.status-VERIFIED { color: #86efac; background: rgba(134, 239, 172, 0.1); }
+.log-item-status.status-WARNING { color: #fde047; background: rgba(253, 224, 71, 0.1); }
+.log-item-status.status-TAMPER_DETECTED { color: #fca5a5; background: rgba(252, 165, 165, 0.15); font-weight: bold; }
+.log-item-status.status-ERROR { color: #fca5a5; background: rgba(252, 165, 165, 0.15); }
+
+.log-item-details-box {
+  margin-top: 0.45rem;
+  padding: 0.45rem 0.65rem;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  font-size: 0.74rem;
+  color: #B5ABA2;
+  word-break: break-all;
+  line-height: 1.45;
+}
+
+.log-detail-line {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.log-detail-k {
+  color: #8C827A;
+  min-width: 110px;
+}
+
+.log-detail-v {
+  color: #EDE4D8;
+}
+
+/* Decrypted Document Viewer Modal */
+.doc-viewer-modal {
+  max-width: 680px;
+  width: 90vw;
+}
+
+.doc-viewer-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  padding: 0.75rem 0.95rem;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.15rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.doc-viewer-meta-bar strong {
+  color: var(--body-strong);
+}
+
+.doc-viewer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.doc-viewer-body textarea {
+  resize: vertical;
+  line-height: 1.5;
+  font-size: 0.85rem;
+  background: #FFFFFF;
+}
+

@@ -153,4 +153,38 @@ describe("Vault Cloud REST API & Audit Microservice (server_app.test.ts)", async
       await app.close();
     }
   });
+
+  it("deletes stored blob via DELETE /api/v1/blobs/:ref and records in audit log", async () => {
+    const app = new VaultServerApp();
+    const port = await app.listen(0);
+    const baseUrl = `http://localhost:${port}`;
+
+    try {
+      const docRef = "test_blob_to_delete_ref";
+      app.blobStore.putBlob({
+        docRef,
+        ivHex: "11".repeat(12),
+        ciphertextHex: "22".repeat(32),
+        sizeBytes: 32,
+        uploadedAt: Date.now(),
+      });
+      assert.ok(app.blobStore.hasBlob(docRef));
+
+      const delRes = await fetch(`${baseUrl}/api/v1/blobs/${docRef}`, {
+        method: "DELETE",
+      });
+      assert.equal(delRes.status, 200);
+      const delData = (await delRes.json()) as any;
+      assert.equal(delData.success, true);
+      assert.equal(delData.deleted, true);
+      assert.equal(app.blobStore.hasBlob(docRef), false);
+
+      const secondDelRes = await fetch(`${baseUrl}/api/v1/blobs/${docRef}`, {
+        method: "DELETE",
+      });
+      assert.equal(secondDelRes.status, 404);
+    } finally {
+      await app.close();
+    }
+  });
 });
