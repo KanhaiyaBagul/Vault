@@ -13,12 +13,15 @@ import { ZeroKnowledgeAuditLogger } from "./audit_logger.ts";
 import { ServerBlindStore, type SearchTrapdoorToken } from "../engine/server_store.ts";
 import type { BlindIndexEntry } from "../engine/blind_index.ts";
 import { ServerSearchController } from "./search_controller.ts";
+import { CloudStorageFactory, type CloudStorageConfig } from "./cloud/index.ts";
 
 export interface VaultServerOptions {
   kAddr?: CryptoKey; // Optional: server-side trapdoor evaluation key (if delegated)
+  cloudConfig?: Partial<CloudStorageConfig>;
 }
 
 export class VaultServerApp {
+  public readonly cloudFactory: CloudStorageFactory;
   public readonly blobStore: EncryptedBlobStore;
   public readonly blindStore: ServerBlindStore;
   public readonly auditLogger: ZeroKnowledgeAuditLogger;
@@ -27,7 +30,8 @@ export class VaultServerApp {
   private server?: http.Server;
 
   constructor(options: VaultServerOptions = {}) {
-    this.blobStore = new EncryptedBlobStore();
+    this.cloudFactory = new CloudStorageFactory(options.cloudConfig);
+    this.blobStore = new EncryptedBlobStore(this.cloudFactory.getProvider());
     this.blindStore = new ServerBlindStore();
     this.auditLogger = new ZeroKnowledgeAuditLogger();
     this.searchController = new ServerSearchController(this.blindStore);
@@ -127,6 +131,7 @@ export class VaultServerApp {
         this.sendJson(res, 200, {
           success: true,
           status: "healthy",
+          cloudProvider: this.blobStore.getProviderName(),
           storedBlobs: this.blobStore.size(),
           blindEntries: this.blindStore.size(),
           auditEntries: this.auditLogger.size(),
@@ -212,7 +217,7 @@ export class VaultServerApp {
       // 4. Download Blob: GET /api/v1/blobs/:ref
       if (method === "GET" && pathname.startsWith("/api/v1/blobs/")) {
         const docRef = pathname.replace("/api/v1/blobs/", "").trim();
-        const blob = this.blobStore.getBlob(docRef);
+        const blob = await this.blobStore.getBlobAsync(docRef);
 
         if (!blob) {
           this.sendJson(res, 404, {
@@ -225,6 +230,7 @@ export class VaultServerApp {
         // Record retrieval in audit log
         await this.auditLogger.logOperation("RETRIEVE_BLOB", {
           docRef,
+          provider: this.blobStore.getProviderName(),
           sizeBytes: blob.sizeBytes,
         });
 
@@ -232,6 +238,56 @@ export class VaultServerApp {
           success: true,
           blob,
         });
+        return;
+      }
+
+      // 4b. Cloud Storage Status: GET /api/v1/cloud/status
+      if (method === "GET" && pathname === "/api/v1/cloud/status") {
+        const health = await this.cloudFactory.getProvider().healthCheck();
+        this.sendJson(res, 200, {
+          success: true,
+          provider: this.cloudFactory.getProvider().providerName,
+          health,
+          config: this.cloudFactory.getConfig(),
+          storedBlobs: this.blobStore.size(),
+        });
+        return;
+      }
+
+      // 4c. Cloud Storage Configuration: POST /api/v1/cloud/config
+      if (method === "POST" && pathname === "/api/v1/cloud/config") {
+        const body = await this.parseJsonBody<CloudStorageConfig>(req);
+        if (!body.provider) {
+          this.sendJson(res, 400, {
+            success: false,
+            error: "provider field is required ('memory', 'disk', 's3', 'supabase')",
+          });
+          return;
+        }
+
+        try {
+          const health = await this.cloudFactory.switchProvider(body);
+          this.blobStore.setProvider(this.cloudFactory.getProvider());
+
+          await this.auditLogger.logOperation("CLOUD_PROVIDER_SWITCHED", {
+            provider: body.provider,
+            bucket: health.bucket || "local",
+            status: health.ok ? "CONNECTED" : "FAILED",
+          });
+
+          this.sendJson(res, 200, {
+            success: true,
+            provider: body.provider,
+            health,
+            config: this.cloudFactory.getConfig(),
+          });
+        } catch (err: unknown) {
+          const error = err as Error;
+          this.sendJson(res, 400, {
+            success: false,
+            error: error.message,
+          });
+        }
         return;
       }
 

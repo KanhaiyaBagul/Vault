@@ -4,3 +4,5 @@ Thumbs.db
 dist/
 *.log
 Clusion/
+.vault_storage/
+
