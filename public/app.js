@@ -497,6 +497,20 @@ class VaultAppController {
     // Audit verification
     this.btnVerifyAuditChain.addEventListener("click", () => this.refreshAuditChain());
 
+    // View Mode Switcher (Client Vault / Split View / Security Lab)
+    const appContainer = document.querySelector(".app-container");
+    if (appContainer) {
+      appContainer.classList.add("view-client");
+      document.querySelectorAll(".view-tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".view-tab-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          appContainer.classList.remove("view-client", "view-split", "view-inspector");
+          appContainer.classList.add(`view-${btn.dataset.view}`);
+        });
+      });
+    }
+
     // Initial entropy check
     this.updatePasswordEntropy();
   }

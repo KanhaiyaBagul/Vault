@@ -36,6 +36,29 @@
         </div>
       </div>
 
+      <!-- Mode View Tabs: Client Vault (Clean), Split View, Cloud Lab -->
+      <div class="view-mode-tabs">
+        <button type="button" class="view-tab-btn active" data-view="client" title="Focused client document vault & search">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Client Vault
+        </button>
+        <button type="button" class="view-tab-btn" data-view="split" title="Dual side-by-side view (Client vs Cloud)">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="12" y1="3" x2="12" y2="21"></line>
+          </svg>
+          Split View
+        </button>
+        <button type="button" class="view-tab-btn" data-view="inspector" title="Untrusted Cloud Lens, Attacker Simulator & Audit Log">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
+          Cloud &amp; Security Lab
+        </button>
+      </div>
+
       <div class="header-badges">
         <div class="security-chip" id="cryptoStatusChip">
           <span class="status-dot dot-warn"></span>
@@ -70,16 +93,12 @@
             <label for="masterPasswordInput" class="field-label">Master Password</label>
             <input type="password" id="masterPasswordInput" class="input-text" placeholder="Enter high-entropy enterprise master password..." value="EnterpriseVault2026!Secure">
           </div>
-          <div class="input-field-group flex-1">
-            <label for="saltInput" class="field-label">Cryptographic Salt (16-byte hex)</label>
-            <input type="text" id="saltInput" class="input-text monospace" placeholder="Auto-generated on initialize...">
-          </div>
           <div class="btn-group-align">
             <button id="btnDeriveKeys" class="btn btn-primary">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 2l-2 2m-1-1l-3 3m0 0l-3-3m3 3l-2 2m-2-2l-3 3m3-3l-2 2m-2-2l-3 3m3-3L2 21"></path>
               </svg>
-              Derive Subkeys
+              Unlock Vault &amp; Derive Keys
             </button>
             <button id="btnLoadSampleData" class="btn btn-secondary" title="Populates 4 sample enterprise documents (Tax, Audit, Payroll, Compliance)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -93,28 +112,45 @@
           </div>
         </div>
 
-        <div class="subkeys-grid" id="subkeysGrid">
-          <div class="subkey-item">
-            <span class="subkey-name">K_enc (AES-256-GCM)</span>
-            <span class="subkey-status" id="statusKEnc">Pending Derivation</span>
+        <!-- Collapsible Advanced Crypto Diagnostics (Salt & 5 Subkeys) -->
+        <details class="advanced-crypto-toggle" id="advancedCryptoDetails">
+          <summary class="toggle-summary">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Advanced Cryptographic Parameters &amp; Subkey Telemetry</span>
+            <span class="toggle-hint">(Salt &amp; K_enc, K_trap, K_addr, K_mask, K_auth)</span>
+          </summary>
+          <div class="advanced-crypto-body">
+            <div class="input-field-group">
+              <label for="saltInput" class="field-label">Cryptographic Salt (16-byte hex)</label>
+              <input type="text" id="saltInput" class="input-text monospace" placeholder="Auto-generated on initialize...">
+            </div>
+            <div class="subkeys-grid" id="subkeysGrid">
+              <div class="subkey-item">
+                <span class="subkey-name">K_enc (AES-256-GCM)</span>
+                <span class="subkey-status" id="statusKEnc">Pending Derivation</span>
+              </div>
+              <div class="subkey-item">
+                <span class="subkey-name">K_trap (HMAC-SHA256)</span>
+                <span class="subkey-status" id="statusKTrap">Pending Derivation</span>
+              </div>
+              <div class="subkey-item">
+                <span class="subkey-name">K_addr (HMAC-SHA256)</span>
+                <span class="subkey-status" id="statusKAddr">Pending Derivation</span>
+              </div>
+              <div class="subkey-item">
+                <span class="subkey-name">K_mask (HMAC-SHA256)</span>
+                <span class="subkey-status" id="statusKMask">Pending Derivation</span>
+              </div>
+              <div class="subkey-item">
+                <span class="subkey-name">K_auth (HMAC-SHA256)</span>
+                <span class="subkey-status" id="statusKAuth">Pending Derivation</span>
+              </div>
+            </div>
           </div>
-          <div class="subkey-item">
-            <span class="subkey-name">K_trap (HMAC-SHA256)</span>
-            <span class="subkey-status" id="statusKTrap">Pending Derivation</span>
-          </div>
-          <div class="subkey-item">
-            <span class="subkey-name">K_addr (HMAC-SHA256)</span>
-            <span class="subkey-status" id="statusKAddr">Pending Derivation</span>
-          </div>
-          <div class="subkey-item">
-            <span class="subkey-name">K_mask (HMAC-SHA256)</span>
-            <span class="subkey-status" id="statusKMask">Pending Derivation</span>
-          </div>
-          <div class="subkey-item">
-            <span class="subkey-name">K_auth (HMAC-SHA256)</span>
-            <span class="subkey-status" id="statusKAuth">Pending Derivation</span>
-          </div>
-        </div>
+        </details>
       </div>
     </section>
 
