@@ -9,9 +9,9 @@
 - Phase 5 — Untrusted Server Backend & Zero-Knowledge Audit Logger (11/11 tests)
 - Phase 6 — Client Integration, Interactive Web UI & Verification (6/6 tests)
 - Phase 7 — Linear UI/UX Redesign & Custom Color Palette System (96/96 project total)
-**Active Phase:** All Planned Phases Complete  
-**Execution Mode:** Active / Ready for Deployment  
-**Status:** All 7 Phases Verified & 100% Green  
+**Active Phase:** Phase 8 — Claude Warm-Editorial UI/UX with Luxury Swatch Palette  
+**Execution Mode:** Active Planning  
+**Status:** In Progress  
 
 ---
 
@@ -26,6 +26,24 @@
 | **Phase 5** | Untrusted Server Backend & Zero-Knowledge Audit Logger | **COMPLETED** | 11 / 11 |
 | **Phase 6** | Client Integration, Interactive Web UI & Verification | **COMPLETED** | 6 / 6 |
 | **Phase 7** | Linear UI/UX Redesign & Custom Color Palette System | **COMPLETED** | 96 / 96 |
+| **Phase 8** | Claude Warm-Editorial UI/UX with Luxury Swatch Palette | **ACTIVE** | Planning & Implementation |
+
+---
+
+## Phase 8 Wave Status
+
+- [x] **Wave 1: Design Tokens & Editorial CSS Architecture (`public/styles.css`)**
+  - [x] Task 1.1: Define CSS custom properties mapped to Claude design roles & user swatch (Limestone, Terracotta, Rust, Olive)
+  - [x] Task 1.2: Implement Editorial Typography (Cormorant Garamond display serif, Inter humanist sans, JetBrains Mono code)
+  - [x] Task 1.3: Component styling: Terracotta CTAs (8px radius), Limestone feature cards (12px radius), Deep Rust product chrome
+- [x] **Wave 2: Layout & Semantic HTML Adjustments (`public/index.html`)**
+  - [x] Task 2.1: Google Font imports for Cormorant Garamond, Inter, and JetBrains Mono
+  - [x] Task 2.2: Brand header with warm editorial mark and serif title
+  - [x] Task 2.3: Preservation of all existing DOM IDs (`btnDeriveKeys`, `resultsContainer`, `blindIndexTableBody`, etc.)
+- [ ] **Wave 3: Integration, Regression Verification & Execution**
+  - [ ] Task 3.1: Verify `public/app.js` works cleanly with editorial styling
+  - [ ] Task 3.2: Verify `ui_routes.test.ts` and run full regression (`npm test` 96/96 green)
+  - [ ] Task 3.3: Visual inspection via browser subagent and git commit
 
 ---
 

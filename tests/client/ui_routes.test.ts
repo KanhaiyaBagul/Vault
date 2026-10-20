@@ -24,9 +24,10 @@ describe("Web UI Static Asset Serving (ui_routes.test.ts)", async () => {
       assert.ok(cssRes.headers.get("content-type")?.includes("text/css"));
       const cssText = await cssRes.text();
       assert.ok(cssText.includes("--canvas"));
-      assert.ok(cssText.includes("--racing-red"));
-      assert.ok(cssText.includes("--black-cherry"));
-      assert.ok(cssText.includes("--alabaster"));
+      assert.ok(cssText.includes("--surface-card"));
+      assert.ok(cssText.includes("--primary"));
+      assert.ok(cssText.includes("--surface-dark"));
+      assert.ok(cssText.includes("--accent-olive"));
 
       // 3. GET /app.js -> app.js
       const jsRes = await fetch(`${baseUrl}/app.js`);

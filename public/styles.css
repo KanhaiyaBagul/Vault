@@ -1,77 +1,99 @@
 /* ==========================================================================
-   VAULT SSE // Linear Precision-Engineered Design System
-   Architecture: True Linear Near-Black (#08090A) & Layered Charcoal Surfaces
-   Precision Accents: Racing Red (#DD0200), Black Cherry (#55100D), Alabaster Grey (#D9D9D9)
-   Specification: DESIGN.md Linear Aesthetic with Pill CTAs, Hairlines & Inter Typography
+   VAULT SSE // Claude Warm-Editorial Design System
+   Architecture: Tinted Cream Canvas (#FAF8F5) with Soft Limestone (#F0E6D8)
+   Product Chrome: Deep Rust (#5A2E25 / #22120E) Code & Cloud Lens
+   Accents: Terracotta Clay (#B5543A) & Olive Accent (#6F7F5F)
+   Typography: Cormorant Garamond (Display Serif) + Inter (Humanist Sans) + JetBrains Mono
+   Specification: Claude Editorial Interface System with Luxury Swatch Palette
    ========================================================================== */
 
 :root {
-  /* True Linear Near-Black Architecture */
-  --canvas: #08090A;                 /* Deep Linear neutral canvas */
-  --canvas-subtle: #0D0E12;          /* Inset code, input & table background */
-  --surface: #12141A;                /* Neutral charcoal layered surface */
-  --surface-raised: #181B22;         /* Elevated card surface */
-  --surface-hover: #21242E;          /* Interactive hover tier */
+  /* --------------------------------------------------------------------------
+     1. Color Palette: Warm-Editorial Canvas & Luxury Swatch Mapping
+     -------------------------------------------------------------------------- */
+  /* Canvas & Cream Layering */
+  --canvas: #FAF8F5;                 /* Warm tinted cream body floor */
+  --canvas-subtle: #F3ECE2;          /* Inset input & card background */
+  --surface-card: #F0E6D8;           /* Soft Limestone primary card surface */
+  --surface-soft: #F5EFE6;           /* Subtle secondary surface tier */
+  --surface-cream-strong: #E8DFD1;   /* Selected tab & emphasized category surface */
+  --surface-hover: #EBE1D3;          /* Interactive hover tier on cream */
 
-  /* Precision Palette Accents */
-  --black-cherry: #55100D;           /* Rich Black Cherry for active tabs & subtle accents */
-  --black-cherry-tint: rgba(85, 16, 13, 0.25);
-  --black-cherry-border: #6B1612;
+  /* Dark Product Chrome (Deep Rust) */
+  --surface-dark: #22120E;           /* Deep Rust dark product base */
+  --surface-dark-elevated: #301A15;  /* Elevated code panels & dark card containers */
+  --surface-dark-soft: #2A1612;      /* Code window inner background */
+  --surface-dark-accent: #5A2E25;    /* Deep Rust border & table header tone */
+  --surface-dark-hover: #3C211B;     /* Interactive row hover on dark */
 
-  --racing-red: #DD0200;             /* Vibrant Racing Red for primary CTAs & focus rings */
-  --racing-red-hover: #F81916;
-  --racing-red-active: #B50200;
-  --racing-red-glow: rgba(221, 2, 0, 0.22);
-  --racing-red-dim: rgba(221, 2, 0, 0.12);
+  /* Terracotta Clay Primary Accent */
+  --primary: #B5543A;                /* Terracotta Clay signature CTA button */
+  --primary-active: #96422C;         /* Press/active darkened variant */
+  --primary-disabled: #E5DDD4;       /* Disabled CTA background on cream */
+  --primary-focus-ring: rgba(181, 84, 58, 0.2);
+  --primary-dim: rgba(181, 84, 58, 0.1);
 
-  --coffee-bean: #1A0706;            /* Deep Coffee Bean tone for subtle depth */
+  /* Olive Accent (Cryptographic Proofs & Verifiability) */
+  --accent-olive: #6F7F5F;           /* Olive Accent for verified integrity & proofs */
+  --accent-olive-soft: rgba(111, 127, 95, 0.16);
+  --accent-olive-dim: rgba(111, 127, 95, 0.1);
 
-  /* Neutral Linear Typography & Ink */
-  --alabaster: #D9D9D9;              /* Alabaster Grey primary ink */
-  --ink: #D9D9D9;
-  --ink-secondary: #A0A7B5;          /* Cool silver secondary */
-  --muted: #656C7A;                  /* Muted mid-tier text */
-  --subtle: #3E434F;                 /* Faint label text */
-  --faint: #262932;
+  /* Typography Inks */
+  --ink: #1A1715;                    /* Warm dark ink for display headlines */
+  --body: #3E3A36;                   /* Warm dark body text */
+  --body-strong: #252320;            /* Emphasized labels and sub-headings */
+  --muted: #736D66;                  /* Secondary text, hints, placeholders */
+  --muted-soft: #918B82;             /* Fine print, captions */
 
-  /* Structural Hairlines & Borders (Clean Neutral Linear Hairlines) */
-  --hairline: #1F232B;
-  --border: #282C37;
-  --border-strong: #383D4C;
-  --border-focus: #DD0200;
+  /* Text on Dark Product Chrome */
+  --on-dark: #FAF8F5;                /* Cream text on dark rust product chrome */
+  --on-dark-soft: #A69E96;           /* Muted labels & hashes on dark */
+  --on-primary: #FFFFFF;             /* Crisp white text on Terracotta buttons */
 
-  /* Status Colors */
-  --success: #27A644;                /* Linear Emerald for verified integrity */
-  --success-glow: rgba(39, 166, 68, 0.25);
-  --success-dim: rgba(39, 166, 68, 0.12);
-  --warning: #F59E0B;
-  --warning-dim: rgba(245, 158, 11, 0.12);
-  --danger: #DD0200;
-  --danger-dim: rgba(221, 2, 0, 0.14);
+  /* Structural Hairlines & Borders */
+  --hairline: #E0D6C8;               /* 1px soft border on cream surfaces */
+  --hairline-soft: #EBE5DC;          /* Barely visible divider on cream */
+  --border: #D6CAB8;                 /* Stronger division border */
+  --border-strong: #BFB19D;          /* High-contrast divider */
+  --border-dark: rgba(90, 46, 37, 0.6);
 
-  /* Typography */
-  --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Semantic Alerts */
+  --success: #6F7F5F;                /* Olive Accent for cryptographic pass */
+  --warning: #D4A017;
+  --warning-dim: rgba(212, 160, 23, 0.12);
+  --danger: #B53A3A;                 /* Red alert for attacker injection */
+  --danger-dim: rgba(181, 58, 58, 0.12);
+
+  /* --------------------------------------------------------------------------
+     2. Editorial Typography
+     -------------------------------------------------------------------------- */
+  --font-display: "Cormorant Garamond", "Tiempos Headline", "Copernicus", Georgia, serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Geometry & Radii */
-  --radius-xs: 3px;
+  /* --------------------------------------------------------------------------
+     3. Geometry & Radii
+     -------------------------------------------------------------------------- */
+  --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-pill: 9999px;
+  --radius-md: 8px;                  /* Standard button & text-input radius */
+  --radius-lg: 12px;                 /* Content cards & product mockup windows */
+  --radius-xl: 16px;
+  --radius-pill: 9999px;             /* Badges & category pills */
 
-  /* Elevations */
-  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--hairline);
-  --shadow-elevated: 0 12px 36px -4px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border);
-  --shadow-red-glow: 0 0 20px -2px var(--racing-red-glow);
+  /* --------------------------------------------------------------------------
+     4. Elevations (Color-Block First, Shadow Rare)
+     -------------------------------------------------------------------------- */
+  --shadow-subtle: 0 1px 3px rgba(26, 23, 21, 0.05);
+  --shadow-card: 0 2px 8px -1px rgba(26, 23, 21, 0.06), 0 0 0 1px var(--hairline);
+  --shadow-dark: 0 6px 24px -2px rgba(18, 9, 7, 0.5), 0 0 0 1px var(--border-dark);
 
-  /* Legacy & compatibility aliases */
+  /* Compatibility Aliases for Legacy Tests */
   --bg-dark: var(--canvas);
-  --neon-cyan: var(--racing-red);
-  --accent-cyan: var(--racing-red);
-  --accent-cyan-hover: var(--racing-red-hover);
-  --accent-cyan-dim: var(--racing-red-dim);
-  --accent-cyan-glow: var(--racing-red-glow);
+  --neon-cyan: var(--primary);
+  --racing-red: var(--primary);
+  --black-cherry: var(--surface-dark-accent);
+  --alabaster: var(--surface-card);
 }
 
 /* ==========================================================================
@@ -87,10 +109,10 @@
 body {
   font-family: var(--font-sans);
   background-color: var(--canvas);
-  color: var(--ink);
+  color: var(--body);
   min-height: 100vh;
-  line-height: 1.5;
-  font-size: 14px;
+  line-height: 1.55;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -100,18 +122,18 @@ body {
 /* Monospace Helpers */
 .monospace {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
-  letter-spacing: -0.015em;
+  font-size: 0.84rem;
+  letter-spacing: 0;
 }
 
-/* Subtle Linear Ambient Lighting (Non-Intrusive Faint Vignette) */
+/* Subtle Warm Atmospheric Lighting (Deliberately Soft & Warm) */
 .ambient-glow {
   position: fixed;
   border-radius: 50%;
   filter: blur(140px);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.12;
+  opacity: 0.15;
 }
 
 .glow-1 {
@@ -119,7 +141,7 @@ body {
   height: 600px;
   top: -200px;
   left: -100px;
-  background: radial-gradient(circle, rgba(60, 68, 85, 0.5) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(240, 230, 216, 0.8) 0%, transparent 70%);
 }
 
 .glow-2 {
@@ -127,7 +149,7 @@ body {
   height: 500px;
   top: 30%;
   right: -100px;
-  background: radial-gradient(circle, rgba(221, 2, 0, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(181, 84, 58, 0.15) 0%, transparent 70%);
 }
 
 .glow-3 {
@@ -135,81 +157,85 @@ body {
   height: 550px;
   bottom: -150px;
   left: 20%;
-  background: radial-gradient(circle, rgba(45, 50, 65, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(232, 223, 209, 0.7) 0%, transparent 70%);
 }
 
 /* App Container */
 .app-container {
   position: relative;
   z-index: 1;
-  max-width: 1440px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 1.25rem 2rem 3rem 2rem;
+  padding: 2rem 2rem 4rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 /* ==========================================================================
-   Header (Linear Style: Clean, Precision Layout)
+   Header (Claude Editorial Navigation: Warm, Literary, Grounded)
    ========================================================================== */
 
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.85rem 1.4rem;
-  background: rgba(18, 20, 26, 0.85);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
+  padding: 1rem 1.6rem;
+  background: var(--surface-card);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-subtle);
 }
 
 .brand-group {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.95rem;
 }
 
+/* Anthropic 4-Spoke Radial Asterisk Spark Mark */
 .brand-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, #1C1F28, #12141A);
-  border: 1px solid var(--border-strong);
-  color: var(--racing-red);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--primary);
+  flex-shrink: 0;
 }
 
 .brand-title-wrap {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .brand-title {
-  font-size: 1.15rem;
-  font-weight: 590;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 500;
   letter-spacing: -0.025em;
-  color: var(--alabaster);
+  color: var(--ink);
+  line-height: 1.15;
 }
 
 .brand-subtitle {
-  font-size: 0.8rem;
-  color: var(--ink-secondary);
-  letter-spacing: -0.01em;
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0;
+  font-weight: 400;
 }
 
-/* Mode View Switcher */
+/* Mode View Switcher (Claude Editorial Category Tabs) */
 .view-mode-tabs {
   display: flex;
-  background: var(--canvas-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 0.2rem;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 0.25rem;
   gap: 0.25rem;
 }
 
@@ -218,14 +244,14 @@ body {
   border: none;
   color: var(--muted);
   font-family: var(--font-sans);
-  font-size: 0.76rem;
-  font-weight: 510;
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
@@ -235,218 +261,224 @@ body {
 }
 
 .view-tab-btn:hover {
-  color: var(--alabaster);
-  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  background: var(--surface-soft);
 }
 
 .view-tab-btn.active {
-  color: #FFFFFF;
-  background: var(--surface-raised);
-  border: 1px solid var(--border-strong);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  color: var(--ink);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(26, 23, 21, 0.05);
 }
 
 .header-badges {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.65rem;
 }
 
 .security-chip {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.35rem 0.85rem;
-  background: rgba(24, 27, 34, 0.8);
+  padding: 0.4rem 0.9rem;
+  background: var(--canvas);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-pill);
-  font-size: 0.78rem;
-  color: var(--ink-secondary);
+  font-size: 0.76rem;
+  color: var(--body);
 }
 
 .security-chip strong {
-  color: var(--alabaster);
-  font-weight: 510;
+  color: var(--ink);
+  font-weight: 500;
 }
 
 .status-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .dot-emerald {
-  background: var(--success);
-  box-shadow: 0 0 8px var(--success);
+  background: var(--accent-olive);
 }
 
 .dot-warn {
   background: var(--warning);
-  box-shadow: 0 0 8px var(--warning);
 }
 
 .dot-danger {
-  background: var(--racing-red);
-  box-shadow: 0 0 8px var(--racing-red);
+  background: var(--danger);
 }
 
 /* ==========================================================================
-   Badges & Tags (Linear Pill Micro-Components)
+   Badges & Tags (Editorial Pill Accents)
    ========================================================================== */
 
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.55rem;
+  padding: 0.25rem 0.65rem;
   border-radius: var(--radius-pill);
-  font-size: 0.68rem;
-  font-weight: 510;
-  letter-spacing: 0.03em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   line-height: 1.2;
 }
 
 .badge-pulse {
-  background: var(--racing-red-dim);
-  color: var(--racing-red);
-  border: 1px solid rgba(221, 2, 0, 0.35);
-  animation: pulse-red 2.8s infinite;
+  background: var(--primary-dim);
+  color: var(--primary);
+  border: 1px solid rgba(181, 84, 58, 0.3);
 }
 
 .badge-emerald {
-  background: var(--success-dim);
-  color: var(--success);
-  border: 1px solid rgba(39, 166, 68, 0.35);
+  background: var(--accent-olive-soft);
+  color: var(--accent-olive);
+  border: 1px solid rgba(111, 127, 95, 0.35);
+  font-weight: 600;
 }
 
 .badge-cyan {
-  background: rgba(36, 40, 52, 0.7);
-  color: var(--alabaster);
-  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
 }
 
 .badge-amber {
   background: var(--warning-dim);
-  color: var(--warning);
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #9E7409;
+  border: 1px solid rgba(212, 160, 23, 0.3);
 }
 
 .badge-crimson {
   background: var(--danger-dim);
-  color: var(--racing-red);
-  border: 1px solid rgba(221, 2, 0, 0.45);
+  color: var(--danger);
+  border: 1px solid rgba(181, 58, 58, 0.35);
 }
 
 .badge-sm {
-  font-size: 0.64rem;
-  padding: 0.15rem 0.45rem;
+  font-size: 0.66rem;
+  padding: 0.15rem 0.5rem;
 }
 
 .tag {
-  font-size: 0.72rem;
-  color: var(--ink-secondary);
-  background: rgba(30, 34, 44, 0.6);
-  padding: 0.2rem 0.55rem;
+  font-size: 0.74rem;
+  color: var(--muted);
+  background: var(--canvas);
+  padding: 0.25rem 0.65rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--hairline);
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 .tag-crimson {
-  color: var(--racing-red);
-  border-color: rgba(221, 2, 0, 0.35);
-  background: var(--racing-red-dim);
+  color: var(--danger);
+  border-color: rgba(181, 58, 58, 0.3);
+  background: var(--danger-dim);
 }
 
 /* ==========================================================================
-   Linear Layered Panels & Cards
+   Panels & Feature Cards (Soft Limestone Canvas Mode)
    ========================================================================== */
 
 .panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--surface-card);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: 1.35rem;
+  padding: 1.6rem;
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 1.25rem;
 }
 
 .card-glass {
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-md);
-  padding: 1.15rem;
+  padding: 1.35rem;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1rem;
+  box-shadow: var(--shadow-subtle);
 }
 
 .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .panel-title-group {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .panel-title {
-  font-size: 0.98rem;
-  font-weight: 590;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 500;
   letter-spacing: -0.02em;
-  color: var(--alabaster);
+  color: var(--ink);
+  line-height: 1.2;
 }
 
 .card-title {
-  font-size: 0.9rem;
-  font-weight: 590;
-  color: var(--alabaster);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--ink);
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   letter-spacing: -0.015em;
 }
 
 .card-hint {
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   color: var(--muted);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .card-hint code {
-  color: var(--alabaster);
-  background: rgba(36, 40, 52, 0.7);
-  padding: 0.1rem 0.35rem;
+  color: var(--ink);
+  background: var(--canvas-subtle);
+  padding: 0.15rem 0.4rem;
   border-radius: var(--radius-xs);
   border: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
 }
 
 /* ==========================================================================
-   Master Keygen Enclave Panel
+   Master Key Enclave Panel
    ========================================================================== */
 
 .keygen-panel {
-  border-top: 1px solid var(--border-strong);
-  background: var(--surface);
+  border-top: 3px solid var(--primary);
+  background: var(--surface-card);
 }
 
 .entropy-meter-wrap {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  font-size: 0.78rem;
-  color: var(--ink-secondary);
+  font-size: 0.8rem;
+  color: var(--muted);
+  flex-wrap: wrap;
 }
 
 .entropy-track {
-  width: 130px;
+  width: 140px;
   height: 6px;
-  background: var(--canvas-subtle);
+  background: var(--canvas);
   border-radius: var(--radius-pill);
   overflow: hidden;
   border: 1px solid var(--hairline);
@@ -455,14 +487,14 @@ body {
 .entropy-bar {
   height: 100%;
   width: 25%;
-  background: var(--racing-red);
+  background: var(--primary);
   transition: width 0.3s ease, background-color 0.3s ease;
 }
 
 .entropy-label {
-  font-weight: 510;
-  color: var(--ink-secondary);
-  min-width: 90px;
+  font-weight: 500;
+  color: var(--body);
+  min-width: 95px;
 }
 
 .keygen-body {
@@ -473,7 +505,7 @@ body {
 
 .input-row {
   display: flex;
-  gap: 0.85rem;
+  gap: 1rem;
   align-items: flex-end;
 }
 
@@ -483,25 +515,25 @@ body {
 .input-field-group {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .field-label {
-  font-size: 0.74rem;
-  font-weight: 510;
-  color: var(--ink-secondary);
-  letter-spacing: -0.01em;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--body-strong);
+  letter-spacing: 0;
 }
 
 .input-text, .input-textarea {
-  background: var(--canvas-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.6rem 0.8rem;
-  color: var(--alabaster);
-  font-size: 0.84rem;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.95rem;
+  color: var(--ink);
+  font-size: 0.88rem;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   width: 100%;
   font-family: var(--font-sans);
 }
@@ -511,22 +543,22 @@ body {
 }
 
 .input-text:focus, .input-textarea:focus {
-  border-color: var(--racing-red);
-  background: #101218;
-  box-shadow: 0 0 0 3px rgba(221, 2, 0, 0.16);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-focus-ring);
+  background: #FFFFFF;
 }
 
 .btn-group-align {
   display: flex;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 /* Collapsible Advanced Crypto Details */
 .advanced-crypto-toggle {
   margin-top: 0.35rem;
   border: 1px solid var(--hairline);
-  border-radius: var(--radius-sm);
-  background: var(--canvas-subtle);
+  border-radius: var(--radius-md);
+  background: var(--canvas);
   overflow: hidden;
   transition: all 0.2s ease;
 }
@@ -535,12 +567,12 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.55rem 0.85rem;
-  font-size: 0.76rem;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.8rem;
   color: var(--muted);
   cursor: pointer;
   user-select: none;
-  font-weight: 510;
+  font-weight: 500;
   transition: color 0.15s, background-color 0.15s;
 }
 
@@ -549,153 +581,153 @@ body {
 }
 
 .toggle-summary:hover {
-  color: var(--alabaster);
-  background: rgba(255, 255, 255, 0.02);
+  color: var(--ink);
+  background: var(--surface-soft);
 }
 
 .toggle-hint {
-  font-size: 0.7rem;
-  color: var(--subtle);
-  margin-left: 0.25rem;
+  font-size: 0.74rem;
+  color: var(--muted);
+  margin-left: 0.35rem;
 }
 
 .advanced-crypto-body {
-  padding: 0.85rem;
+  padding: 1rem;
   border-top: 1px solid var(--hairline);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 /* Subkeys Grid */
 .subkeys-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.6rem;
+  gap: 0.65rem;
 }
 
 .subkey-item {
-  background: var(--canvas-subtle);
+  background: var(--surface-card);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-sm);
-  padding: 0.55rem 0.7rem;
+  padding: 0.6rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
 }
 
 .subkey-name {
-  font-size: 0.72rem;
-  font-weight: 510;
-  color: var(--alabaster);
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--ink);
 }
 
 .subkey-status {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: var(--muted);
 }
 
 .subkey-status.active {
-  color: var(--success);
-  font-weight: 510;
+  color: var(--accent-olive);
+  font-weight: 600;
 }
 
 /* ==========================================================================
-   Buttons (Linear Spec: Pill CTAs with Inter 510 Weight)
+   Buttons (Claude Spec: Terracotta Clay 8px Radius, 40px Height)
    ========================================================================== */
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  padding: 0.55rem 1.1rem;
-  border-radius: var(--radius-pill);
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-md);
   font-family: var(--font-sans);
-  font-size: 0.82rem;
-  font-weight: 510;
+  font-size: 0.86rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.18s ease;
   border: 1px solid transparent;
   white-space: nowrap;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+  height: 40px;
 }
 
 .btn-sm {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.74rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
+  height: 32px;
 }
 
-/* Primary CTA: Racing Red */
+/* Primary CTA: Terracotta Clay */
 .btn-primary {
-  background: var(--racing-red);
-  color: #FFFFFF;
-  border-color: #EF1D1A;
-  box-shadow: 0 2px 10px rgba(221, 2, 0, 0.3);
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+  box-shadow: 0 1px 3px rgba(181, 84, 58, 0.2);
 }
 
 .btn-primary:hover {
-  background: var(--racing-red-hover);
-  box-shadow: 0 4px 16px rgba(221, 2, 0, 0.45);
+  background: var(--primary-active);
+  border-color: var(--primary-active);
   transform: translateY(-0.5px);
 }
 
 .btn-primary:active {
-  background: var(--racing-red-active);
+  background: #7D3522;
   transform: translateY(0);
 }
 
-/* Secondary CTA: Linear Neutral Charcoal */
+/* Secondary CTA: Soft Limestone / Cream */
 .btn-secondary {
-  background: var(--surface-raised);
-  color: var(--alabaster);
-  border: 1px solid var(--border-strong);
+  background: var(--canvas);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
 }
 
 .btn-secondary:hover {
-  background: var(--surface-hover);
-  border-color: #484E60;
-  color: #FFFFFF;
+  background: var(--surface-cream-strong);
+  border-color: var(--border);
 }
 
-/* Action Search Button -> Racing Red Pill */
+/* Action Search Button: Terracotta */
 .btn-cyan {
-  background: var(--racing-red);
-  color: #FFFFFF;
-  border-color: #EF1D1A;
-  box-shadow: 0 2px 10px rgba(221, 2, 0, 0.3);
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+  box-shadow: 0 1px 3px rgba(181, 84, 58, 0.2);
 }
 
 .btn-cyan:hover {
-  background: var(--racing-red-hover);
-  box-shadow: 0 0 14px var(--racing-red-glow);
+  background: var(--primary-active);
+  border-color: var(--primary-active);
 }
 
 /* Outlined Buttons */
 .btn-outline {
   background: transparent;
-  color: var(--ink-secondary);
-  border: 1px solid var(--border);
+  color: var(--body);
+  border: 1px solid var(--hairline);
 }
 
 .btn-outline:hover {
-  background: var(--surface-hover);
-  color: var(--alabaster);
-  border-color: var(--border-strong);
+  background: var(--surface-soft);
+  color: var(--ink);
+  border-color: var(--border);
 }
 
 /* Danger / Attacker Simulator Buttons */
 .btn-danger-outline {
-  background: rgba(221, 2, 0, 0.08);
-  color: #FFA5A3;
-  border: 1px solid rgba(221, 2, 0, 0.35);
+  background: var(--danger-dim);
+  color: #8C2525;
+  border: 1px solid rgba(181, 58, 58, 0.3);
 }
 
 .btn-danger-outline:hover {
-  background: rgba(221, 2, 0, 0.2);
-  color: #FFFFFF;
-  border-color: var(--racing-red);
-  box-shadow: 0 0 12px var(--racing-red-glow);
+  background: rgba(181, 58, 58, 0.2);
+  color: #6E1A1A;
+  border-color: var(--danger);
 }
 
 /* ==========================================================================
@@ -705,7 +737,7 @@ body {
 .split-view {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 1.5rem;
   transition: all 0.2s ease;
 }
 
@@ -722,14 +754,14 @@ body {
 .app-container.view-client .client-column {
   display: grid;
   grid-template-columns: 1fr 1.25fr;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .app-container.view-client .column-header {
   grid-column: 1 / -1;
 }
 
-/* 2. Cloud & Security Lab Mode (Untrusted Cloud, Simulator, Audit Log) */
+/* 2. Cloud & Security Lab Mode (Deep Rust Dark Product Chrome) */
 .app-container.view-inspector .client-column {
   display: none !important;
 }
@@ -741,7 +773,7 @@ body {
 .app-container.view-inspector .cloud-column {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .app-container.view-inspector .column-header {
@@ -756,7 +788,7 @@ body {
 .app-container.view-split .split-view {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .app-container.view-split .client-column,
@@ -768,48 +800,50 @@ body {
 .column {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 1.25rem;
 }
 
 .column-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 1.15rem;
+  padding: 0.9rem 1.3rem;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
 }
 
 .col-title-wrap {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.6rem;
 }
 
 .column-title {
-  font-size: 0.92rem;
-  font-weight: 590;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 500;
   letter-spacing: -0.015em;
 }
 
 .client-theme {
-  background: var(--surface);
-  border-left: 3px solid var(--alabaster);
-  color: var(--alabaster);
+  background: var(--surface-card);
+  border-left: 3px solid var(--ink);
+  color: var(--ink);
 }
 
 .client-theme svg {
-  color: var(--alabaster);
+  color: var(--ink);
 }
 
 .cloud-theme {
-  background: var(--surface);
-  border-left: 3px solid var(--racing-red);
-  color: var(--alabaster);
+  background: var(--surface-dark);
+  border-left: 3px solid var(--primary);
+  color: var(--on-dark);
+  border-color: var(--border-dark);
 }
 
 .cloud-theme svg {
-  color: var(--racing-red);
+  color: var(--primary);
 }
 
 /* ==========================================================================
@@ -817,31 +851,31 @@ body {
    ========================================================================== */
 
 .drop-zone {
-  border: 1.5px dashed var(--border-strong);
+  border: 1.5px dashed var(--border);
   border-radius: var(--radius-md);
-  padding: 1.4rem;
+  padding: 1.6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  background: rgba(13, 14, 18, 0.5);
+  gap: 0.5rem;
+  background: var(--surface-soft);
   transition: all 0.18s ease;
   cursor: pointer;
 }
 
 .drop-zone:hover, .drop-zone.drag-over {
-  border-color: var(--racing-red);
-  background: rgba(221, 2, 0, 0.04);
+  border-color: var(--primary);
+  background: rgba(181, 84, 58, 0.04);
 }
 
 .drop-zone svg {
-  color: var(--racing-red);
+  color: var(--primary);
 }
 
 .drop-text {
-  font-size: 0.78rem;
-  color: var(--ink-secondary);
+  font-size: 0.82rem;
+  color: var(--muted);
   text-align: center;
 }
 
@@ -852,12 +886,12 @@ body {
 .ingest-form {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .ingest-actions {
   display: flex;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 /* ==========================================================================
@@ -866,29 +900,29 @@ body {
 
 .search-bar-wrap {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
 .search-input {
-  font-size: 0.9rem;
-  padding: 0.65rem 0.95rem;
-  background: var(--canvas-subtle);
+  font-size: 0.92rem;
+  padding: 0.7rem 1.05rem;
+  background: var(--canvas);
 }
 
 .query-breakdown {
   display: flex;
-  gap: 1.15rem;
-  padding: 0.55rem 0.75rem;
-  background: var(--canvas-subtle);
+  gap: 1.25rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--canvas);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
 }
 
 .breakdown-item {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .breakdown-label {
@@ -902,8 +936,8 @@ body {
 .results-container {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  min-height: 170px;
+  gap: 0.75rem;
+  min-height: 180px;
 }
 
 .empty-state {
@@ -911,28 +945,29 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  padding: 2.5rem 1.5rem;
+  gap: 0.5rem;
+  padding: 2.8rem 1.5rem;
   color: var(--muted);
   text-align: center;
-  font-size: 0.82rem;
+  font-size: 0.86rem;
 }
 
 .doc-result-card {
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-md);
-  padding: 0.9rem;
+  padding: 1.05rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
-  border-left: 3px solid var(--racing-red);
+  gap: 0.55rem;
+  border-left: 3px solid var(--primary);
+  box-shadow: var(--shadow-subtle);
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
 .doc-result-card:hover {
   transform: translateY(-0.5px);
-  border-color: var(--border-strong);
+  border-color: var(--border);
 }
 
 .doc-card-header {
@@ -942,49 +977,75 @@ body {
 }
 
 .doc-id-title {
-  font-size: 0.88rem;
-  font-weight: 590;
-  color: var(--alabaster);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink);
   letter-spacing: -0.01em;
 }
 
 .doc-content-body {
-  font-size: 0.82rem;
-  color: var(--ink-secondary);
-  line-height: 1.5;
-  background: var(--canvas-subtle);
-  padding: 0.55rem 0.7rem;
+  font-size: 0.86rem;
+  color: var(--body);
+  line-height: 1.6;
+  background: var(--surface-soft);
+  padding: 0.65rem 0.85rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--hairline);
 }
 
 .doc-content-body mark {
-  background: rgba(221, 2, 0, 0.22);
-  color: #FFFFFF;
-  padding: 0.05rem 0.3rem;
-  border-radius: 2px;
-  font-weight: 510;
-  border: 1px solid rgba(221, 2, 0, 0.35);
+  background: rgba(181, 84, 58, 0.18);
+  color: var(--ink);
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+  font-weight: 500;
+  border: 1px solid rgba(181, 84, 58, 0.3);
 }
 
 .doc-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   color: var(--muted);
 }
 
 .doc-footer code {
-  color: var(--alabaster);
+  color: var(--ink);
 }
 
 /* ==========================================================================
-   Proof Card & Real-Time Metrics
+   Dark Product Chrome: Untrusted Cloud Lens (Deep Rust Style)
    ========================================================================== */
 
+.cloud-column .panel,
+.cloud-column .card-glass,
+.audit-panel {
+  background: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  box-shadow: var(--shadow-dark);
+  color: var(--on-dark);
+}
+
+.cloud-column .card-title,
+.audit-panel .panel-title {
+  color: var(--on-dark);
+}
+
+.cloud-column .card-hint {
+  color: var(--on-dark-soft);
+}
+
+.cloud-column .card-hint code {
+  background: var(--surface-dark-elevated);
+  border-color: rgba(90, 46, 37, 0.6);
+  color: var(--on-dark);
+}
+
+/* Proof Card & Real-Time Metrics */
 .proof-card {
-  border-top: 2px solid var(--success);
+  border-top: 3px solid var(--accent-olive) !important;
 }
 
 .proof-header {
@@ -996,144 +1057,139 @@ body {
 .proof-metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .metric-box {
-  background: var(--canvas-subtle);
-  border: 1px solid var(--hairline);
+  background: var(--surface-dark-elevated);
+  border: 1px solid rgba(90, 46, 37, 0.5);
   border-radius: var(--radius-sm);
-  padding: 0.7rem 0.5rem;
+  padding: 0.75rem 0.6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .metric-label {
-  font-size: 0.68rem;
-  color: var(--muted);
+  font-size: 0.7rem;
+  color: var(--on-dark-soft);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .metric-val {
-  font-size: 1.05rem;
-  font-weight: 590;
-  color: var(--alabaster);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--on-dark);
+  font-family: var(--font-mono);
 }
 
 .metric-sub {
-  font-size: 0.64rem;
-  color: var(--muted);
+  font-size: 0.66rem;
+  color: var(--on-dark-soft);
 }
 
 .merkle-details {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.65rem;
-  background: var(--canvas-subtle);
-  border: 1px solid var(--hairline);
+  gap: 0.4rem;
+  padding: 0.75rem;
+  background: var(--surface-dark-soft);
+  border: 1px solid rgba(90, 46, 37, 0.5);
   border-radius: var(--radius-sm);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
 }
 
 .merkle-row {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.15rem;
 }
 
 .merkle-label {
-  color: var(--muted);
+  color: var(--on-dark-soft);
 }
 
 .merkle-hash {
-  color: var(--success);
+  color: #8CC47E;
   word-break: break-all;
 }
 
-/* ==========================================================================
-   Attacker Tamper Defense Simulator
-   ========================================================================== */
-
+/* Attacker Tamper Defense Simulator */
 .attacker-panel {
-  border-top: 2px solid var(--racing-red);
+  border-top: 3px solid var(--primary) !important;
 }
 
 .text-crimson {
-  color: #FFA5A3 !important;
+  color: #FFAEAE !important;
 }
 
 .attacker-buttons {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.55rem;
+  gap: 0.65rem;
 }
 
 .tamper-alert {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.75rem 0.9rem;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
   border-radius: var(--radius-md);
-  background: rgba(221, 2, 0, 0.12);
-  border: 1px solid rgba(221, 2, 0, 0.45);
+  background: rgba(181, 58, 58, 0.2);
+  border: 1px solid rgba(181, 58, 58, 0.5);
   animation: shake 0.35s ease;
 }
 
 .alert-icon {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
 }
 
 .alert-title {
-  font-size: 0.82rem;
-  font-weight: 590;
-  color: #FFA5A3;
-  margin-bottom: 0.15rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #FFAEAE;
+  margin-bottom: 0.2rem;
 }
 
 .alert-desc {
-  font-size: 0.76rem;
-  color: var(--alabaster);
-  line-height: 1.35;
+  font-size: 0.8rem;
+  color: var(--on-dark);
+  line-height: 1.4;
 }
 
-/* ==========================================================================
-   Tabs & Cloud Multi-Map Table Inspector
-   ========================================================================== */
-
+/* Tabs & Cloud Multi-Map Table Inspector */
 .tabs-header {
   display: flex;
-  gap: 0.4rem;
-  border-bottom: 1px solid var(--hairline);
-  padding-bottom: 0.4rem;
+  gap: 0.45rem;
+  border-bottom: 1px solid rgba(90, 46, 37, 0.5);
+  padding-bottom: 0.45rem;
 }
 
 .tab-btn {
   background: transparent;
   border: 1px solid transparent;
-  color: var(--muted);
+  color: var(--on-dark-soft);
   font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 510;
-  padding: 0.35rem 0.75rem;
-  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .tab-btn.active {
-  color: var(--alabaster);
-  background: var(--black-cherry);
-  border-color: rgba(221, 2, 0, 0.4);
+  color: var(--on-dark);
+  background: var(--surface-dark-accent);
+  border-color: rgba(181, 84, 58, 0.5);
 }
 
 .tab-pane {
   display: none;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .tab-pane.active {
@@ -1144,87 +1200,82 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.78rem;
-  color: var(--ink-secondary);
+  font-size: 0.8rem;
+  color: var(--on-dark-soft);
 }
 
 .table-wrap {
-  max-height: 230px;
+  max-height: 250px;
   overflow-y: auto;
-  border: 1px solid var(--hairline);
+  border: 1px solid rgba(90, 46, 37, 0.5);
   border-radius: var(--radius-sm);
-  background: var(--canvas-subtle);
+  background: var(--surface-dark-soft);
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.73rem;
+  font-size: 0.76rem;
   text-align: left;
 }
 
 .data-table th {
-  background: #141720;
-  color: var(--ink-secondary);
-  font-weight: 510;
-  padding: 0.45rem 0.7rem;
-  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-dark-accent);
+  color: var(--on-dark);
+  font-weight: 500;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid rgba(90, 46, 37, 0.6);
   position: sticky;
   top: 0;
   z-index: 2;
 }
 
 .data-table td {
-  padding: 0.4rem 0.7rem;
-  border-bottom: 1px solid var(--hairline);
-  color: var(--ink-secondary);
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid rgba(90, 46, 37, 0.3);
+  color: var(--on-dark-soft);
   word-break: break-all;
 }
 
 .data-table tr:hover td {
-  background: rgba(255, 255, 255, 0.025);
-  color: var(--alabaster);
+  background: var(--surface-dark-hover);
+  color: var(--on-dark);
 }
 
 .table-empty {
   text-align: center;
-  padding: 1.8rem !important;
-  color: var(--muted);
+  padding: 2rem !important;
+  color: var(--on-dark-soft);
   font-style: italic;
 }
 
 /* ==========================================================================
-   Audit Log Viewer
+   Audit Log Viewer (Deep Rust Dark Product Window)
    ========================================================================== */
 
 .audit-panel {
-  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent-olive);
 }
 
 .audit-table-wrap {
-  max-height: 200px;
+  max-height: 220px;
 }
 
 /* ==========================================================================
-   Footer
+   Footer (Claude Editorial Warm Footer)
    ========================================================================== */
 
 .app-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.15rem 0;
+  padding: 1.5rem 0;
   border-top: 1px solid var(--hairline);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: var(--muted);
 }
 
 /* Animations */
-@keyframes pulse-red {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.75; transform: scale(0.99); }
-}
-
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-3px); }
@@ -1236,7 +1287,7 @@ body {
   .app-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.85rem;
+    gap: 0.95rem;
   }
   .view-mode-tabs {
     justify-content: center;
