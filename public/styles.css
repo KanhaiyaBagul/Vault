@@ -1,38 +1,43 @@
 /* ==========================================================================
    VAULT SSE // Linear Precision-Engineered Design System
-   Palette: Coffee Bean (#1A0706), Black Cherry (#55100D), Racing Red (#DD0200), Alabaster Grey (#D9D9D9)
+   Architecture: True Linear Near-Black (#08090A) & Layered Charcoal Surfaces
+   Precision Accents: Racing Red (#DD0200), Black Cherry (#55100D), Alabaster Grey (#D9D9D9)
    Specification: DESIGN.md Linear Aesthetic with Pill CTAs, Hairlines & Inter Typography
    ========================================================================== */
 
 :root {
-  /* Core Palette */
-  --canvas: #1A0706;                 /* Deep Coffee Bean backdrop */
-  --canvas-subtle: #200908;
-  --surface: #240C0B;                /* Layered charcoal-cherry surface */
-  --surface-raised: #34110F;         /* Elevated card surface */
-  --surface-hover: #3E1513;          /* Interactive hover tier */
-  
-  --black-cherry: #55100D;           /* Rich Black Cherry */
-  --black-cherry-tint: rgba(85, 16, 13, 0.4);
+  /* True Linear Near-Black Architecture */
+  --canvas: #08090A;                 /* Deep Linear neutral canvas */
+  --canvas-subtle: #0D0E12;          /* Inset code, input & table background */
+  --surface: #12141A;                /* Neutral charcoal layered surface */
+  --surface-raised: #181B22;         /* Elevated card surface */
+  --surface-hover: #21242E;          /* Interactive hover tier */
+
+  /* Precision Palette Accents */
+  --black-cherry: #55100D;           /* Rich Black Cherry for active tabs & subtle accents */
+  --black-cherry-tint: rgba(85, 16, 13, 0.25);
   --black-cherry-border: #6B1612;
 
-  --racing-red: #DD0200;             /* Vibrant Racing Red */
+  --racing-red: #DD0200;             /* Vibrant Racing Red for primary CTAs & focus rings */
   --racing-red-hover: #F81916;
   --racing-red-active: #B50200;
-  --racing-red-glow: rgba(221, 2, 0, 0.28);
+  --racing-red-glow: rgba(221, 2, 0, 0.22);
   --racing-red-dim: rgba(221, 2, 0, 0.12);
 
+  --coffee-bean: #1A0706;            /* Deep Coffee Bean tone for subtle depth */
+
+  /* Neutral Linear Typography & Ink */
   --alabaster: #D9D9D9;              /* Alabaster Grey primary ink */
   --ink: #D9D9D9;
-  --ink-secondary: #B8B0AF;          /* Silver cherry secondary */
-  --muted: #8C7D7C;                  /* Muted mid-tier text */
-  --subtle: #635554;                 /* Faint label text */
-  --faint: #443534;
+  --ink-secondary: #A0A7B5;          /* Cool silver secondary */
+  --muted: #656C7A;                  /* Muted mid-tier text */
+  --subtle: #3E434F;                 /* Faint label text */
+  --faint: #262932;
 
-  /* Structural Hairlines & Borders */
-  --hairline: rgba(85, 16, 13, 0.45);
-  --border: rgba(107, 22, 18, 0.5);
-  --border-strong: #55100D;
+  /* Structural Hairlines & Borders (Clean Neutral Linear Hairlines) */
+  --hairline: #1F232B;
+  --border: #282C37;
+  --border-strong: #383D4C;
   --border-focus: #DD0200;
 
   /* Status Colors */
@@ -50,14 +55,14 @@
 
   /* Geometry & Radii */
   --radius-xs: 3px;
-  --radius-sm: 5px;
+  --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-pill: 9999px;
 
   /* Elevations */
-  --shadow-card: 0 4px 20px -2px rgba(10, 2, 2, 0.8), 0 0 0 1px var(--hairline);
-  --shadow-elevated: 0 12px 36px -4px rgba(10, 2, 2, 0.9), 0 0 0 1px var(--border);
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--hairline);
+  --shadow-elevated: 0 12px 36px -4px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border);
   --shadow-red-glow: 0 0 20px -2px var(--racing-red-glow);
 
   /* Legacy & compatibility aliases */
@@ -99,38 +104,38 @@ body {
   letter-spacing: -0.015em;
 }
 
-/* Ambient Radial Cherry/Coffee Glows */
+/* Subtle Linear Ambient Lighting (Non-Intrusive Faint Vignette) */
 .ambient-glow {
   position: fixed;
   border-radius: 50%;
   filter: blur(140px);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.35;
+  opacity: 0.12;
 }
 
 .glow-1 {
   width: 600px;
   height: 600px;
-  top: -180px;
-  left: -120px;
-  background: radial-gradient(circle, rgba(85, 16, 13, 0.8) 0%, transparent 70%);
+  top: -200px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(60, 68, 85, 0.5) 0%, transparent 70%);
 }
 
 .glow-2 {
   width: 500px;
   height: 500px;
-  top: 35%;
+  top: 30%;
   right: -100px;
-  background: radial-gradient(circle, rgba(221, 2, 0, 0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(221, 2, 0, 0.18) 0%, transparent 70%);
 }
 
 .glow-3 {
   width: 550px;
   height: 550px;
   bottom: -150px;
-  left: 25%;
-  background: radial-gradient(circle, rgba(85, 16, 13, 0.6) 0%, transparent 70%);
+  left: 20%;
+  background: radial-gradient(circle, rgba(45, 50, 65, 0.4) 0%, transparent 70%);
 }
 
 /* App Container */
@@ -154,7 +159,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0.85rem 1.4rem;
-  background: rgba(36, 12, 11, 0.8);
+  background: rgba(18, 20, 26, 0.85);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -174,7 +179,7 @@ body {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--black-cherry), #280B09);
+  background: linear-gradient(135deg, #1C1F28, #12141A);
   border: 1px solid var(--border-strong);
   color: var(--racing-red);
 }
@@ -208,7 +213,7 @@ body {
   align-items: center;
   gap: 0.45rem;
   padding: 0.35rem 0.85rem;
-  background: rgba(52, 17, 15, 0.65);
+  background: rgba(24, 27, 34, 0.8);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-pill);
   font-size: 0.78rem;
@@ -272,9 +277,9 @@ body {
 }
 
 .badge-cyan {
-  background: rgba(85, 16, 13, 0.5);
+  background: rgba(36, 40, 52, 0.7);
   color: var(--alabaster);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
 }
 
 .badge-amber {
@@ -297,7 +302,7 @@ body {
 .tag {
   font-size: 0.72rem;
   color: var(--ink-secondary);
-  background: rgba(52, 17, 15, 0.5);
+  background: rgba(30, 34, 44, 0.6);
   padding: 0.2rem 0.55rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--hairline);
@@ -372,7 +377,7 @@ body {
 
 .card-hint code {
   color: var(--alabaster);
-  background: rgba(85, 16, 13, 0.6);
+  background: rgba(36, 40, 52, 0.7);
   padding: 0.1rem 0.35rem;
   border-radius: var(--radius-xs);
   border: 1px solid var(--hairline);
@@ -383,8 +388,8 @@ body {
    ========================================================================== */
 
 .keygen-panel {
-  border-left: 3px solid var(--racing-red);
-  background: linear-gradient(180deg, rgba(52, 17, 15, 0.4) 0%, rgba(36, 12, 11, 0.95) 100%);
+  border-top: 1px solid var(--border-strong);
+  background: var(--surface);
 }
 
 .entropy-meter-wrap {
@@ -398,7 +403,7 @@ body {
 .entropy-track {
   width: 130px;
   height: 6px;
-  background: rgba(85, 16, 13, 0.5);
+  background: var(--canvas-subtle);
   border-radius: var(--radius-pill);
   overflow: hidden;
   border: 1px solid var(--hairline);
@@ -459,13 +464,13 @@ body {
 }
 
 .input-text::placeholder, .input-textarea::placeholder {
-  color: var(--subtle);
+  color: var(--muted);
 }
 
 .input-text:focus, .input-textarea:focus {
   border-color: var(--racing-red);
-  background: rgba(32, 9, 8, 0.95);
-  box-shadow: 0 0 0 3px rgba(221, 2, 0, 0.18);
+  background: #101218;
+  box-shadow: 0 0 0 3px rgba(221, 2, 0, 0.16);
 }
 
 .btn-group-align {
@@ -551,7 +556,7 @@ body {
   transform: translateY(0);
 }
 
-/* Secondary CTA: Black Cherry Elevated */
+/* Secondary CTA: Linear Neutral Charcoal */
 .btn-secondary {
   background: var(--surface-raised);
   color: var(--alabaster);
@@ -560,14 +565,16 @@ body {
 
 .btn-secondary:hover {
   background: var(--surface-hover);
-  border-color: var(--black-cherry-border);
+  border-color: #484E60;
+  color: #FFFFFF;
 }
 
-/* Action Cyan Replacement -> Racing Red / Accent Pill */
+/* Action Search Button -> Racing Red Pill */
 .btn-cyan {
   background: var(--racing-red);
   color: #FFFFFF;
   border-color: #EF1D1A;
+  box-shadow: 0 2px 10px rgba(221, 2, 0, 0.3);
 }
 
 .btn-cyan:hover {
@@ -583,7 +590,7 @@ body {
 }
 
 .btn-outline:hover {
-  background: rgba(85, 16, 13, 0.3);
+  background: var(--surface-hover);
   color: var(--alabaster);
   border-color: var(--border-strong);
 }
@@ -640,7 +647,7 @@ body {
 }
 
 .client-theme {
-  background: linear-gradient(90deg, rgba(85, 16, 13, 0.6) 0%, rgba(36, 12, 11, 0.9) 100%);
+  background: var(--surface);
   border-left: 3px solid var(--alabaster);
   color: var(--alabaster);
 }
@@ -650,7 +657,7 @@ body {
 }
 
 .cloud-theme {
-  background: linear-gradient(90deg, rgba(52, 17, 15, 0.8) 0%, rgba(36, 12, 11, 0.9) 100%);
+  background: var(--surface);
   border-left: 3px solid var(--racing-red);
   color: var(--alabaster);
 }
@@ -664,7 +671,7 @@ body {
    ========================================================================== */
 
 .drop-zone {
-  border: 1.5px dashed rgba(85, 16, 13, 0.7);
+  border: 1.5px dashed var(--border-strong);
   border-radius: var(--radius-md);
   padding: 1.4rem;
   display: flex;
@@ -672,14 +679,14 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  background: rgba(32, 9, 8, 0.4);
+  background: rgba(13, 14, 18, 0.5);
   transition: all 0.18s ease;
   cursor: pointer;
 }
 
 .drop-zone:hover, .drop-zone.drag-over {
   border-color: var(--racing-red);
-  background: rgba(85, 16, 13, 0.3);
+  background: rgba(221, 2, 0, 0.04);
 }
 
 .drop-zone svg {
@@ -806,12 +813,12 @@ body {
 }
 
 .doc-content-body mark {
-  background: rgba(221, 2, 0, 0.25);
+  background: rgba(221, 2, 0, 0.22);
   color: #FFFFFF;
   padding: 0.05rem 0.3rem;
   border-radius: 2px;
   font-weight: 510;
-  border: 1px solid rgba(221, 2, 0, 0.4);
+  border: 1px solid rgba(221, 2, 0, 0.35);
 }
 
 .doc-footer {
@@ -831,7 +838,7 @@ body {
    ========================================================================== */
 
 .proof-card {
-  border-top: 3px solid var(--success);
+  border-top: 2px solid var(--success);
 }
 
 .proof-header {
@@ -907,7 +914,7 @@ body {
    ========================================================================== */
 
 .attacker-panel {
-  border-top: 3px solid var(--racing-red);
+  border-top: 2px solid var(--racing-red);
 }
 
 .text-crimson {
@@ -960,7 +967,7 @@ body {
 
 .tab-btn {
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   color: var(--muted);
   font-family: var(--font-sans);
   font-size: 0.8rem;
@@ -974,6 +981,7 @@ body {
 .tab-btn.active {
   color: var(--alabaster);
   background: var(--black-cherry);
+  border-color: rgba(221, 2, 0, 0.4);
 }
 
 .tab-pane {
@@ -1010,7 +1018,7 @@ body {
 }
 
 .data-table th {
-  background: var(--surface);
+  background: #141720;
   color: var(--ink-secondary);
   font-weight: 510;
   padding: 0.45rem 0.7rem;
@@ -1022,13 +1030,13 @@ body {
 
 .data-table td {
   padding: 0.4rem 0.7rem;
-  border-bottom: 1px solid rgba(85, 16, 13, 0.2);
+  border-bottom: 1px solid var(--hairline);
   color: var(--ink-secondary);
   word-break: break-all;
 }
 
 .data-table tr:hover td {
-  background: rgba(85, 16, 13, 0.25);
+  background: rgba(255, 255, 255, 0.025);
   color: var(--alabaster);
 }
 
@@ -1044,7 +1052,7 @@ body {
    ========================================================================== */
 
 .audit-panel {
-  border-left: 3px solid var(--black-cherry-border);
+  border: 1px solid var(--border);
 }
 
 .audit-table-wrap {

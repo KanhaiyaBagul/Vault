@@ -1,51 +1,58 @@
-# Context: Phase 7 — Linear UI/UX Redesign & Custom Color Palette System
+# Context: Phase 7 — Linear UI/UX Redesign & Precision Accent Palette System
 
 **Phase:** Phase 7  
-**Target:** Transform the Web Application UI/UX to match DESIGN.md (Linear aesthetic) infused with the user's custom palette  
+**Target:** Transform the Web Application UI/UX to match DESIGN.md (true Linear near-black aesthetic) with user's custom palette as precision accents  
 **Directory:** `Vault_planing/07-ui-ux-linear-redesign/`  
 **Outputs Target:** `public/styles.css`, `public/index.html`, and `public/app.js`  
-**References:** `DESIGN.md`, User Swatch Palette Image  
+**References:** `DESIGN.md`, User Swatch Palette Image, User Discussion Decisions  
 
 ---
 
-## 1. Palette Synthesis: Linear System & User Custom Colors
+## 1. User Feedback & Design Decisions (GSD Discuss Phase)
 
-The user provided 4 specific swatches from the reference image:
-- **Alabaster Grey**: `#D9D9D9`
-- **Racing Red**: `#DD0200`
-- **Black Cherry**: `#55100D`
-- **Coffee Bean**: `#1A0706`
+### Problem Identified
+The initial iteration used Coffee Bean (`#1A0706`) for the entire canvas, Black Cherry (`#55100D`) for all card borders and surfaces, and heavy red ambient glows. This resulted in an overwhelmingly red, heavily saturated interface that obscured the sleek, high-tech, precision engineering feel of Linear.
 
-In `DESIGN.md`, Linear prescribes:
-- Near-black / precision-engineered product aesthetic.
-- Inter Variable typography with negative tracking on headings.
-- Pill-shaped CTAs (`rounded: 9999px`), tight 4–12px radii on cards, chips, and inputs.
-- Layered surfaces separated by low-contrast hairlines.
+### Decisions Locked with User
+1. **True Linear Near-Black Foundation:**
+   - Canvas: `#08090A` (true Linear near-black base).
+   - Layered Surfaces: Neutral charcoal `#121316` and `#181A20`.
+   - Structural Hairlines: Low-contrast `#23252A` and subtle `#2E323B`.
+   - Remove heavy red ambient blur overlays so the canvas is clean, dark, and sharp.
+2. **Precision Accent Allocation:**
+   - **Racing Red (`#DD0200`)**: High-impact precision accents — Primary pill CTAs ("Derive Subkeys", "Encrypt, Commit & Upload", "Search"), focus rings, active indicator dots, and security/tamper alert states.
+   - **Black Cherry (`#55100D`)**: Active tab pill indicators, secondary button borders, and subtle elevated card highlights.
+   - **Alabaster Grey (`#D9D9D9`)**: Crisp high-contrast typography, section titles, monospace cryptographic addresses, and data table values.
+   - **Coffee Bean (`#1A0706`)**: Deep card inset backgrounds and subtle low-saturation hover states.
 
 ### Token Mapping:
-| Linear Token Role | Base Linear Spec | Phase 7 Custom Value | Usage |
-| :--- | :--- | :--- | :--- |
-| **Canvas / Background** | `#08090A` | `#1A0706` (Coffee Bean) | Global page background, deepest backdrop layer |
-| **Surface (Cards/Panels)** | `#121414` | `#230B0A` | Card bodies, panel backgrounds, layered surfaces |
-| **Surface-Raised** | `#1C1C1F` | `#35100E` | Elevated cards, dropdowns, input backgrounds |
-| **Border / Hairline** | `#23252A` | `rgba(85, 16, 13, 0.45)` | Subtle structural division lines |
-| **Border Strong** | `#34343A` | `#55100D` (Black Cherry) | Focused borders, active tabs, panel dividers |
-| **Primary Accent / CTA** | `#5E6AD2` | `#DD0200` (Racing Red) | High-contrast action buttons, active indicators |
-| **Primary Accent Hover** | `#6872D9` | `#FF1F1C` | Hover state for buttons and interactive items |
-| **Primary Accent Glow** | Tinted shadow | `rgba(221, 2, 0, 0.25)` | Subtle focus rings and glow shadows |
-| **Ink (Primary Text)** | `#F7F8F8` | `#D9D9D9` (Alabaster Grey) | Headings, titles, main body text |
-| **Ink Secondary** | `#D0D6E0` | `#B8B0AF` | Subtitles, labels, secondary text |
-| **Muted** | `#8A8F98` | `#8C7D7C` | Captions, hints, placeholders |
-| **Subtle / Faint** | `#62666D` | `#5C4E4D` | Inactive elements, disabled borders |
-| **Danger / Alarm** | `#EB5757` | `#DD0200` (Racing Red) | Attacker alerts, security violation badges |
-| **Success / Verified** | `#27A644` | `#27A644` / `#22C55E` | Cryptographic proof verified badges, honest status |
-| **Monospace / Code** | Berkeley/Inter | `JetBrains Mono, Consolas, monospace` | Opaque addresses, trapdoors, hashes, ciphertexts |
+| Linear Token Role | Token Value | Usage |
+| :--- | :--- | :--- |
+| **Canvas** | `#08090A` | Deepest neutral dark backdrop layer |
+| **Canvas Subtle** | `#0D0E11` | Input fields, code containers, table bodies |
+| **Surface** | `#121316` | Main panel backgrounds, split view cards |
+| **Surface Raised** | `#181A20` | Inner cards, elevated modules |
+| **Surface Hover** | `#20232B` | Interactive row and card hover |
+| **Hairline** | `#23252A` | Ultra-clean neutral separation borders |
+| **Border** | `#2E323B` | Card outlines and input borders |
+| **Border Strong** | `#3E434F` | High-contrast structural dividers |
+| **Primary (Racing Red)** | `#DD0200` | Primary action pill CTAs, focus highlights |
+| **Primary Hover** | `#F81916` | Hover state on primary buttons |
+| **Primary Glow** | `rgba(221, 2, 0, 0.2)` | Focus rings and subtle button glow |
+| **Secondary (Black Cherry)** | `#55100D` | Active tab pill, secondary button accents |
+| **Ink (Alabaster Grey)** | `#D9D9D9` | Headings, titles, main body text |
+| **Ink Secondary** | `#A8B0BE` | Subtitles, labels, field descriptions |
+| **Muted** | `#6E7684` | Placeholders, inactive captions |
+| **Subtle** | `#454A54` | Faint borders, inactive indicators |
+| **Success (Linear Emerald)** | `#27A644` | Cryptographic proof verified badges, honest status |
+| **Danger (Racing Red)** | `#DD0200` | Attacker alerts, security violation badges |
+| **Monospace / Code** | `JetBrains Mono, monospace` | Opaque addresses, trapdoors, hashes, ciphertexts |
 
 ---
 
 ## 2. In-Scope Deliverables
 
-1. **`public/styles.css`**: Full CSS overhaul with Linear design tokens, pill CTAs, low-contrast hairlines, and custom palette.
-2. **`public/index.html`**: Clean semantic refinement aligning with Linear header, card hierarchy, and input aesthetics.
-3. **`public/app.js`**: Verify dynamic class applications, status dot updates, and proof card styles.
-4. **Validation**: Test full UI rendering, interactive workflows (derive keys, load sample data, search, attacker simulation, audit chain), and run automated tests.
+1. **`public/styles.css`**: Update CSS architecture to true Linear near-black with neutral charcoal surfaces, removing red canvas/card tinting while applying Racing Red & Black Cherry as crisp precision accents.
+2. **`public/index.html`**: Ensure all badge classes, pill buttons, and layout containers reflect the clean Linear hierarchy.
+3. **`public/app.js`**: Verify dynamic state classes render seamlessly with the new styling.
+4. **Validation**: Run integration tests and full test regression (`npm test` 96/96 green).
