@@ -12,6 +12,7 @@ import {
   DiskStorageProvider,
   S3CloudStorageProvider,
   SupabaseStorageProvider,
+  normalizeSupabaseUrl,
   type EncryptedBlobPayload,
 } from "../../src/server/cloud/index.ts";
 
@@ -296,5 +297,58 @@ describe("Cloud Storage: SupabaseStorageProvider (REST v1)", () => {
     const health = await provider.healthCheck();
     assert.equal(health.ok, true);
     assert.equal(health.provider, "supabase");
+  });
+
+  it("normalizes Supabase URLs from dashboard links, refs, and standard hostnames", () => {
+    assert.equal(
+      normalizeSupabaseUrl("https://supabase.com/dashboard/project/ryfafenurtpwediiurjx"),
+      "https://ryfafenurtpwediiurjx.supabase.co"
+    );
+    assert.equal(
+      normalizeSupabaseUrl("https://supabase.com/dashboard/project/ryfafenurtpwediiurjx/storage/buckets"),
+      "https://ryfafenurtpwediiurjx.supabase.co"
+    );
+    assert.equal(
+      normalizeSupabaseUrl("ryfafenurtpwediiurjx"),
+      "https://ryfafenurtpwediiurjx.supabase.co"
+    );
+    assert.equal(
+      normalizeSupabaseUrl("https://ryfafenurtpwediiurjx.supabase.co/"),
+      "https://ryfafenurtpwediiurjx.supabase.co"
+    );
+  });
+
+  it("auto-creates bucket when initial bucket check returns 404", async () => {
+    let bucketCreated = false;
+    const autoCreateFetch: typeof fetch = async (input, init) => {
+      const urlStr = typeof input === "string" ? input : input.toString();
+      const method = init?.method || "GET";
+
+      if (method === "POST" && urlStr.endsWith("/storage/v1/bucket")) {
+        bucketCreated = true;
+        return new Response(JSON.stringify({ name: "auto-bucket" }), { status: 200 });
+      }
+
+      if (method === "GET" && urlStr.includes("/storage/v1/bucket/")) {
+        if (!bucketCreated) {
+          return new Response("Not Found", { status: 404 });
+        }
+        return new Response(JSON.stringify({ id: "auto-bucket" }), { status: 200 });
+      }
+
+      return new Response("OK", { status: 200 });
+    };
+
+    const autoProvider = new SupabaseStorageProvider({
+      supabaseUrl: "https://supabase.com/dashboard/project/testautocreate",
+      apiKey: "test_key",
+      bucket: "auto-bucket",
+      customFetch: autoCreateFetch,
+    });
+
+    const health = await autoProvider.healthCheck();
+    assert.equal(health.ok, true);
+    assert.equal(bucketCreated, true);
+    assert.equal(autoProvider.supabaseUrl, "https://testautocreate.supabase.co");
   });
 });

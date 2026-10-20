@@ -114,6 +114,26 @@ describe("Cloud REST API & Dynamic Provider Switching", () => {
     assert.equal(badRes.status, 400);
   });
 
+  it("POST /api/v1/cloud/test validates provider credentials without switching", async () => {
+    // Current provider is disk
+    const testRes = await fetch(`${baseUrl}/api/v1/cloud/test`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        provider: "memory",
+      }),
+    });
+    assert.equal(testRes.status, 200);
+    const testData = await testRes.json();
+    assert.equal(testData.success, true);
+    assert.equal(testData.provider, "memory");
+
+    // Verify active provider was NOT switched by test endpoint
+    const statusRes = await fetch(`${baseUrl}/api/v1/cloud/status`);
+    const statusData = await statusRes.json();
+    assert.equal(statusData.provider, "disk");
+  });
+
   it("POST /api/v1/cloud/config switches back to memory provider cleanly", async () => {
     const switchRes = await fetch(`${baseUrl}/api/v1/cloud/config`, {
       method: "POST",

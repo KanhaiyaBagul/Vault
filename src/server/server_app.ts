@@ -159,8 +159,8 @@ export class VaultServerApp {
         // Insert blind index entries
         this.searchController.indexEntries(body.entries);
 
-        // Store encrypted blob
-        this.blobStore.putBlob(body.encryptedBlob);
+        // Store encrypted blob awaiting cloud confirmation
+        await this.blobStore.putBlobAsync(body.encryptedBlob);
 
         // Record zero-knowledge audit log
         await this.auditLogger.logOperation("INDEX_DOCUMENT", {
@@ -254,7 +254,37 @@ export class VaultServerApp {
         return;
       }
 
-      // 4c. Cloud Storage Configuration: POST /api/v1/cloud/config
+      // 4c. Cloud Storage Test / Ping: POST /api/v1/cloud/test
+      if (method === "POST" && pathname === "/api/v1/cloud/test") {
+        const body = await this.parseJsonBody<CloudStorageConfig>(req);
+        if (!body.provider) {
+          this.sendJson(res, 400, {
+            success: false,
+            error: "provider field is required ('memory', 'disk', 's3', 'supabase')",
+          });
+          return;
+        }
+
+        try {
+          const candidate = this.cloudFactory.createProvider(body);
+          const health = await candidate.healthCheck();
+          this.sendJson(res, health.ok ? 200 : 400, {
+            success: health.ok,
+            provider: body.provider,
+            health,
+            error: health.ok ? undefined : (health.error || "Connection failed"),
+          });
+        } catch (err: unknown) {
+          const error = err as Error;
+          this.sendJson(res, 400, {
+            success: false,
+            error: error.message,
+          });
+        }
+        return;
+      }
+
+      // 4d. Cloud Storage Configuration: POST /api/v1/cloud/config
       if (method === "POST" && pathname === "/api/v1/cloud/config") {
         const body = await this.parseJsonBody<CloudStorageConfig>(req);
         if (!body.provider) {

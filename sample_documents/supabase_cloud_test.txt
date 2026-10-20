@@ -1,0 +1,29 @@
+================================================================================
+SUPABASE THIRD-PARTY CLOUD VERIFICATION DRAFT
+DOCUMENT ID: SUPABASE_CLOUD_TEST_2026.TXT
+SECURITY LEVEL: TOP SECRET // AES-256-GCM ENCRYPTED
+================================================================================
+
+1. CLOUD STORAGE OBJECTIVE
+This document confirms that the Vault SSE Engine is actively transmitting
+opaque ciphertexts to our external Supabase Object Storage bucket.
+
+2. QUANTUM ENCRYPTION VALIDATION
+- Primary Cryptographic Engine: AES-256-GCM (W3C Web Crypto)
+- Blind Indexing: Substring 3-Grams with PRF HMAC-SHA256 Trapdoors
+- Verifiability: Authenticated Inverted Index (AII) with Merkle Tree Proofs
+- Cloud Leakage: Exactly 0% Plaintext (Server learns zero keywords or text)
+
+3. SEARCH KEYWORDS TO TEST IN VAULT
+Try searching any of these exact or substring terms in Vault:
+- "Supabase"
+- "Quantum"
+- "Vault"
+- "Top Secret"
+- "Cryptographic"
+
+4. CONFIRMATION
+If you can read this text in your Vault UI, your client successfully downloaded
+the encrypted blob from Supabase, verified the Merkle inclusion proof, and
+decrypted the contents locally in your browser!
+================================================================================

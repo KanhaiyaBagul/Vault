@@ -546,15 +546,16 @@ class VaultAppController {
         const isHidden = this.cloudConfigDrawer.style.display === "none";
         this.cloudConfigDrawer.style.display = isHidden ? "block" : "none";
         this.btnToggleCloudConfig.textContent = isHidden ? "Hide Configuration" : "Configure Credentials";
+        if (isHidden && this.selectCloudProvider) {
+          this.updateCloudFieldVisibility(this.selectCloudProvider.value);
+        }
       });
     }
 
     if (this.selectCloudProvider) {
       this.selectCloudProvider.addEventListener("change", () => {
-        const p = this.selectCloudProvider.value;
-        if (this.cloudS3Fields) this.cloudS3Fields.style.display = p === "s3" ? "flex" : "none";
-        if (this.cloudSupabaseFields) this.cloudSupabaseFields.style.display = p === "supabase" ? "flex" : "none";
-        if (this.cloudDiskFields) this.cloudDiskFields.style.display = p === "disk" ? "block" : "none";
+        this.userSelectedProvider = true;
+        this.updateCloudFieldVisibility(this.selectCloudProvider.value);
       });
     }
 
@@ -695,40 +696,22 @@ class VaultAppController {
       }
       if (this.selectCloudProvider && !this.userSelectedProvider) {
         this.selectCloudProvider.value = data.provider || "memory";
+        this.updateCloudFieldVisibility(this.selectCloudProvider.value);
       }
     } catch (err) {
       console.warn("Could not fetch cloud status:", err);
     }
   }
 
-  async handleTestCloudPing() {
-    if (!this.cloudFeedbackMsg) return;
-    this.cloudFeedbackMsg.style.display = "block";
-    this.cloudFeedbackMsg.style.color = "var(--primary)";
-    this.cloudFeedbackMsg.textContent = "Pinging cloud storage provider...";
-
-    try {
-      const res = await fetch("/api/v1/cloud/status");
-      const data = await res.json();
-      if (data.success && data.health?.ok) {
-        this.cloudFeedbackMsg.style.color = "var(--neon-emerald)";
-        this.cloudFeedbackMsg.textContent = `✓ Cloud Ping Success: ${data.provider.toUpperCase()} responded in ${data.health.latencyMs?.toFixed(1)}ms (${data.storedBlobs} encrypted blobs online)`;
-      } else {
-        this.cloudFeedbackMsg.style.color = "var(--neon-crimson)";
-        this.cloudFeedbackMsg.textContent = `✗ Cloud Ping Failed: ${data.health?.error || "Unknown error"}`;
-      }
-      await this.refreshCloudStorageStatus();
-    } catch (err) {
-      this.cloudFeedbackMsg.style.color = "var(--neon-crimson)";
-      this.cloudFeedbackMsg.textContent = `✗ Connection error: ${err.message}`;
-    }
+  updateCloudFieldVisibility(p) {
+    if (this.cloudS3Fields) this.cloudS3Fields.style.display = p === "s3" ? "flex" : "none";
+    if (this.cloudSupabaseFields) this.cloudSupabaseFields.style.display = p === "supabase" ? "flex" : "none";
+    if (this.cloudDiskFields) this.cloudDiskFields.style.display = p === "disk" ? "block" : "none";
   }
 
-  async handleSaveCloudConfig() {
-    if (!this.cloudFeedbackMsg || !this.selectCloudProvider) return;
+  getCloudConfigPayload() {
+    if (!this.selectCloudProvider) return null;
     const provider = this.selectCloudProvider.value;
-    this.userSelectedProvider = true;
-
     const payload = { provider };
 
     if (provider === "s3") {
@@ -740,18 +723,65 @@ class VaultAppController {
         secretAccessKey: this.inputS3SecretKey.value.trim(),
       };
     } else if (provider === "supabase") {
+      let sbUrl = this.inputSupabaseUrl.value.trim();
+      // Auto-normalize dashboard URL if pasted by user
+      const dashMatch = sbUrl.match(/supabase\.com\/dashboard\/project\/([a-zA-Z0-9_-]+)/i);
+      if (dashMatch) {
+        sbUrl = `https://${dashMatch[1]}.supabase.co`;
+        this.inputSupabaseUrl.value = sbUrl; // sync normalized URL to input field
+      } else if (/^[a-z0-9]{15,25}$/i.test(sbUrl)) {
+        sbUrl = `https://${sbUrl}.supabase.co`;
+        this.inputSupabaseUrl.value = sbUrl;
+      }
       payload.supabase = {
-        supabaseUrl: this.inputSupabaseUrl.value.trim(),
+        supabaseUrl: sbUrl,
         bucket: this.inputSupabaseBucket.value.trim() || "vault-encrypted-blobs",
         apiKey: this.inputSupabaseKey.value.trim(),
       };
     } else if (provider === "disk") {
       payload.diskPath = this.inputDiskPath.value.trim() || "./.vault_storage";
     }
+    return payload;
+  }
+
+  async handleTestCloudPing() {
+    if (!this.cloudFeedbackMsg || !this.selectCloudProvider) return;
+    const payload = this.getCloudConfigPayload();
+    if (!payload) return;
 
     this.cloudFeedbackMsg.style.display = "block";
     this.cloudFeedbackMsg.style.color = "var(--primary)";
-    this.cloudFeedbackMsg.textContent = `Reconfiguring cloud storage to ${provider.toUpperCase()}...`;
+    this.cloudFeedbackMsg.textContent = `Testing credentials & pinging ${payload.provider.toUpperCase()}...`;
+
+    try {
+      const res = await fetch("/api/v1/cloud/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.health?.ok) {
+        this.cloudFeedbackMsg.style.color = "var(--neon-emerald)";
+        this.cloudFeedbackMsg.textContent = `✓ Ping Success: Connected to ${payload.provider.toUpperCase()} in ${data.health.latencyMs?.toFixed(1)}ms! Click 'Save & Switch Provider' to activate.`;
+      } else {
+        this.cloudFeedbackMsg.style.color = "var(--neon-crimson)";
+        this.cloudFeedbackMsg.textContent = `✗ Ping Failed: ${data.error || data.health?.error || "Connection rejected"}`;
+      }
+    } catch (err) {
+      this.cloudFeedbackMsg.style.color = "var(--neon-crimson)";
+      this.cloudFeedbackMsg.textContent = `✗ Connection error: ${err.message}`;
+    }
+  }
+
+  async handleSaveCloudConfig() {
+    if (!this.cloudFeedbackMsg || !this.selectCloudProvider) return;
+    const payload = this.getCloudConfigPayload();
+    if (!payload) return;
+    this.userSelectedProvider = true;
+
+    this.cloudFeedbackMsg.style.display = "block";
+    this.cloudFeedbackMsg.style.color = "var(--primary)";
+    this.cloudFeedbackMsg.textContent = `Activating & switching cloud storage to ${payload.provider.toUpperCase()}...`;
 
     try {
       const res = await fetch("/api/v1/cloud/config", {
@@ -763,13 +793,14 @@ class VaultAppController {
       const data = await res.json();
       if (res.ok && data.success) {
         this.cloudFeedbackMsg.style.color = "var(--neon-emerald)";
-        this.cloudFeedbackMsg.textContent = `✓ Successfully connected to ${provider.toUpperCase()}! Latency: ${data.health?.latencyMs?.toFixed(1)}ms.`;
+        this.cloudFeedbackMsg.textContent = `✓ Active Cloud Provider switched to ${payload.provider.toUpperCase()}! Latency: ${data.health?.latencyMs?.toFixed(1)}ms.`;
+        this.showToast(`Cloud Storage Provider switched to ${payload.provider.toUpperCase()}`, "emerald");
         await this.refreshCloudStorageStatus();
         await this.refreshCloudInspector();
         this.refreshAuditChain();
       } else {
         this.cloudFeedbackMsg.style.color = "var(--neon-crimson)";
-        this.cloudFeedbackMsg.textContent = `✗ Configuration rejected: ${data.error || "Failed to connect"}`;
+        this.cloudFeedbackMsg.textContent = `✗ Switch rejected: ${data.error || "Failed to connect"}`;
       }
     } catch (err) {
       this.cloudFeedbackMsg.style.color = "var(--neon-crimson)";
@@ -813,7 +844,8 @@ class VaultAppController {
 
       this.docContentInput.value = "";
       this.docIdInput.value = "";
-      this.showToast(`Document '${docId}' encrypted and committed to cloud`, "emerald");
+      const activeP = (this.cloudActiveProviderName?.textContent || "CLOUD").toUpperCase();
+      this.showToast(`Document '${docId}' encrypted & committed to ${activeP}!`, "emerald");
 
       await this.refreshCloudInspector();
       await this.refreshAuditChain();

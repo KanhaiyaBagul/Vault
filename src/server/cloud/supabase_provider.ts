@@ -18,6 +18,24 @@ export interface SupabaseProviderConfig {
   customFetch?: typeof fetch;   // Optional fetch handler for test mocking
 }
 
+export function normalizeSupabaseUrl(rawUrl: string): string {
+  let url = (rawUrl || "").trim().replace(/\/+$/, "");
+  // Check if it's a dashboard URL: https://supabase.com/dashboard/project/<ref>...
+  const dashboardMatch = url.match(/supabase\.com\/dashboard\/project\/([a-zA-Z0-9_-]+)/i);
+  if (dashboardMatch) {
+    return `https://${dashboardMatch[1]}.supabase.co`;
+  }
+  // Check if it's just the project ref: e.g. ryfafenurtpwediiurjx
+  if (/^[a-z0-9]{15,25}$/i.test(url)) {
+    return `https://${url}.supabase.co`;
+  }
+  // If no scheme was provided, default to https://
+  if (url && !/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+  return url;
+}
+
 export class SupabaseStorageProvider implements ICloudStorageProvider {
   public readonly providerName = "supabase";
   public readonly supabaseUrl: string;
@@ -29,9 +47,9 @@ export class SupabaseStorageProvider implements ICloudStorageProvider {
     if (!config.supabaseUrl) throw new Error("SupabaseProviderConfig requires 'supabaseUrl'");
     if (!config.apiKey) throw new Error("SupabaseProviderConfig requires 'apiKey'");
 
-    this.supabaseUrl = config.supabaseUrl.replace(/\/+$/, "");
-    this.apiKey = config.apiKey;
-    this.bucket = config.bucket || "vault-encrypted-blobs";
+    this.supabaseUrl = normalizeSupabaseUrl(config.supabaseUrl);
+    this.apiKey = config.apiKey.trim();
+    this.bucket = config.bucket?.trim() || "vault-encrypted-blobs";
     this.fetchFn = config.customFetch || globalThis.fetch;
   }
 
@@ -49,7 +67,7 @@ export class SupabaseStorageProvider implements ICloudStorageProvider {
     const bodyStr = JSON.stringify(payload);
 
     // Try upserting object
-    const res = await this.fetchFn(url, {
+    let res = await this.fetchFn(url, {
       method: "POST",
       headers: {
         ...this.getHeaders("application/json"),
@@ -58,9 +76,32 @@ export class SupabaseStorageProvider implements ICloudStorageProvider {
       body: bodyStr,
     });
 
+    // If bucket was not found, attempt to auto-create and retry
+    if (res.status === 404) {
+      try {
+        await this.ensureBucketExists();
+        res = await this.fetchFn(url, {
+          method: "POST",
+          headers: {
+            ...this.getHeaders("application/json"),
+            "x-upsert": "true",
+          },
+          body: bodyStr,
+        });
+      } catch {
+        // Fall through to error reporting below
+      }
+    }
+
     if (!res.ok) {
       const errText = await res.text();
-      throw new Error(`Supabase PUT failed [HTTP ${res.status}]: ${errText}`);
+      let errorMsg = `Supabase PUT failed [HTTP ${res.status}]: ${errText}`;
+      if (res.status === 404) {
+        errorMsg = `Bucket '${this.bucket}' not found in Supabase. Please create bucket '${this.bucket}' in Supabase Dashboard (Storage > New bucket).`;
+      } else if (res.status === 401 || res.status === 403) {
+        errorMsg = `Supabase PUT authentication failed [HTTP ${res.status}]. Check your API key.`;
+      }
+      throw new Error(errorMsg);
     }
 
     return {
@@ -151,21 +192,40 @@ export class SupabaseStorageProvider implements ICloudStorageProvider {
     const startTime = Date.now();
     try {
       const url = `${this.supabaseUrl}/storage/v1/bucket/${this.bucket}`;
-      const res = await this.fetchFn(url, {
+      let res = await this.fetchFn(url, {
         method: "GET",
         headers: this.getHeaders(),
       });
 
+      // If bucket was not found, attempt auto-create
+      if (res.status === 404) {
+        try {
+          await this.ensureBucketExists();
+          res = await this.fetchFn(url, {
+            method: "GET",
+            headers: this.getHeaders(),
+          });
+        } catch {
+          // Ignore auto-create error and proceed to diagnostic error below
+        }
+      }
+
       const latencyMs = Date.now() - startTime;
       if (!res.ok) {
         const errText = await res.text();
+        let helpfulMsg = `HTTP ${res.status}: ${errText}`;
+        if (res.status === 404) {
+          helpfulMsg = `Bucket '${this.bucket}' not found in Supabase. Please create bucket '${this.bucket}' in your Supabase Dashboard (Storage > New bucket).`;
+        } else if (res.status === 401 || res.status === 403) {
+          helpfulMsg = `HTTP ${res.status}: Authentication failed. Check your Supabase API key (use service_role key or anon key).`;
+        }
         return {
           ok: false,
           provider: this.providerName,
           bucket: this.bucket,
           endpoint: this.supabaseUrl,
           latencyMs,
-          error: `HTTP ${res.status}: ${errText}`,
+          error: helpfulMsg,
         };
       }
 
@@ -188,5 +248,18 @@ export class SupabaseStorageProvider implements ICloudStorageProvider {
         error: error.message,
       };
     }
+  }
+
+  private async ensureBucketExists(): Promise<void> {
+    const createUrl = `${this.supabaseUrl}/storage/v1/bucket`;
+    await this.fetchFn(createUrl, {
+      method: "POST",
+      headers: this.getHeaders(),
+      body: JSON.stringify({
+        id: this.bucket,
+        name: this.bucket,
+        public: false,
+      }),
+    });
   }
 }
