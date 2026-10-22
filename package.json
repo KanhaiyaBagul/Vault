@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "node --experimental-strip-types src/server/start.ts",
-    "test": "node --experimental-strip-types --test tests/**/*.test.ts"
+    "test": "node --experimental-strip-types --test tests/**/*.test.ts",
+    "dev": "vite",
+    "build": "vite build"
   },
   "keywords": [
     "sse",
@@ -14,5 +16,15 @@
     "verifiable-search"
   ],
   "author": "Vault Team",
-  "license": "GPL-3.0-or-later"
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.5"
+  }
 }

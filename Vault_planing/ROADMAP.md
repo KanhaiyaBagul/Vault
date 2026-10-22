@@ -155,3 +155,8 @@
 - **Status:** **COMPLETED** (157 / 157 automated tests passing across 37 test suites)
 - **Directory:** `Vault_planing/15-cloud-profiles-and-durability/`
 - **Goal:** Built an enterprise Multi-Cloud Connection Hub with named profiles (Supabase, AWS S3, Local Disk, In-Memory), auto-persistence to git-ignored `./.vault_storage/cloud_profiles.json`, 1-click cloud switching, durable server blind search index (`blind_index.json`), and persistent server audit log across backend restarts.
+
+### Phase 16: React Modular Architecture, Side-by-Side Studio Workspace & Custom Color System
+- **Status:** **IN PROGRESS**
+- **Directory:** `Vault_planing/16-react-side-by-side-ui/`
+- **Goal:** Modernize frontend into React 18 + Vite + TypeScript. Implement Side-by-Side Vault Workspace (Document Library on left, Zero-Knowledge Search & Live Decrypted Viewer on right). Eliminate UI clutter (raw subkeys, inline attack simulators, duplicate audit tables). Deliver custom palette: Alabaster Grey (`#D9D9D9`) canvas, Coffee Bean (`#1A0706`) typography, Black Cherry (`#55100D`) structure, and surgical Racing Red (`#DD0200`) highlights.

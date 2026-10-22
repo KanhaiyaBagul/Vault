@@ -1,0 +1,2322 @@
+/* ==========================================================================
+   VAULT SSE // Claude Warm-Editorial Design System
+   Architecture: Tinted Cream Canvas (#FAF8F5) with Soft Limestone (#F0E6D8)
+   Product Chrome: Deep Rust (#5A2E25 / #22120E) Code & Cloud Lens
+   Accents: Terracotta Clay (#B5543A) & Olive Accent (#6F7F5F)
+   Typography: Cormorant Garamond (Display Serif) + Inter (Humanist Sans) + JetBrains Mono
+   Specification: Claude Editorial Interface System with Luxury Swatch Palette
+   ========================================================================== */
+
+:root {
+  /* --------------------------------------------------------------------------
+     1. Color Palette: Warm-Editorial Canvas & Luxury Swatch Mapping
+     -------------------------------------------------------------------------- */
+  /* Canvas & Cream Layering */
+  --canvas: #FAF8F5;                 /* Warm tinted cream body floor */
+  --canvas-subtle: #F3ECE2;          /* Inset input & card background */
+  --surface-card: #F0E6D8;           /* Soft Limestone primary card surface */
+  --surface-soft: #F5EFE6;           /* Subtle secondary surface tier */
+  --surface-cream-strong: #E8DFD1;   /* Selected tab & emphasized category surface */
+  --surface-hover: #EBE1D3;          /* Interactive hover tier on cream */
+
+  /* Dark Product Chrome (Deep Rust) */
+  --surface-dark: #22120E;           /* Deep Rust dark product base */
+  --surface-dark-elevated: #301A15;  /* Elevated code panels & dark card containers */
+  --surface-dark-soft: #2A1612;      /* Code window inner background */
+  --surface-dark-accent: #5A2E25;    /* Deep Rust border & table header tone */
+  --surface-dark-hover: #3C211B;     /* Interactive row hover on dark */
+
+  /* Terracotta Clay Primary Accent */
+  --primary: #B5543A;                /* Terracotta Clay signature CTA button */
+  --primary-active: #96422C;         /* Press/active darkened variant */
+  --primary-disabled: #E5DDD4;       /* Disabled CTA background on cream */
+  --primary-focus-ring: rgba(181, 84, 58, 0.2);
+  --primary-dim: rgba(181, 84, 58, 0.1);
+
+  /* Olive Accent (Cryptographic Proofs & Verifiability) */
+  --accent-olive: #6F7F5F;           /* Olive Accent for verified integrity & proofs */
+  --accent-olive-soft: rgba(111, 127, 95, 0.16);
+  --accent-olive-dim: rgba(111, 127, 95, 0.1);
+
+  /* Typography Inks */
+  --ink: #1A1715;                    /* Warm dark ink for display headlines */
+  --body: #3E3A36;                   /* Warm dark body text */
+  --body-strong: #252320;            /* Emphasized labels and sub-headings */
+  --muted: #5A544E;                  /* Secondary text, hints, placeholders (WCAG AA >= 5.5:1 on cream) */
+  --muted-soft: #736D66;             /* Fine print, captions, subtext (WCAG AA compliant) */
+
+  /* Text on Dark Product Chrome */
+  --on-dark: #FAF8F5;                /* Cream text on dark rust product chrome */
+  --on-dark-soft: #A69E96;           /* Muted labels & hashes on dark */
+  --on-primary: #FFFFFF;             /* Crisp white text on Terracotta buttons */
+
+  /* Structural Hairlines & Borders */
+  --hairline: #E0D6C8;               /* 1px soft border on cream surfaces */
+  --hairline-soft: #EBE5DC;          /* Barely visible divider on cream */
+  --border: #D6CAB8;                 /* Stronger division border */
+  --border-strong: #BFB19D;          /* High-contrast divider */
+  --border-dark: rgba(90, 46, 37, 0.6);
+
+  /* Semantic Alerts */
+  --success: #6F7F5F;                /* Olive Accent for cryptographic pass */
+  --warning: #D4A017;
+  --warning-dim: rgba(212, 160, 23, 0.12);
+  --danger: #B53A3A;                 /* Red alert for attacker injection */
+  --danger-dim: rgba(181, 58, 58, 0.12);
+
+  /* --------------------------------------------------------------------------
+     2. Editorial Typography
+     -------------------------------------------------------------------------- */
+  --font-display: "Cormorant Garamond", "Tiempos Headline", "Copernicus", Georgia, serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* --------------------------------------------------------------------------
+     3. Geometry & Radii
+     -------------------------------------------------------------------------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;                  /* Standard button & text-input radius */
+  --radius-lg: 12px;                 /* Content cards & product mockup windows */
+  --radius-xl: 16px;
+  --radius-pill: 9999px;             /* Badges & category pills */
+
+  /* --------------------------------------------------------------------------
+     4. Elevations (Color-Block First, Shadow Rare)
+     -------------------------------------------------------------------------- */
+  --shadow-subtle: 0 1px 3px rgba(26, 23, 21, 0.05);
+  --shadow-card: 0 2px 8px -1px rgba(26, 23, 21, 0.06), 0 0 0 1px var(--hairline);
+  --shadow-dark: 0 6px 24px -2px rgba(18, 9, 7, 0.5), 0 0 0 1px var(--border-dark);
+
+  /* Compatibility Aliases for Legacy Tests */
+  --bg-dark: var(--canvas);
+  --neon-cyan: var(--primary);
+  --racing-red: var(--primary);
+  --black-cherry: var(--surface-dark-accent);
+  --alabaster: var(--surface-card);
+}
+
+/* ==========================================================================
+   Base & Resets
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--canvas);
+  color: var(--body);
+  min-height: 100vh;
+  line-height: 1.55;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Monospace Helpers */
+.monospace {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  letter-spacing: 0;
+}
+
+/* Subtle Warm Atmospheric Lighting (Deliberately Soft & Warm) */
+.ambient-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.15;
+}
+
+.glow-1 {
+  width: 600px;
+  height: 600px;
+  top: -200px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(240, 230, 216, 0.8) 0%, transparent 70%);
+}
+
+.glow-2 {
+  width: 500px;
+  height: 500px;
+  top: 30%;
+  right: -100px;
+  background: radial-gradient(circle, rgba(181, 84, 58, 0.15) 0%, transparent 70%);
+}
+
+.glow-3 {
+  width: 550px;
+  height: 550px;
+  bottom: -150px;
+  left: 20%;
+  background: radial-gradient(circle, rgba(232, 223, 209, 0.7) 0%, transparent 70%);
+}
+
+/* App Container */
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ==========================================================================
+   Header (Claude Editorial Navigation: Warm, Literary, Grounded)
+   ========================================================================== */
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.6rem;
+  background: var(--surface-card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-subtle);
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+}
+
+/* Anthropic 4-Spoke Radial Asterisk Spark Mark */
+.brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.brand-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.brand-subtitle {
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+/* Mode View Switcher (Claude Editorial Category Tabs) */
+.view-mode-tabs {
+  display: flex;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 0.25rem;
+  gap: 0.25rem;
+}
+
+.view-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.view-tab-btn svg {
+  color: inherit;
+}
+
+.view-tab-btn:hover {
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+
+.view-tab-btn.active {
+  color: var(--ink);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(26, 23, 21, 0.05);
+}
+
+.header-badges {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.security-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.9rem;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  font-size: 0.76rem;
+  color: var(--body);
+}
+
+.security-chip strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.security-chip.interactive {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.18s ease;
+}
+
+.security-chip.interactive:hover {
+  background: var(--surface-card);
+  border-color: var(--primary);
+  box-shadow: 0 2px 6px rgba(181, 84, 58, 0.12);
+  transform: translateY(-1px);
+}
+
+.security-chip.interactive:active {
+  transform: translateY(0);
+}
+
+.security-chip.interactive:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.chip-action-icon {
+  margin-left: 0.15rem;
+  color: var(--muted);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.security-chip.interactive:hover .chip-action-icon {
+  color: var(--primary);
+  transform: translateY(1px);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-emerald {
+  background: var(--accent-olive);
+}
+
+.dot-warn {
+  background: var(--warning);
+}
+
+.dot-danger {
+  background: var(--danger);
+}
+
+/* ==========================================================================
+   Badges & Tags (Editorial Pill Accents)
+   ========================================================================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.badge-pulse {
+  background: var(--primary-dim);
+  color: var(--primary);
+  border: 1px solid rgba(181, 84, 58, 0.3);
+}
+
+.badge-emerald {
+  background: var(--accent-olive-soft);
+  color: var(--accent-olive);
+  border: 1px solid rgba(111, 127, 95, 0.35);
+  font-weight: 600;
+}
+
+.badge-cyan {
+  background: var(--surface-soft);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+}
+
+.badge-amber {
+  background: var(--warning-dim);
+  color: #9E7409;
+  border: 1px solid rgba(212, 160, 23, 0.3);
+}
+
+.badge-crimson {
+  background: var(--danger-dim);
+  color: var(--danger);
+  border: 1px solid rgba(181, 58, 58, 0.35);
+}
+
+.badge-sm {
+  font-size: 0.66rem;
+  padding: 0.15rem 0.5rem;
+}
+
+.tag {
+  font-size: 0.74rem;
+  color: var(--muted);
+  background: var(--canvas);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  letter-spacing: 0;
+}
+
+.tag-crimson {
+  color: var(--danger);
+  border-color: rgba(181, 58, 58, 0.3);
+  background: var(--danger-dim);
+}
+
+/* ==========================================================================
+   Panels & Feature Cards (Soft Limestone Canvas Mode)
+   ========================================================================== */
+
+.panel {
+  background: var(--surface-card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.card-glass {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: var(--shadow-subtle);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.panel-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: -0.015em;
+}
+
+.card-hint {
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.card-hint code {
+  color: var(--ink);
+  background: var(--canvas-subtle);
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   Master Key Enclave Panel
+   ========================================================================== */
+
+.keygen-panel {
+  border-top: 3px solid var(--primary);
+  background: var(--surface-card);
+}
+
+.entropy-meter-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.entropy-track {
+  width: 140px;
+  height: 6px;
+  background: var(--canvas);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+}
+
+.entropy-bar {
+  height: 100%;
+  width: 25%;
+  background: var(--primary);
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.entropy-label {
+  font-weight: 500;
+  color: var(--body);
+  min-width: 95px;
+}
+
+.keygen-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.input-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+
+.input-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--body-strong);
+  letter-spacing: 0;
+}
+
+.input-text, .input-textarea {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.95rem;
+  color: var(--ink);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.input-text::placeholder, .input-textarea::placeholder {
+  color: var(--muted);
+}
+
+.input-text:focus, .input-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-focus-ring);
+  background: #FFFFFF;
+}
+
+.btn-group-align {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.input-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-password-wrap .input-text {
+  padding-right: 2.6rem;
+}
+
+.btn-toggle-pw {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.btn-toggle-pw:hover {
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+
+.btn-toggle-pw:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+/* Collapsible Advanced Crypto Details */
+.advanced-crypto-toggle {
+  margin-top: 0.35rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--canvas);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.toggle-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.toggle-summary svg {
+  color: inherit;
+}
+
+.toggle-summary:hover {
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+
+.toggle-hint {
+  font-size: 0.74rem;
+  color: var(--muted);
+  margin-left: 0.35rem;
+}
+
+.advanced-crypto-body {
+  padding: 1rem;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Subkeys Grid */
+.subkeys-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.65rem;
+}
+
+.subkey-item {
+  background: var(--surface-card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.subkey-name {
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.subkey-status {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.subkey-status.active {
+  color: var(--accent-olive);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Buttons (Claude Spec: Terracotta Clay 8px Radius, 40px Height)
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  letter-spacing: 0;
+  height: 40px;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
+  height: 32px;
+}
+
+/* Primary CTA: Terracotta Clay */
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+  box-shadow: 0 1px 3px rgba(181, 84, 58, 0.2);
+}
+
+.btn-primary:hover {
+  background: var(--primary-active);
+  border-color: var(--primary-active);
+  transform: translateY(-0.5px);
+}
+
+.btn-primary:active {
+  background: #7D3522;
+  transform: translateY(0);
+}
+
+/* Secondary CTA: Soft Limestone / Cream */
+.btn-secondary {
+  background: var(--canvas);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+}
+
+.btn-secondary:hover {
+  background: var(--surface-cream-strong);
+  border-color: var(--border);
+}
+
+/* Action Search Button: Terracotta */
+.btn-cyan {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+  box-shadow: 0 1px 3px rgba(181, 84, 58, 0.2);
+}
+
+.btn-cyan:hover {
+  background: var(--primary-active);
+  border-color: var(--primary-active);
+}
+
+/* Outlined Buttons */
+.btn-outline {
+  background: transparent;
+  color: var(--body);
+  border: 1px solid var(--hairline);
+}
+
+.btn-outline:hover {
+  background: var(--surface-soft);
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+/* Danger / Attacker Simulator Buttons */
+.btn-danger-outline {
+  background: var(--danger-dim);
+  color: #8C2525;
+  border: 1px solid rgba(181, 58, 58, 0.3);
+}
+
+.btn-danger-outline:hover {
+  background: rgba(181, 58, 58, 0.2);
+  color: #6E1A1A;
+  border-color: var(--danger);
+}
+
+/* ==========================================================================
+   Split View & Mode Layouts
+   ========================================================================== */
+
+.split-view {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+/* 1. Client Vault Mode (Default: Clean Document Vault & Search) */
+.app-container.view-client .cloud-column,
+.app-container.view-client .audit-panel {
+  display: none !important;
+}
+
+.app-container.view-client .split-view {
+  display: block;
+}
+
+.app-container.view-client .client-column {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 1.5rem;
+}
+
+.app-container.view-client .column-header {
+  grid-column: 1 / -1;
+}
+
+/* 2. Cloud & Security Lab Mode (Deep Rust Dark Product Chrome) */
+.app-container.view-inspector .client-column {
+  display: none !important;
+}
+
+.app-container.view-inspector .split-view {
+  display: block;
+}
+
+.app-container.view-inspector .cloud-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.app-container.view-inspector .column-header {
+  grid-column: 1 / -1;
+}
+
+.app-container.view-inspector .card-glass:last-child {
+  grid-column: 1 / -1;
+}
+
+/* 3. Split View Mode (Classic Dual Side-by-Side Comparison) */
+.app-container.view-split .split-view {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.app-container.view-split .client-column,
+.app-container.view-split .cloud-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.3rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+}
+
+.col-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.column-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.client-theme {
+  background: var(--surface-card);
+  border-left: 3px solid var(--ink);
+  color: var(--ink);
+}
+
+.client-theme svg {
+  color: var(--ink);
+}
+
+.cloud-theme {
+  background: var(--surface-dark);
+  border-left: 3px solid var(--primary);
+  color: var(--on-dark);
+  border-color: var(--border-dark);
+}
+
+.cloud-theme svg {
+  color: var(--primary);
+}
+
+/* ==========================================================================
+   Ingestion Drop Zone
+   ========================================================================== */
+
+.drop-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--surface-soft);
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--primary);
+  background: rgba(181, 84, 58, 0.04);
+}
+
+.drop-zone svg {
+  color: var(--primary);
+}
+
+.drop-text {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.ingest-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ingest-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   Search Bar & Query Breakdown
+   ========================================================================== */
+
+.search-bar-wrap {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.search-input {
+  font-size: 0.92rem;
+  padding: 0.7rem 1.05rem;
+  background: var(--canvas);
+}
+
+.query-breakdown {
+  display: flex;
+  gap: 1.25rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+}
+
+.breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.breakdown-label {
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   Decrypted Search Results Cards
+   ========================================================================== */
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 180px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  color: var(--muted);
+  background: var(--canvas);
+  border: 1px dashed var(--hairline);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.empty-state-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surface-card);
+  border: 1px solid var(--hairline);
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.empty-state-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+}
+
+.empty-state-desc {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 440px;
+  margin-bottom: 1.15rem;
+}
+
+.empty-suggestions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.suggestion-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin-right: 0.15rem;
+}
+
+.btn-chip-suggest {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  color: var(--body-strong);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-chip-suggest:hover {
+  background: var(--primary-dim);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(181, 84, 58, 0.12);
+}
+
+.btn-chip-suggest:active {
+  transform: translateY(0);
+}
+
+.doc-result-card {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 1.05rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  border-left: 3px solid var(--primary);
+  box-shadow: var(--shadow-subtle);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.doc-result-card:hover {
+  transform: translateY(-0.5px);
+  border-color: var(--border);
+}
+
+.doc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.doc-id-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.doc-content-body {
+  font-size: 0.86rem;
+  color: var(--body);
+  line-height: 1.6;
+  background: var(--surface-soft);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+}
+
+.doc-content-body mark {
+  background: rgba(181, 84, 58, 0.18);
+  color: var(--ink);
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+  font-weight: 500;
+  border: 1px solid rgba(181, 84, 58, 0.3);
+}
+
+.doc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.doc-footer code {
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   Dark Product Chrome: Untrusted Cloud Lens (Deep Rust Style)
+   ========================================================================== */
+
+.cloud-column .panel,
+.cloud-column .card-glass,
+.audit-panel {
+  background: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  box-shadow: var(--shadow-dark);
+  color: var(--on-dark);
+}
+
+.cloud-column .card-title,
+.audit-panel .panel-title {
+  color: var(--on-dark);
+}
+
+.cloud-column .card-hint {
+  color: var(--on-dark-soft);
+}
+
+.cloud-column .card-hint code {
+  background: var(--surface-dark-elevated);
+  border-color: rgba(90, 46, 37, 0.6);
+  color: var(--on-dark);
+}
+
+/* Proof Card & Real-Time Metrics */
+.proof-card {
+  border-top: 3px solid var(--accent-olive) !important;
+}
+
+.proof-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.proof-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.metric-box {
+  background: var(--surface-dark-elevated);
+  border: 1px solid rgba(90, 46, 37, 0.5);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.2rem;
+}
+
+.metric-label {
+  font-size: 0.7rem;
+  color: var(--on-dark-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric-val {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--on-dark);
+  font-family: var(--font-mono);
+}
+
+.metric-sub {
+  font-size: 0.66rem;
+  color: var(--on-dark-soft);
+}
+
+.merkle-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  background: var(--surface-dark-soft);
+  border: 1px solid rgba(90, 46, 37, 0.5);
+  border-radius: var(--radius-sm);
+  font-size: 0.74rem;
+}
+
+.merkle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.merkle-label {
+  color: var(--on-dark-soft);
+}
+
+.merkle-hash {
+  color: #8CC47E;
+  word-break: break-all;
+}
+
+/* Attacker Tamper Defense Simulator */
+.attacker-panel {
+  border-top: 3px solid var(--primary) !important;
+}
+
+.text-crimson {
+  color: #FFAEAE !important;
+}
+
+.attacker-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+}
+
+.tamper-alert {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(181, 58, 58, 0.2);
+  border: 1px solid rgba(181, 58, 58, 0.5);
+  animation: shake 0.35s ease;
+}
+
+.alert-icon {
+  font-size: 1.4rem;
+}
+
+.alert-title {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #FFAEAE;
+  margin-bottom: 0.2rem;
+}
+
+.alert-desc {
+  font-size: 0.8rem;
+  color: var(--on-dark);
+  line-height: 1.4;
+}
+
+/* Tabs & Cloud Multi-Map Table Inspector */
+.tabs-header {
+  display: flex;
+  gap: 0.45rem;
+  border-bottom: 1px solid rgba(90, 46, 37, 0.5);
+  padding-bottom: 0.45rem;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--on-dark-soft);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn.active {
+  color: var(--on-dark);
+  background: var(--surface-dark-accent);
+  border-color: rgba(181, 84, 58, 0.5);
+}
+
+.tab-pane {
+  display: none;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tab-pane.active {
+  display: flex;
+}
+
+.table-stats-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--on-dark-soft);
+}
+
+.table-wrap {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid rgba(90, 46, 37, 0.5);
+  border-radius: var(--radius-sm);
+  background: var(--surface-dark-soft);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+  text-align: left;
+}
+
+.data-table th {
+  background: var(--surface-dark-accent);
+  color: var(--on-dark);
+  font-weight: 500;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid rgba(90, 46, 37, 0.6);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.data-table td {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid rgba(90, 46, 37, 0.3);
+  color: var(--on-dark-soft);
+  word-break: break-all;
+}
+
+.data-table tr:hover td {
+  background: var(--surface-dark-hover);
+  color: var(--on-dark);
+}
+
+.table-empty {
+  text-align: center;
+  padding: 2rem !important;
+  color: var(--on-dark-soft);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   Audit Log Viewer (Deep Rust Dark Product Window)
+   ========================================================================== */
+
+.audit-panel {
+  border-top: 3px solid var(--accent-olive);
+}
+
+.audit-table-wrap {
+  max-height: 220px;
+}
+
+/* ==========================================================================
+   Footer (Claude Editorial Warm Footer)
+   ========================================================================== */
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* Animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-3px); }
+  40%, 80% { transform: translateX(3px); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1080px) {
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.95rem;
+  }
+  .view-mode-tabs {
+    justify-content: center;
+  }
+  .header-badges {
+    justify-content: space-between;
+  }
+  .split-view,
+  .app-container.view-client .client-column,
+  .app-container.view-inspector .cloud-column,
+  .app-container.view-split .split-view {
+    grid-template-columns: 1fr;
+  }
+  .subkeys-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 0.75rem 0.6rem;
+    gap: 1rem;
+  }
+  .app-header {
+    padding: 0.85rem 1rem;
+  }
+  .brand-title {
+    font-size: 1.3rem;
+  }
+  .header-badges {
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .security-chip {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.72rem;
+  }
+  .cloud-modal-container {
+    max-width: 96vw;
+    margin: 0.5rem;
+  }
+  .cloud-modal-header {
+    padding: 1rem 1.15rem;
+  }
+  .cloud-modal-body {
+    padding: 1.15rem;
+  }
+  .toast-container {
+    bottom: 1rem;
+    right: 1rem;
+    width: calc(100vw - 2rem);
+  }
+  .empty-suggestions {
+    gap: 0.35rem;
+  }
+}
+
+/* ==========================================================================
+   Toast Notification System (Claude Warm-Editorial Palette)
+   ========================================================================== */
+
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+  max-width: 440px;
+  width: calc(100vw - 2rem);
+}
+
+.vault-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.9rem 1.1rem;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px -4px rgba(26, 23, 21, 0.15), 0 2px 6px -1px rgba(26, 23, 21, 0.08);
+  color: var(--body);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  animation: toastSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(16px) scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.vault-toast.toast-exit {
+  transform: translateY(10px) scale(0.95);
+  opacity: 0;
+}
+
+.vault-toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.vault-toast-content {
+  flex: 1;
+}
+
+.vault-toast-title {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.15rem;
+  font-size: 0.92rem;
+}
+
+.vault-toast-msg {
+  color: var(--body);
+  font-size: 0.85rem;
+}
+
+.vault-toast-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  margin: -0.2rem -0.2rem 0 0.25rem;
+  border-radius: var(--radius-xs);
+  transition: color 0.15s ease, background 0.15s ease;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vault-toast-close:hover {
+  color: var(--ink);
+  background-color: var(--surface-hover);
+}
+
+.vault-toast.toast-success {
+  border-left: 4px solid var(--accent-olive);
+}
+.vault-toast.toast-success .vault-toast-icon {
+  color: var(--accent-olive);
+}
+
+.vault-toast.toast-error {
+  border-left: 4px solid var(--danger);
+}
+.vault-toast.toast-error .vault-toast-icon {
+  color: var(--danger);
+}
+
+.vault-toast.toast-warning {
+  border-left: 4px solid var(--warning);
+}
+.vault-toast.toast-warning .vault-toast-icon {
+  color: var(--warning);
+}
+
+.vault-toast.toast-info {
+  border-left: 4px solid var(--primary);
+}
+.vault-toast.toast-info .vault-toast-icon {
+  color: var(--primary);
+}
+
+/* ==========================================================================
+   Inline Form Validation & Error States
+   ========================================================================== */
+
+.field-error-msg {
+  font-size: 0.82rem;
+  color: var(--danger);
+  margin-top: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  animation: fadeIn 0.2s ease;
+  font-weight: 500;
+}
+
+.field-error-msg::before {
+  content: "⚠";
+  font-size: 0.85rem;
+}
+
+input.has-error,
+textarea.has-error,
+select.has-error {
+  border-color: var(--danger) !important;
+  background-color: rgba(181, 58, 58, 0.03) !important;
+  box-shadow: 0 0 0 3px rgba(181, 58, 58, 0.15) !important;
+}
+
+/* ==========================================================================
+   Button Loading Spinners & Double-Submission Prevention
+   ========================================================================== */
+
+.btn.is-loading {
+  position: relative !important;
+  pointer-events: none !important;
+  color: transparent !important;
+}
+
+.btn.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: calc(50% - 8px);
+  left: calc(50% - 8px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: btnSpin 0.65s linear infinite;
+}
+
+.btn-outline.is-loading::after,
+.btn-secondary.is-loading::after {
+  border: 2px solid rgba(34, 18, 14, 0.2);
+  border-top-color: var(--ink);
+}
+
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Cloud Storage Settings Modal / Drawer
+   ========================================================================== */
+
+.cloud-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(26, 23, 21, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.cloud-modal-container {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 36px rgba(26, 23, 21, 0.2);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(18px) scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.cloud-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.6rem;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-soft);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.cloud-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cloud-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+
+.cloud-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-xs);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.cloud-modal-close:hover {
+  color: var(--ink);
+  background: var(--surface-hover);
+}
+
+.cloud-modal-body {
+  padding: 1.5rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+/* Data Locality Callout Box */
+.cloud-notice-box {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.85rem 1.1rem;
+  background: rgba(111, 127, 95, 0.08);
+  border: 1px solid rgba(111, 127, 95, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--body);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.cloud-notice-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: -1px;
+}
+
+.cloud-notice-text strong {
+  color: var(--ink);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+/* Actionable Cloud Feedback Card */
+.cloud-feedback-card {
+  padding: 0.95rem 1.15rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  animation: fadeIn 0.2s ease;
+}
+
+.cloud-feedback-card .feedback-icon {
+  font-size: 1.15rem;
+  font-weight: bold;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.cloud-feedback-card .feedback-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cloud-feedback-card .feedback-text strong {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.cloud-feedback-card .feedback-hint {
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  opacity: 0.9;
+  margin-top: 0.2rem;
+  padding-top: 0.25rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.cloud-feedback-card.is-success {
+  background: rgba(111, 127, 95, 0.12);
+  border: 1px solid var(--accent-olive);
+  color: #26381C;
+}
+.cloud-feedback-card.is-success .feedback-icon {
+  color: var(--accent-olive);
+}
+
+.cloud-feedback-card.is-error {
+  background: rgba(181, 58, 58, 0.08);
+  border: 1px solid var(--danger);
+  color: #7D1D1D;
+}
+.cloud-feedback-card.is-error .feedback-icon {
+  color: var(--danger);
+}
+
+.cloud-feedback-card.is-loading {
+  background: rgba(181, 84, 58, 0.08);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+/* ============================================================================
+   Phase 14: Document Vault Manager, Client Security Log & Plaintext Viewer
+   ============================================================================ */
+
+/* Ingested Document Vault Panel */
+.doc-vault-panel {
+  margin-top: 1.5rem;
+}
+
+.vault-tools-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.doc-vault-table-wrap {
+  margin-top: 0.85rem;
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+
+.doc-actions-cell {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.btn-table-action {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--body);
+  border-radius: var(--radius-sm);
+  padding: 0.22rem 0.55rem;
+  font-size: 0.76rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+.btn-table-action:hover {
+  background: var(--canvas);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-table-action.action-delete:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(181, 58, 58, 0.08);
+}
+
+/* Client Security & Audit Activity Console */
+.client-log-panel {
+  margin-top: 2rem;
+  border-top: 2px solid var(--hairline);
+  padding-top: 1.5rem;
+}
+
+.client-log-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 0.65rem 0.95rem;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+}
+
+.filter-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.log-filter-btn {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+.log-filter-btn:hover {
+  color: var(--body-strong);
+  border-color: var(--muted);
+}
+
+.log-filter-btn.active {
+  background: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+}
+
+.log-chain-status {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--body);
+}
+
+.client-log-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 0.85rem;
+  background: #181412;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: #D6CEC5;
+}
+
+.log-feed-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #8C827A;
+  font-style: italic;
+  font-family: var(--font-sans);
+}
+
+.log-item-row {
+  display: flex;
+  flex-direction: column;
+  padding: 0.6rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.log-item-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.log-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.log-item-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.log-item-seq {
+  color: #8C827A;
+  font-size: 0.74rem;
+}
+
+.log-item-time {
+  color: #A39990;
+  font-size: 0.74rem;
+}
+
+.log-cat-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.log-cat-INGESTION { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.log-cat-SEARCH { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+.log-cat-SECURITY { background: rgba(181, 84, 58, 0.2); color: #F0A080; border: 1px solid rgba(181, 84, 58, 0.4); }
+.log-cat-KEY_MANAGEMENT { background: rgba(167, 139, 250, 0.15); color: #c084fc; border: 1px solid rgba(167, 139, 250, 0.3); }
+.log-cat-CLOUD { background: rgba(111, 127, 95, 0.2); color: #A4B892; border: 1px solid rgba(111, 127, 95, 0.4); }
+
+.log-item-event {
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.log-item-status {
+  font-size: 0.7rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: var(--radius-pill);
+}
+
+.log-item-status.status-SUCCESS { color: #86efac; background: rgba(134, 239, 172, 0.1); }
+.log-item-status.status-VERIFIED { color: #86efac; background: rgba(134, 239, 172, 0.1); }
+.log-item-status.status-WARNING { color: #fde047; background: rgba(253, 224, 71, 0.1); }
+.log-item-status.status-TAMPER_DETECTED { color: #fca5a5; background: rgba(252, 165, 165, 0.15); font-weight: bold; }
+.log-item-status.status-ERROR { color: #fca5a5; background: rgba(252, 165, 165, 0.15); }
+
+.log-item-details-box {
+  margin-top: 0.45rem;
+  padding: 0.45rem 0.65rem;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  font-size: 0.74rem;
+  color: #B5ABA2;
+  word-break: break-all;
+  line-height: 1.45;
+}
+
+.log-detail-line {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.log-detail-k {
+  color: #8C827A;
+  min-width: 110px;
+}
+
+.log-detail-v {
+  color: #EDE4D8;
+}
+
+/* Decrypted Document Viewer Modal */
+.doc-viewer-modal {
+  max-width: 680px;
+  width: 90vw;
+}
+
+.doc-viewer-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  padding: 0.75rem 0.95rem;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.15rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.doc-viewer-meta-bar strong {
+  color: var(--body-strong);
+}
+
+.doc-viewer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.doc-viewer-body textarea {
+  resize: vertical;
+  line-height: 1.5;
+  font-size: 0.85rem;
+  background: #FFFFFF;
+}
+
+/* ============================================================================
+   Cloud Profiles & Multi-Cloud Connection Hub
+   ============================================================================ */
+
+.cloud-modal-subtitle {
+  font-size: 0.76rem;
+  color: var(--muted);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.cloud-profiles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.cloud-profile-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 1rem;
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cloud-profile-card:hover {
+  border-color: rgba(90, 46, 37, 0.25);
+  box-shadow: var(--shadow-card);
+}
+
+.cloud-profile-card.is-active {
+  border-color: var(--cta);
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(240, 230, 216, 0.4) 100%);
+  box-shadow: 0 2px 8px rgba(181, 84, 58, 0.12);
+}
+
+.cloud-profile-card.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--cta);
+}
+
+.cloud-profile-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.cloud-profile-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cloud-profile-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--body-strong);
+}
+
+.cloud-profile-details {
+  font-size: 0.76rem;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+  font-family: var(--font-sans);
+}
+
+.cloud-profile-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cloud-profile-detail-item code {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--body);
+  background: rgba(0, 0, 0, 0.04);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+.cloud-profile-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--hairline);
+}
+
+.btn-profile-action {
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  background: #FFFFFF;
+  color: var(--body);
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-profile-action:hover:not(:disabled) {
+  background: var(--canvas);
+  border-color: var(--border);
+  color: var(--body-strong);
+}
+
+.btn-profile-action.btn-activate {
+  color: #FFFFFF;
+  background: var(--cta);
+  border-color: var(--cta);
+  font-weight: 600;
+}
+
+.btn-profile-action.btn-activate:hover:not(:disabled) {
+  background: var(--cta-hover);
+  border-color: var(--cta-hover);
+}
+
+.btn-profile-action.btn-active-badge {
+  background: rgba(111, 127, 95, 0.15);
+  color: #3b5028;
+  border-color: rgba(111, 127, 95, 0.4);
+  font-weight: 600;
+  cursor: default;
+}
+
+.btn-profile-action.btn-delete:hover:not(:disabled) {
+  color: #b91c1c;
+  border-color: rgba(185, 28, 28, 0.4);
+  background: rgba(254, 242, 242, 0.6);
+}
+
+.cloud-profile-editor-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  box-shadow: var(--shadow-card);
+  margin-top: 0.85rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.cloud-profile-editor-card .editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.btn-text-sm {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0 0.35rem;
+}
+
+.btn-text-sm:hover {
+  color: var(--fg);
+}
+
