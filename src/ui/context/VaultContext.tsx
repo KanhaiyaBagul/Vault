@@ -12,6 +12,8 @@ import {
 
 export type ViewMode = "workspace" | "cloud" | "audit" | "lab";
 
+export type UploadStep = "idle" | "tokenizing" | "encrypting" | "trapdoors" | "cloud_upload" | "complete";
+
 export interface ToastMessage {
   id: string;
   text: string;
@@ -43,10 +45,12 @@ interface VaultContextType {
   documents: EncryptedDocumentRecord[];
   selectedDocId: string | null;
   selectedDoc: EncryptedDocumentRecord | null;
-  selectDocument: (id: string | null) => void;
+  selectDocument: (id: string | null) => Promise<void>;
   uploadDocument: (file: File) => Promise<void>;
   deleteDocument: (id: string) => Promise<void>;
   loadSampleCorpus: () => Promise<void>;
+  syncCloudDocuments: (targetProfileId?: string) => Promise<void>;
+  uploadStep: UploadStep;
 
   // Search
   searchQuery: string;
@@ -60,7 +64,7 @@ interface VaultContextType {
   profiles: CloudProfileMasked[];
   activeProfile: CloudProfileMasked | null;
   cloudLatency: number | null;
-  loadProfiles: () => Promise<void>;
+  loadProfiles: () => Promise<string | null>;
   activateProfile: (id: string) => Promise<boolean>;
   saveProfile: (profile: Partial<CloudProfileMasked>) => Promise<{ success: boolean; error?: string }>;
   deleteProfile: (id: string) => Promise<boolean>;
@@ -81,7 +85,7 @@ interface VaultContextType {
 
 const VaultContext = createContext<VaultContextType | undefined>(undefined);
 
-const STORAGE_KEY = "VAULT_CLIENT_DOCS_STORE_V1";
+const LEGACY_STORAGE_KEY = "VAULT_CLIENT_DOCS_STORE_V1";
 
 export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeView, setActiveView] = useState<ViewMode>("workspace");
@@ -94,6 +98,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Documents
   const [documents, setDocuments] = useState<EncryptedDocumentRecord[]>([]);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+  const [uploadStep, setUploadStep] = useState<UploadStep>("idle");
 
   // Search
   const [searchQuery, setSearchQuery] = useState("");
@@ -147,65 +152,187 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, []);
 
-  // 2. Load Persisted Client Documents
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setDocuments(parsed);
-          setSelectedDocId(parsed[0].id);
-        }
-      }
-    } catch {
-      // Ignore corrupted local storage
-    }
-  }, []);
-
-  // Sync to local storage with functional updater support
+  // Helper to persist documents scoped to the active profile
   const persistDocs = useCallback((newDocsOrUpdater: EncryptedDocumentRecord[] | ((prev: EncryptedDocumentRecord[]) => EncryptedDocumentRecord[])) => {
     setDocuments((prev) => {
       const nextDocs = typeof newDocsOrUpdater === "function" ? newDocsOrUpdater(prev) : newDocsOrUpdater;
+      const profId = activeProfile?.id || "default";
+      const storageKey = `VAULT_DOCS_${profId}`;
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(nextDocs));
+        localStorage.setItem(storageKey, JSON.stringify(nextDocs));
       } catch (e) {
         console.warn("Storage sync failed:", e);
       }
       return nextDocs;
     });
-  }, []);
+  }, [activeProfile]);
 
-  // 3. Cloud Profiles Management
-  const loadProfiles = useCallback(async () => {
+  // 2. Synchronize Cloud Documents (Discovery & Provider Scoping)
+  const syncCloudDocuments = useCallback(async (targetProfileId?: string) => {
+    try {
+      const res = await fetch("/api/v1/cloud/documents");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.documents)) return;
+
+      const profId = targetProfileId || activeProfile?.id || "default";
+      const storageKey = `VAULT_DOCS_${profId}`;
+
+      let localCached: EncryptedDocumentRecord[] = [];
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) {
+          localCached = JSON.parse(raw);
+        } else if (profId === "profile_memory_default" || profId === "profile_disk_default") {
+          // Fallback to legacy single storage key for initial seamless migration
+          const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+          if (legacy) localCached = JSON.parse(legacy);
+        }
+      } catch {}
+
+      const localMap = new Map<string, EncryptedDocumentRecord>();
+      for (const doc of localCached) {
+        if (doc && doc.docRef) {
+          localMap.set(doc.docRef, doc);
+        }
+      }
+
+      const reconciled: EncryptedDocumentRecord[] = data.documents.map((cloudDoc: any) => {
+        const existing = localMap.get(cloudDoc.docRef);
+        if (existing) {
+          return {
+            ...existing,
+            name: cloudDoc.filename || existing.name,
+            size: cloudDoc.fileSize || existing.size,
+            provider: cloudDoc.provider || existing.provider,
+          };
+        }
+        return {
+          id: "doc_" + cloudDoc.docRef,
+          name: cloudDoc.filename || `document_${cloudDoc.docRef.slice(0, 8)}.enc`,
+          size: cloudDoc.fileSize || 0,
+          type: cloudDoc.contentType || "text/plain",
+          plaintext: "",
+          docRef: cloudDoc.docRef,
+          ingestedAt: cloudDoc.storedAt || Date.now(),
+          keywordCount: cloudDoc.keywordCount || 0,
+          encryptedBlobRef: cloudDoc.docRef,
+          ivHex: "",
+          ciphertextHex: "",
+          provider: cloudDoc.provider || "cloud",
+          status: "encrypted",
+        };
+      });
+
+      setDocuments(reconciled);
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(reconciled));
+      } catch {}
+
+      setSelectedDocId((prev) => {
+        if (prev && reconciled.some((d) => d.id === prev)) return prev;
+        return reconciled.length > 0 ? reconciled[0].id : null;
+      });
+    } catch (err) {
+      console.warn("[VaultContext] syncCloudDocuments failed:", err);
+    }
+  }, [activeProfile]);
+
+  // 3. Lazy Decrypt Document Payload
+  const ensureDocumentDecrypted = useCallback(async (doc: EncryptedDocumentRecord): Promise<EncryptedDocumentRecord> => {
+    if (doc.plaintext) {
+      return doc;
+    }
+    if (!keys) return doc;
+
+    try {
+      let ivHex = doc.ivHex;
+      let ciphertextHex = doc.ciphertextHex;
+
+      if (!ciphertextHex || !ivHex) {
+        const res = await fetch(`/api/v1/blobs/${doc.docRef}`);
+        if (!res.ok) throw new Error(`Blob not found: HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success || !data.blob) throw new Error("Invalid blob response from server");
+        ivHex = data.blob.ivHex;
+        ciphertextHex = data.blob.ciphertextHex;
+      }
+
+      const decrypted = await decryptPayload(ciphertextHex, ivHex, keys.kEnc);
+      const updated: EncryptedDocumentRecord = {
+        ...doc,
+        ivHex,
+        ciphertextHex,
+        plaintext: decrypted,
+        status: "decrypted",
+      };
+
+      setDocuments((prev) => {
+        const next = prev.map((d) => (d.id === doc.id ? updated : d));
+        const profId = activeProfile?.id || "default";
+        try {
+          localStorage.setItem(`VAULT_DOCS_${profId}`, JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+
+      return updated;
+    } catch (err: any) {
+      console.warn(`[VaultContext] Decryption failed for "${doc.name}":`, err);
+      return doc;
+    }
+  }, [keys, activeProfile]);
+
+  // Select document and trigger lazy-decryption if needed
+  const selectDocument = useCallback(async (id: string | null) => {
+    setSelectedDocId(id);
+    if (!id) return;
+    const target = documents.find((d) => d.id === id);
+    if (target && !target.plaintext) {
+      await ensureDocumentDecrypted(target);
+    }
+  }, [documents, ensureDocumentDecrypted]);
+
+  // 4. Cloud Profiles Management
+  const loadProfiles = useCallback(async (): Promise<string | null> => {
     try {
       const res = await fetch("/api/v1/cloud/profiles");
-      if (!res.ok) return;
+      if (!res.ok) return null;
       const data = await res.json();
       if (data.success && Array.isArray(data.profiles)) {
         setProfiles(data.profiles);
         const active = data.profiles.find((p: CloudProfileMasked) => p.id === data.activeProfileId) || null;
         setActiveProfile(active);
+        return data.activeProfileId || null;
       }
     } catch (err) {
       console.warn("Failed to load cloud profiles:", err);
     }
+    return null;
   }, []);
 
   useEffect(() => {
-    loadProfiles();
-  }, [loadProfiles]);
+    loadProfiles().then((activeId) => {
+      syncCloudDocuments(activeId || undefined);
+    });
+  }, []);
 
   const activateProfile = useCallback(async (id: string): Promise<boolean> => {
     try {
       const res = await fetch(`/api/v1/cloud/profiles/${id}/activate`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
-        showToast(`Activated ${data.activeProfile?.name || "profile"}`, "success");
-        if (data.pingResult?.latencyMs) {
-          setCloudLatency(data.pingResult.latencyMs);
+        showToast(`Activated ${data.profile?.name || "profile"}`, "success");
+        if (data.health?.latencyMs) {
+          setCloudLatency(data.health.latencyMs);
         }
         await loadProfiles();
+        // Clear stale search state from prior provider
+        setSearchQuery("");
+        setSearchResults([]);
+        setSearchLatency(null);
+        // Synchronize documents from new active cloud provider
+        await syncCloudDocuments(id);
         return true;
       } else {
         showToast(data.error || "Activation failed", "danger");
@@ -215,7 +342,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       showToast(err.message, "danger");
       return false;
     }
-  }, [loadProfiles, showToast]);
+  }, [loadProfiles, syncCloudDocuments, showToast]);
 
   const saveProfile = useCallback(async (prof: Partial<CloudProfileMasked>): Promise<{ success: boolean; error?: string }> => {
     try {
@@ -297,7 +424,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // 4. Ingestion / Upload Document
+  // 5. Ingestion / Upload Document (4-Step Cryptographic Pipeline)
   const uploadDocument = useCallback(async (file: File) => {
     if (!keys) {
       showToast("Enclave not ready", "danger");
@@ -305,25 +432,30 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     try {
+      setUploadStep("tokenizing");
       const plaintext = await file.text();
       const docRef = "doc_" + Math.random().toString(36).substring(2, 10);
       const keywords = extractKeywords(plaintext);
 
-      // Client-side AES-256-GCM encryption
+      setUploadStep("encrypting");
       const { ciphertextHex, ivHex } = await encryptPayload(plaintext, keys.kEnc);
 
-      // Client-side Blind index generation
+      setUploadStep("trapdoors");
       const blindEntries = await buildClientBlindIndexEntries(docRef, keywords, keys.kAddr, keys.kMask);
 
-      // Send ciphertext & blind entries to backend
+      setUploadStep("cloud_upload");
       const res = await fetch("/api/v1/index", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           docRef,
+          filename: file.name,
+          fileSize: file.size,
+          keywordCount: keywords.length,
           entries: blindEntries,
           encryptedBlob: {
             docRef,
+            filename: file.name,
             ivHex,
             ciphertextHex,
             contentType: file.type || "text/plain",
@@ -350,6 +482,8 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         encryptedBlobRef: docRef,
         ivHex,
         ciphertextHex,
+        provider: activeProfile ? activeProfile.provider : "cloud",
+        status: "decrypted",
       };
 
       persistDocs((prev) => {
@@ -357,23 +491,31 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return [newRecord, ...filtered];
       });
       setSelectedDocId(newRecord.id);
+      setUploadStep("complete");
+      setTimeout(() => setUploadStep("idle"), 2500);
       showToast(`Encrypted & Indexed "${file.name}" (${keywords.length} keywords)`, "success");
     } catch (err: any) {
+      setUploadStep("idle");
       showToast(`Ingestion failed: ${err.message}`, "danger");
     }
-  }, [keys, persistDocs, showToast]);
+  }, [keys, activeProfile, persistDocs, showToast]);
 
-  // 5. Delete Document
+  // 6. Delete Document
   const deleteDocument = useCallback(async (id: string) => {
     let deletedDocName = "";
+    let docRefToDelete = "";
     persistDocs((prev) => {
       const doc = prev.find((d) => d.id === id);
       if (doc) {
         deletedDocName = doc.name;
-        fetch(`/api/v1/blobs/${doc.docRef}`, { method: "DELETE" }).catch(() => {});
+        docRefToDelete = doc.docRef;
       }
       return prev.filter((d) => d.id !== id);
     });
+
+    if (docRefToDelete) {
+      fetch(`/api/v1/blobs/${docRefToDelete}`, { method: "DELETE" }).catch(() => {});
+    }
 
     if (selectedDocId === id) {
       setSelectedDocId(null);
@@ -383,7 +525,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [selectedDocId, persistDocs, showToast]);
 
-  // 5b. Load Sample Corpus
+  // 6b. Load Sample Corpus
   const loadSampleCorpus = useCallback(async () => {
     const samples = [
       {
@@ -402,7 +544,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [uploadDocument]);
 
-  // 6. Zero-Knowledge Search Execution
+  // 7. Zero-Knowledge Search Execution
   const executeSearch = useCallback(async (overrideQuery?: string) => {
     const query = overrideQuery !== undefined ? overrideQuery : searchQuery;
     if (!query.trim()) {
@@ -423,16 +565,21 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const matchingResults: SearchMatchResult[] = [];
 
-      // Zero-Knowledge match across encrypted vault documents
+      // Match across vault documents, lazy-decrypting if needed
       for (const doc of documents) {
-        const textLower = doc.plaintext.toLowerCase();
+        let text = doc.plaintext;
+        if (!text && doc.docRef) {
+          const decrypted = await ensureDocumentDecrypted(doc);
+          text = decrypted.plaintext;
+        }
+        const textLower = (text || "").toLowerCase();
         const matched = terms.filter((t) => textLower.includes(t));
 
         if (matched.length > 0) {
           matchingResults.push({
             docRef: doc.docRef,
-            document: doc,
-            decryptedContent: doc.plaintext,
+            document: { ...doc, plaintext: text },
+            decryptedContent: text,
             matchedKeywords: matched,
             latencyMs: Math.round(performance.now() - start),
             merkleVerified: true,
@@ -452,9 +599,9 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } finally {
       setIsSearching(false);
     }
-  }, [searchQuery, documents, showToast]);
+  }, [searchQuery, documents, ensureDocumentDecrypted, showToast]);
 
-  // 7. Audit Log & Tamper Verification
+  // 8. Audit Log & Tamper Verification
   const loadAuditLog = useCallback(async () => {
     try {
       const res = await fetch("/api/v1/audit/log");
@@ -498,10 +645,12 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         documents,
         selectedDocId,
         selectedDoc,
-        selectDocument: setSelectedDocId,
+        selectDocument,
         uploadDocument,
         deleteDocument,
         loadSampleCorpus,
+        syncCloudDocuments,
+        uploadStep,
         searchQuery,
         setSearchQuery,
         isSearching,

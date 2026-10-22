@@ -221,8 +221,99 @@
   color: var(--ink-primary);
 }
 
-.stat-dot {
+.panel-header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cloud-quick-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 3px 8px;
+  transition: var(--transition);
+}
+
+.cloud-quick-pill:hover {
+  border-color: var(--accent-red);
+}
+
+.cloud-quick-select {
+  background: transparent;
+  border: none;
+  color: var(--ink-primary);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  max-width: 140px;
+}
+
+/* Real-Time 4-Step Ingestion Stepper */
+.crypto-ingestion-stepper {
+  margin: 12px 20px 0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.stepper-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.step-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 700;
   color: var(--ink-muted);
+  background: var(--bg-subtle);
+  transition: var(--transition);
+}
+
+.step-badge.current {
+  background: var(--accent-red-subtle);
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+  box-shadow: 0 0 8px var(--accent-red-glow);
+  animation: pulseStep 1.2s infinite ease-in-out;
+}
+
+.step-badge.completed {
+  background: var(--status-verified-bg);
+  color: var(--status-verified);
+}
+
+.step-num {
+  font-weight: 800;
+}
+
+.step-arrow {
+  font-size: 11px;
+  color: var(--ink-muted);
+  opacity: 0.6;
+}
+
+@keyframes pulseStep {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
 }
 
 /* Upload Dropzone */
@@ -468,6 +559,64 @@
   color: var(--status-danger);
 }
 
+.doc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cloud-locality-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.locality-supabase {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.40);
+}
+
+.locality-disk {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1D4ED8;
+  border: 1px solid rgba(59, 130, 246, 0.40);
+}
+
+.locality-memory {
+  background: rgba(139, 92, 246, 0.12);
+  color: #6D28D9;
+  border: 1px solid rgba(139, 92, 246, 0.40);
+}
+
+.locality-s3 {
+  background: rgba(245, 158, 11, 0.12);
+  color: #B45309;
+  border: 1px solid rgba(245, 158, 11, 0.40);
+}
+
+.cipher-status-pill {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.05em;
+}
+
+.cipher-status-pill.decrypted {
+  background: var(--status-verified-bg);
+  color: var(--status-verified);
+}
+
+.cipher-status-pill.encrypted {
+  background: var(--accent-cherry-subtle);
+  color: var(--accent-cherry);
+}
+
 .empty-vault-state {
   text-align: center;
   padding: 40px 16px;
@@ -475,6 +624,18 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
+}
+
+.empty-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent-red-subtle);
+  border: 1px solid var(--accent-red-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
 }
 
 .empty-vault-state .empty-title {

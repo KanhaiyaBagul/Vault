@@ -23,6 +23,8 @@ export interface EncryptedDocumentRecord {
   encryptedBlobRef: string;
   ivHex: string;
   ciphertextHex: string;
+  provider?: string;
+  status?: "encrypted" | "decrypted" | "loading";
 }
 
 export interface SearchMatchResult {

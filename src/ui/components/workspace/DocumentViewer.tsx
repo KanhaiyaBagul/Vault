@@ -30,6 +30,20 @@ export const DocumentViewer: React.FC = () => {
     );
   }
 
+  if (!selectedDoc.plaintext) {
+    return (
+      <div className="viewer-empty-card">
+        <div className="empty-icon-halo">
+          <LockIcon size={36} color="var(--accent-red)" />
+        </div>
+        <h3 className="empty-title">Decrypting "{selectedDoc.name}"...</h3>
+        <p className="empty-sub">
+          Fetching AES-256-GCM ciphertext from {selectedDoc.provider ? selectedDoc.provider.toUpperCase() : "cloud"} and executing local browser enclave decryption.
+        </p>
+      </div>
+    );
+  }
+
   const handleCopyPlaintext = () => {
     navigator.clipboard.writeText(selectedDoc.plaintext);
     setCopied(true);
@@ -64,7 +78,10 @@ export const DocumentViewer: React.FC = () => {
             <h3 className="viewer-doc-title">{selectedDoc.name}</h3>
             <div className="viewer-meta-chips">
               <span className="meta-chip">{formatBytes(selectedDoc.size)}</span>
-              <span className="meta-chip">Ref: {selectedDoc.docRef}</span>
+              <span className="meta-chip">Ref: {selectedDoc.docRef.slice(0, 16)}...</span>
+              <span className={`meta-chip cloud-chip locality-${(selectedDoc.provider || "memory").toLowerCase()}`}>
+                {(selectedDoc.provider || "CLOUD").toUpperCase()}
+              </span>
               <span className="meta-chip highlight-chip">AES-256-GCM Verified</span>
               <span className="meta-chip">
                 {new Date(selectedDoc.ingestedAt).toLocaleDateString()}

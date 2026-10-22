@@ -10,6 +10,8 @@ import {
   SearchIcon,
   CheckIcon,
   RefreshIcon,
+  CloudIcon,
+  LockIcon,
 } from "../icons";
 
 export const DocumentVaultPanel: React.FC = () => {
@@ -20,6 +22,10 @@ export const DocumentVaultPanel: React.FC = () => {
     uploadDocument,
     deleteDocument,
     loadSampleCorpus,
+    profiles,
+    activeProfile,
+    activateProfile,
+    uploadStep,
     showToast,
   } = useVault();
 
@@ -70,17 +76,99 @@ export const DocumentVaultPanel: React.FC = () => {
     <section className="vault-panel document-vault-panel">
       {/* Panel Header */}
       <div className="panel-header">
-        <div>
+        <div className="panel-header-left">
           <h2 className="panel-title">Document Vault</h2>
           <p className="panel-subtitle">Zero-Knowledge Encrypted Client Library</p>
         </div>
-        <div className="stat-pill">
-          <span className="stat-count">{documents.length}</span>
-          <span className="stat-label">docs</span>
-          <span className="stat-dot">•</span>
-          <span className="stat-size">{formatBytes(totalBytes)}</span>
+
+        <div className="panel-header-right">
+          {/* Quick Cloud Connection Switcher */}
+          {profiles.length > 0 && (
+            <div className="cloud-quick-pill" title="Active Cloud Storage Connection">
+              <CloudIcon size={12} color="var(--accent-red)" />
+              <select
+                className="cloud-quick-select"
+                value={activeProfile?.id || ""}
+                onChange={(e) => {
+                  if (e.target.value) activateProfile(e.target.value);
+                }}
+              >
+                {profiles.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.provider.toUpperCase()} — {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="stat-pill">
+            <span className="stat-count">{documents.length}</span>
+            <span className="stat-label">docs</span>
+            <span className="stat-dot">•</span>
+            <span className="stat-size">{formatBytes(totalBytes)}</span>
+          </div>
         </div>
       </div>
+
+      {/* Real-Time 4-Step Cryptographic Ingestion Stepper */}
+      {uploadStep !== "idle" && (
+        <div className="crypto-ingestion-stepper">
+          <div className="stepper-track">
+            <div
+              className={`step-badge ${
+                uploadStep === "tokenizing"
+                  ? "current"
+                  : ["encrypting", "trapdoors", "cloud_upload", "complete"].includes(uploadStep)
+                  ? "completed"
+                  : ""
+              }`}
+            >
+              <span className="step-num">①</span>
+              <span className="step-label">Tokenize</span>
+            </div>
+            <span className="step-arrow">→</span>
+            <div
+              className={`step-badge ${
+                uploadStep === "encrypting"
+                  ? "current"
+                  : ["trapdoors", "cloud_upload", "complete"].includes(uploadStep)
+                  ? "completed"
+                  : ""
+              }`}
+            >
+              <span className="step-num">②</span>
+              <span className="step-label">Encrypt AES</span>
+            </div>
+            <span className="step-arrow">→</span>
+            <div
+              className={`step-badge ${
+                uploadStep === "trapdoors"
+                  ? "current"
+                  : ["cloud_upload", "complete"].includes(uploadStep)
+                  ? "completed"
+                  : ""
+              }`}
+            >
+              <span className="step-num">③</span>
+              <span className="step-label">Trapdoors</span>
+            </div>
+            <span className="step-arrow">→</span>
+            <div
+              className={`step-badge ${
+                uploadStep === "cloud_upload"
+                  ? "current"
+                  : uploadStep === "complete"
+                  ? "completed"
+                  : ""
+              }`}
+            >
+              <span className="step-num">④</span>
+              <span className="step-label">Cloud Sync</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Drag & Drop Upload Zone */}
       <div
@@ -102,8 +190,13 @@ export const DocumentVaultPanel: React.FC = () => {
             <UploadIcon size={20} color="var(--accent-cherry)" />
           </div>
           <div className="dropzone-text">
-            <span className="dropzone-prompt">Drop files to encrypt & store</span>
-            <span className="dropzone-sub">AES-256-GCM encrypted client-side</span>
+            <span className="dropzone-prompt">
+              Drop files to encrypt & store in{" "}
+              {activeProfile ? activeProfile.name : "active cloud"}
+            </span>
+            <span className="dropzone-sub">
+              AES-256-GCM client-side encryption + Blind Trapdoor Index
+            </span>
           </div>
         </div>
       </div>
@@ -146,19 +239,22 @@ export const DocumentVaultPanel: React.FC = () => {
       <div className="document-list-scroll">
         {filteredDocs.length === 0 ? (
           <div className="empty-vault-state">
-            <FileTextIcon size={32} color="var(--ink-muted)" />
+            <div className="empty-icon-circle">
+              <CloudIcon size={32} color="var(--accent-red)" />
+            </div>
             <p className="empty-title">
-              {documents.length === 0 ? "Vault is Empty" : "No matching documents"}
+              {activeProfile ? `${activeProfile.name} is Empty` : "Vault is Empty"}
             </p>
             <p className="empty-desc">
-              {documents.length === 0
-                ? "Upload text files, invoices, or records above to begin encrypted indexing."
-                : "Try clearing your filter query."}
+              {activeProfile
+                ? `No documents found in ${activeProfile.provider.toUpperCase()} storage. Drop files above to encrypt and upload to ${activeProfile.name}.`
+                : "Upload text files, invoices, or records above to begin encrypted indexing."}
             </p>
           </div>
         ) : (
           filteredDocs.map((doc) => {
             const isSelected = doc.id === selectedDocId;
+            const providerName = (doc.provider || activeProfile?.provider || "local").toLowerCase();
             return (
               <div
                 key={doc.id}
@@ -167,12 +263,21 @@ export const DocumentVaultPanel: React.FC = () => {
               >
                 <div className="doc-card-main">
                   <div className="doc-icon-wrapper">
-                    <FileTextIcon size={18} color="var(--accent-cherry)" />
+                    {doc.plaintext ? (
+                      <FileTextIcon size={18} color="var(--accent-cherry)" />
+                    ) : (
+                      <LockIcon size={18} color="var(--ink-muted)" />
+                    )}
                   </div>
                   <div className="doc-info">
-                    <span className="doc-filename" title={doc.name}>
-                      {doc.name}
-                    </span>
+                    <div className="doc-title-row">
+                      <span className="doc-filename" title={doc.name}>
+                        {doc.name}
+                      </span>
+                      <span className={`cloud-locality-badge locality-${providerName}`}>
+                        {providerName.toUpperCase()}
+                      </span>
+                    </div>
                     <div className="doc-meta-row">
                       <span className="doc-meta-item">{formatBytes(doc.size)}</span>
                       <span className="meta-sep">•</span>
@@ -184,6 +289,10 @@ export const DocumentVaultPanel: React.FC = () => {
                       </span>
                       <span className="meta-sep">•</span>
                       <span className="keyword-chip">{doc.keywordCount} keywords</span>
+                      <span className="meta-sep">•</span>
+                      <span className={`cipher-status-pill ${doc.plaintext ? "decrypted" : "encrypted"}`}>
+                        {doc.plaintext ? "DECRYPTED" : "ENCRYPTED"}
+                      </span>
                     </div>
                   </div>
                 </div>

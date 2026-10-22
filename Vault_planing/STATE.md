@@ -14,10 +14,13 @@
 - Phase 10 — Feedback Architecture & Input Sanitization (126/126 project total)
 - Phase 11 — UI Simplification & Cloud Connector Overhaul (137/137 project total)
 - Phase 12 — Visual Consistency, Typography & WCAG AA Contrast (141/141 project total)
-- Phase 13 — End-to-End Regression Verification & Milestone Delivery (141/141 project total)
+- Phase 14 — Client Security Logging, Encrypted Persistence & Document Vault (149/149 tests)
+- Phase 15 — Multi-Cloud Connection Profiles, Persistent Storage Engine & Search Index Durability (157/157 tests)
+- Phase 16 — React Modular Architecture, Side-by-Side Studio Workspace & Custom Color System (157/157 tests)
+- Phase 17 — Cloud-Aware Document Synchronization, Provider-Isolated State & Full Lifecycle Working Flow (158/158 tests)
 **Active Phase:** None (All Phases Completed)  
 **Execution Mode:** Completed  
-**Status:** Ready / Milestone Complete & Fully Verified (141/141 Tests Passing)  
+**Status:** Ready / Milestone Complete & Fully Verified (158/158 Tests Passing)  
 
 ---
 
@@ -38,6 +41,10 @@
 | **Phase 11** | UI Simplification & Cloud Connector Overhaul (Interactive Drawer, Eye Toggles) | **COMPLETED** | 137 / 137 |
 | **Phase 12** | Visual Consistency, Typography & WCAG AA Contrast (1-Click Suggestions, Mobile) | **COMPLETED** | 141 / 141 |
 | **Phase 13** | End-to-End Regression Verification & Milestone Delivery | **COMPLETED** | 141 / 141 |
+| **Phase 14** | Client Security Logging, Encrypted Persistence & Document Vault | **COMPLETED** | 149 / 149 |
+| **Phase 15** | Multi-Cloud Connection Profiles, Persistent Storage Engine & Durability | **COMPLETED** | 157 / 157 |
+| **Phase 16** | React Modular Architecture, Side-by-Side Studio Workspace & Custom Colors | **COMPLETED** | 157 / 157 |
+| **Phase 17** | Cloud-Aware Document Synchronization, Provider-Isolated State & Full Working Flow | **COMPLETED** | 158 / 158 |
 
 ---
 
@@ -169,3 +176,26 @@
   - [x] Task 4.1: Vite Build & Backend Serving Verification
   - [x] Task 4.2: Full Automated Test Suite Regression (`npm test` 157/157 passing across 37 test suites)
   - [x] Task 4.3: End-to-End Browser Walkthrough and Document Ingestion Verification via subagent
+
+---
+
+## Phase 17 Wave Status: Cloud-Aware Document Synchronization, Provider-Isolated State & Full Lifecycle Working Flow
+
+- [x] **Wave 1: Backend Lightweight Document Discovery & Header Indexing**
+  - [x] Task 1.1: Document Header Cache on server (`.vault_storage/doc_headers.json`)
+  - [x] Task 1.2: Expose `GET /api/v1/cloud/documents` returning lightweight headers for active provider
+  - [x] Task 1.3: Integration tests in `tests/server/cloud_api.test.ts`
+- [x] **Wave 2: Provider-Scoped Client State & Dynamic Auto-Sync**
+  - [x] Task 2.1: Namespace client documents by active profile ID (`VAULT_DOCS_${profileId}`)
+  - [x] Task 2.2: Implement `syncCloudDocuments()` in `VaultContext.tsx` on provider switch
+  - [x] Task 2.3: Lazy-load encrypted blobs on click or search match
+- [x] **Wave 3: Fluid Working Flow UI Enhancements**
+  - [x] Task 3.1: Document Vault Header Quick Cloud Switcher
+  - [x] Task 3.2: Real-time 4-step cryptographic upload pipeline progress stepper
+  - [x] Task 3.3: Contextual empty states per cloud provider
+  - [x] Task 3.4: Cloud badges on document cards (`[SUPABASE]`, `[S3]`, `[DISK]`, `[MEMORY]`)
+- [x] **Wave 4: Verification, Automated Testing & Subagent Walkthrough**
+  - [x] Task 4.1: Vite compilation bundle (`npm run build`)
+  - [x] Task 4.2: Full test suite regression (`npm test` 158/158 passing across 37 test suites)
+  - [x] Task 4.3: End-to-end verification of switching between Supabase and Disk without document bleed
+

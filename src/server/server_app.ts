@@ -14,6 +14,7 @@ import { ServerBlindStore, type SearchTrapdoorToken } from "../engine/server_sto
 import type { BlindIndexEntry } from "../engine/blind_index.ts";
 import { ServerSearchController } from "./search_controller.ts";
 import { CloudStorageFactory, CloudProfileManager, type CloudStorageConfig, type CloudProfile } from "./cloud/index.ts";
+import { DocumentHeaderStore, type DocumentHeader } from "./document_headers.ts";
 
 export interface VaultServerOptions {
   kAddr?: CryptoKey; // Optional: server-side trapdoor evaluation key (if delegated)
@@ -29,6 +30,7 @@ export class VaultServerApp {
   public readonly blindStore: ServerBlindStore;
   public readonly auditLogger: ZeroKnowledgeAuditLogger;
   public readonly searchController: ServerSearchController;
+  public readonly headerStore: DocumentHeaderStore;
   private readonly kAddr?: CryptoKey;
   private server?: http.Server;
 
@@ -37,9 +39,11 @@ export class VaultServerApp {
     const profilesPath = options.disablePersistence ? undefined : path.join(storageDir, "cloud_profiles.json");
     const blindIndexPath = options.disablePersistence ? undefined : path.join(storageDir, "blind_index.json");
     const auditLogPath = options.disablePersistence ? undefined : path.join(storageDir, "audit_log.json");
+    const docHeadersPath = options.disablePersistence ? undefined : path.join(storageDir, "doc_headers.json");
 
     this.profileManager = new CloudProfileManager(profilesPath);
     this.cloudFactory = new CloudStorageFactory(options.cloudConfig);
+    this.headerStore = new DocumentHeaderStore(docHeadersPath);
 
     // If no explicit cloudConfig was provided in options, check if an active saved profile exists
     if (!options.cloudConfig) {
@@ -168,6 +172,9 @@ export class VaultServerApp {
           docRef: string;
           entries: BlindIndexEntry[];
           encryptedBlob: EncryptedBlobPayload;
+          filename?: string;
+          fileSize?: number;
+          keywordCount?: number;
         }>(req);
 
         if (!body.docRef || !body.entries || !body.encryptedBlob) {
@@ -183,6 +190,22 @@ export class VaultServerApp {
 
         // Store encrypted blob awaiting cloud confirmation
         await this.blobStore.putBlobAsync(body.encryptedBlob);
+
+        // Record lightweight document header
+        const providerName = this.blobStore.getProviderName();
+        const filename = body.filename || (body.encryptedBlob as any).filename || `document_${body.docRef.slice(0, 8)}.enc`;
+        const fileSize = body.fileSize || body.encryptedBlob.sizeBytes || 0;
+        const keywordCount = body.keywordCount ?? body.entries?.length ?? 0;
+
+        this.headerStore.addHeader({
+          docRef: body.docRef,
+          filename,
+          fileSize,
+          contentType: (body.encryptedBlob as any).contentType,
+          storedAt: body.encryptedBlob.uploadedAt || Date.now(),
+          keywordCount,
+          provider: providerName,
+        });
 
         // Record zero-knowledge audit log
         await this.auditLogger.logOperation("INDEX_DOCUMENT", {
@@ -277,6 +300,7 @@ export class VaultServerApp {
         }
 
         await this.blobStore.deleteBlobAsync(docRef);
+        this.headerStore.removeHeader(docRef);
 
         // Record deletion in audit log
         await this.auditLogger.logOperation("DELETE_BLOB", {
@@ -515,6 +539,26 @@ export class VaultServerApp {
           success: true,
           deletedId: profileId,
           activeProfileId: this.profileManager.listProfilesMasked().activeProfileId,
+        });
+        return;
+      }
+
+      // 4j. List Cloud Documents (Lightweight Discovery): GET /api/v1/cloud/documents
+      if (method === "GET" && pathname === "/api/v1/cloud/documents") {
+        const activeProvider = this.cloudFactory.getProvider();
+        let providerDocRefs: string[] = [];
+        try {
+          providerDocRefs = await activeProvider.listBlobs();
+        } catch (err) {
+          console.warn(`[VaultServerApp] Failed to list blobs from ${activeProvider.providerName}:`, err);
+        }
+
+        const documents = this.headerStore.listHeaders(activeProvider.providerName, providerDocRefs);
+        this.sendJson(res, 200, {
+          success: true,
+          provider: activeProvider.providerName,
+          count: documents.length,
+          documents,
         });
         return;
       }

@@ -157,6 +157,11 @@
 - **Goal:** Built an enterprise Multi-Cloud Connection Hub with named profiles (Supabase, AWS S3, Local Disk, In-Memory), auto-persistence to git-ignored `./.vault_storage/cloud_profiles.json`, 1-click cloud switching, durable server blind search index (`blind_index.json`), and persistent server audit log across backend restarts.
 
 ### Phase 16: React Modular Architecture, Side-by-Side Studio Workspace & Custom Color System
-- **Status:** **IN PROGRESS**
+- **Status:** **COMPLETED** (157 / 157 automated tests passing across 37 test suites)
 - **Directory:** `Vault_planing/16-react-side-by-side-ui/`
-- **Goal:** Modernize frontend into React 18 + Vite + TypeScript. Implement Side-by-Side Vault Workspace (Document Library on left, Zero-Knowledge Search & Live Decrypted Viewer on right). Eliminate UI clutter (raw subkeys, inline attack simulators, duplicate audit tables). Deliver custom palette: Alabaster Grey (`#D9D9D9`) canvas, Coffee Bean (`#1A0706`) typography, Black Cherry (`#55100D`) structure, and surgical Racing Red (`#DD0200`) highlights.
+- **Goal:** Modernized frontend into React 18 + Vite + TypeScript. Implemented Side-by-Side Vault Workspace (Document Library on left, Zero-Knowledge Search & Live Decrypted Viewer on right). Eliminated UI clutter, delivered vibrant Racing Red (`#DD0200`) accent, rounded pill-shaped tactile buttons, and in-modal Supabase diagnostics.
+
+### Phase 17: Cloud-Aware Document Synchronization, Provider-Isolated State & Full Lifecycle Working Flow
+- **Status:** **COMPLETED** (158 / 158 automated tests passing across 37 test suites)
+- **Directory:** `Vault_planing/17-cloud-aware-doc-sync-and-workflow/`
+- **Goal:** Eliminated cross-provider document bleed and transformed the application into a fluid, enterprise working flow. When switching cloud providers (Supabase, S3, Disk, Memory), dynamically queries and hydrates the document catalog for that specific active provider (names/metadata only, lazy-loading encrypted payloads on demand). Provided provider-isolated client state, lightweight document discovery REST API (`GET /api/v1/cloud/documents`), real-time 4-step cryptographic upload pipeline status, quick switcher in the left panel, and verified zero-knowledge retrieval without cross-provider bleed.

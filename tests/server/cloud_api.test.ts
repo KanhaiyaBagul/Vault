@@ -146,4 +146,103 @@ describe("Cloud REST API & Dynamic Provider Switching", () => {
     const data = await switchRes.json();
     assert.equal(data.provider, "memory");
   });
+
+  it("GET /api/v1/cloud/documents returns lightweight headers isolated by active provider", async () => {
+    // 1. Memory provider is currently active and empty
+    const initialRes = await fetch(`${baseUrl}/api/v1/cloud/documents`);
+    assert.equal(initialRes.status, 200);
+    const initialData = await initialRes.json();
+    assert.equal(initialData.success, true);
+    assert.equal(initialData.provider, "memory");
+    assert.equal(initialData.count, 0);
+
+    // 2. Index a document into memory provider
+    const memDocRef = "aa11bb22cc33dd44ee55ff660011223344556677889900aabbccddeeff001122";
+    const indexMemRes = await fetch(`${baseUrl}/api/v1/index`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        docRef: memDocRef,
+        filename: "confidential_audit.pdf",
+        fileSize: 1024,
+        keywordCount: 15,
+        entries: [],
+        encryptedBlob: {
+          docRef: memDocRef,
+          ivHex: "0102030405060708090a0b0c",
+          ciphertextHex: "abcdef1234567890",
+          sizeBytes: 1024,
+          uploadedAt: Date.now(),
+        },
+      }),
+    });
+    assert.equal(indexMemRes.status, 201);
+
+    // 3. GET /api/v1/cloud/documents shows document in memory provider
+    const memDocsRes = await fetch(`${baseUrl}/api/v1/cloud/documents`);
+    assert.equal(memDocsRes.status, 200);
+    const memDocsData = await memDocsRes.json();
+    assert.equal(memDocsData.count, 1);
+    assert.equal(memDocsData.documents[0].docRef, memDocRef);
+    assert.equal(memDocsData.documents[0].filename, "confidential_audit.pdf");
+    assert.equal(memDocsData.documents[0].provider, "memory");
+    // Verify ciphertext is NOT returned in lightweight header listing
+    assert.equal((memDocsData.documents[0] as any).ciphertextHex, undefined);
+
+    // 4. Switch to Disk provider
+    await fetch(`${baseUrl}/api/v1/cloud/config`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        provider: "disk",
+        diskPath: testDiskDir,
+      }),
+    });
+
+    // 5. Verify Disk provider does NOT leak memory documents
+    const diskDocsRes = await fetch(`${baseUrl}/api/v1/cloud/documents`);
+    assert.equal(diskDocsRes.status, 200);
+    const diskDocsData = await diskDocsRes.json();
+    assert.equal(diskDocsData.provider, "disk");
+    // Memory docRef should not appear in disk documents
+    assert.equal(diskDocsData.documents.some((d: any) => d.docRef === memDocRef), false);
+
+    // 6. Index a document into Disk provider
+    const diskDocRef = "ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100";
+    await fetch(`${baseUrl}/api/v1/index`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        docRef: diskDocRef,
+        filename: "disk_backup.tar.gz",
+        fileSize: 2048,
+        keywordCount: 8,
+        entries: [],
+        encryptedBlob: {
+          docRef: diskDocRef,
+          ivHex: "0102030405060708090a0b0c",
+          ciphertextHex: "deadbeefcafe",
+          sizeBytes: 2048,
+          uploadedAt: Date.now(),
+        },
+      }),
+    });
+
+    const updatedDiskRes = await fetch(`${baseUrl}/api/v1/cloud/documents`);
+    const updatedDiskData = await updatedDiskRes.json();
+    assert.equal(updatedDiskData.count >= 1, true);
+    const diskDoc = updatedDiskData.documents.find((d: any) => d.docRef === diskDocRef);
+    assert.ok(diskDoc);
+    assert.equal(diskDoc.filename, "disk_backup.tar.gz");
+    assert.equal(diskDoc.provider, "disk");
+
+    // 7. Delete document from Disk and verify it is removed from discovery
+    const delRes = await fetch(`${baseUrl}/api/v1/blobs/${diskDocRef}`, { method: "DELETE" });
+    assert.equal(delRes.status, 200);
+
+    const postDelRes = await fetch(`${baseUrl}/api/v1/cloud/documents`);
+    const postDelData = await postDelRes.json();
+    assert.equal(postDelData.documents.some((d: any) => d.docRef === diskDocRef), false);
+  });
 });
+

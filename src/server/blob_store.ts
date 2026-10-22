@@ -29,6 +29,7 @@ export class EncryptedBlobStore {
    */
   public setProvider(provider: ICloudStorageProvider): void {
     this.provider = provider;
+    this.cache.clear();
   }
 
   /**
