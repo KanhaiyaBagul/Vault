@@ -308,8 +308,8 @@ export class VaultServerApp {
         return;
       }
 
-      // 4c. Cloud Storage Test / Ping: POST /api/v1/cloud/test
-      if (method === "POST" && pathname === "/api/v1/cloud/test") {
+      // 4c. Cloud Storage Test / Ping: POST /api/v1/cloud/test or POST /api/v1/cloud/profiles/test
+      if (method === "POST" && (pathname === "/api/v1/cloud/test" || pathname === "/api/v1/cloud/profiles/test")) {
         const body = await this.parseJsonBody<CloudStorageConfig>(req);
         if (!body.provider) {
           this.sendJson(res, 400, {
@@ -479,19 +479,22 @@ export class VaultServerApp {
       if (method === "POST" && pathname.startsWith("/api/v1/cloud/profiles/") && pathname.endsWith("/test")) {
         const parts = pathname.split("/");
         const profileId = parts[parts.length - 2];
-        try {
-          const health = await this.profileManager.testProfilePing(profileId, this.cloudFactory);
-          this.sendJson(res, 200, {
-            success: true,
-            profileId,
-            health,
-          });
-        } catch (err: unknown) {
-          const error = err as Error;
-          this.sendJson(res, 400, {
-            success: false,
-            error: error.message,
-          });
+        if (profileId && profileId !== "profiles") {
+          try {
+            const health = await this.profileManager.testProfilePing(profileId, this.cloudFactory);
+            this.sendJson(res, 200, {
+              success: true,
+              profileId,
+              health,
+            });
+          } catch (err: unknown) {
+            const error = err as Error;
+            this.sendJson(res, 400, {
+              success: false,
+              error: error.message,
+            });
+          }
+          return;
         }
         return;
       }

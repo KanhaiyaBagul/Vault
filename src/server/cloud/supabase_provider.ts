@@ -215,9 +215,16 @@ export class SupabaseStorageProvider implements ICloudStorageProvider {
         const errText = await res.text();
         let helpfulMsg = `HTTP ${res.status}: ${errText}`;
         if (res.status === 404) {
-          helpfulMsg = `Bucket '${this.bucket}' not found in Supabase. Please create bucket '${this.bucket}' in your Supabase Dashboard (Storage > New bucket).`;
-        } else if (res.status === 401 || res.status === 403) {
-          helpfulMsg = `HTTP ${res.status}: Authentication failed. Check your Supabase API key (use service_role key or anon key).`;
+          helpfulMsg = `Bucket '${this.bucket}' not found in Supabase project (${this.supabaseUrl}). Please create bucket '${this.bucket}' in Supabase Dashboard (Storage > New bucket).`;
+        } else if (
+          res.status === 401 ||
+          res.status === 403 ||
+          errText.includes("Compact JWS") ||
+          errText.includes("Unauthorized") ||
+          errText.includes("AccessDenied") ||
+          errText.includes("jwt")
+        ) {
+          helpfulMsg = `Authentication failed [HTTP ${res.status}]: Invalid API key. Make sure to copy the full 'anon public' or 'service_role' key (starts with 'eyJhbGci...') from Supabase Dashboard > Project Settings > API.`;
         }
         return {
           ok: false,
@@ -239,13 +246,17 @@ export class SupabaseStorageProvider implements ICloudStorageProvider {
       };
     } catch (err: unknown) {
       const error = err as Error;
+      let errorMsg = error.message;
+      if (errorMsg.includes("ENOTFOUND") || errorMsg.includes("getaddrinfo")) {
+        errorMsg = `Could not reach Supabase URL '${this.supabaseUrl}'. Please verify your project reference and ensure the Supabase project is active (not paused).`;
+      }
       return {
         ok: false,
         provider: this.providerName,
         bucket: this.bucket,
         endpoint: this.supabaseUrl,
         latencyMs: Date.now() - startTime,
-        error: error.message,
+        error: errorMsg,
       };
     }
   }

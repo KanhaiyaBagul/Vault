@@ -1,7 +1,7 @@
 /* ============================================================================
    VAULT SSE // Theme & Design System
    Palette: Alabaster Grey (#D9D9D9), Racing Red (#DD0200),
-            Black Cherry (#55100D), Coffee Bean (#1A0706)
+            Coffee Bean (#1A0706)
    ============================================================================ */
 
 :root {
@@ -25,16 +25,16 @@
   --border-card: #BDBDBD;          /* Solid high-visibility card perimeter */
   --border-focus: #DD0200;         /* Racing Red active focus ring */
 
-  /* Black Cherry (#55100D) - Headers, Active Tabs & Dark Badges */
-  --accent-cherry: #55100D;
-  --accent-cherry-hover: #6D1612;
-  --accent-cherry-subtle: rgba(85, 16, 13, 0.08);
-  --accent-cherry-border: rgba(85, 16, 13, 0.25);
+  /* Primary Brand Red (#DD0200) - Replacing Black Cherry */
+  --accent-cherry: #DD0200;
+  --accent-cherry-hover: #C20200;
+  --accent-cherry-subtle: rgba(221, 2, 0, 0.08);
+  --accent-cherry-border: rgba(221, 2, 0, 0.30);
 
   /* Racing Red (#DD0200) - Surgical Accents, Highlights & Indicators */
   --accent-red: #DD0200;
-  --accent-red-hover: #B80200;
-  --accent-red-glow: rgba(221, 2, 0, 0.18);
+  --accent-red-hover: #C20200;
+  --accent-red-glow: rgba(221, 2, 0, 0.22);
   --accent-red-subtle: rgba(221, 2, 0, 0.08);
   --accent-red-border: rgba(221, 2, 0, 0.35);
 
@@ -48,15 +48,18 @@
 
   /* Shadows for Depth & Separation */
   --shadow-sm: 0 1px 3px rgba(26, 7, 6, 0.08), 0 1px 2px rgba(26, 7, 6, 0.04);
-  --shadow-md: 0 4px 12px rgba(26, 7, 6, 0.08), 0 2px 4px rgba(26, 7, 6, 0.04);
-  --shadow-lg: 0 10px 25px rgba(26, 7, 6, 0.12), 0 4px 8px rgba(26, 7, 6, 0.06);
+  --shadow-md: 0 4px 14px rgba(26, 7, 6, 0.09), 0 2px 4px rgba(26, 7, 6, 0.05);
+  --shadow-lg: 0 12px 28px rgba(26, 7, 6, 0.14), 0 4px 10px rgba(26, 7, 6, 0.08);
+  --shadow-btn-red: 0 3px 10px rgba(221, 2, 0, 0.28), 0 1px 3px rgba(221, 2, 0, 0.16);
+  --shadow-btn-red-hover: 0 6px 18px rgba(221, 2, 0, 0.38), 0 2px 6px rgba(221, 2, 0, 0.20);
 
   /* Transitions & Radii */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
   --radius-pill: 9999px;
-  --transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-btn: 9999px;           /* Full pill rounded buttons */
+  --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Base Document Reset & Setup */

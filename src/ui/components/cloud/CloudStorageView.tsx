@@ -24,11 +24,15 @@ export const CloudStorageView: React.FC = () => {
   const [formProvider, setFormProvider] = useState<"supabase" | "s3" | "disk" | "memory">("supabase");
   const [formSupabaseUrl, setFormSupabaseUrl] = useState("");
   const [formSupabaseKey, setFormSupabaseKey] = useState("");
-  const [formSupabaseBucket, setFormSupabaseBucket] = useState("vault-blobs");
+  const [formSupabaseBucket, setFormSupabaseBucket] = useState("vault-encrypted-blobs");
   const [formS3Bucket, setFormS3Bucket] = useState("");
   const [formS3Region, setFormS3Region] = useState("us-east-1");
   const [formS3AccessKey, setFormS3AccessKey] = useState("");
   const [formS3SecretKey, setFormS3SecretKey] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTestingInModal, setIsTestingInModal] = useState(false);
 
   const handleOpenAdd = () => {
     setFormId(null);
@@ -36,7 +40,9 @@ export const CloudStorageView: React.FC = () => {
     setFormProvider("supabase");
     setFormSupabaseUrl("");
     setFormSupabaseKey("");
-    setFormSupabaseBucket("vault-blobs");
+    setFormSupabaseBucket("vault-encrypted-blobs");
+    setFormError(null);
+    setFormSuccess(null);
     setIsEditing(true);
   };
 
@@ -44,37 +50,55 @@ export const CloudStorageView: React.FC = () => {
     setFormId(prof.id);
     setFormName(prof.name);
     setFormProvider(prof.provider);
+    setFormError(null);
+    setFormSuccess(null);
     const cfg = prof.config || {};
+    const sb = cfg.supabase || (cfg as any);
+    const s3 = cfg.s3 || (cfg as any);
     if (prof.provider === "supabase") {
-      setFormSupabaseUrl(cfg.supabaseUrl || "");
-      setFormSupabaseKey(cfg.supabaseKey || "");
-      setFormSupabaseBucket(cfg.supabaseBucket || "vault-blobs");
+      setFormSupabaseUrl(sb.supabaseUrl || (cfg as any).supabaseUrl || "");
+      setFormSupabaseKey(sb.apiKey || (cfg as any).supabaseKey || "");
+      setFormSupabaseBucket(sb.bucket || (cfg as any).supabaseBucket || "vault-encrypted-blobs");
     } else if (prof.provider === "s3") {
-      setFormS3Bucket(cfg.s3Bucket || "");
-      setFormS3Region(cfg.s3Region || "us-east-1");
-      setFormS3AccessKey(cfg.s3AccessKeyId || "");
-      setFormS3SecretKey(cfg.s3SecretAccessKey || "");
+      setFormS3Bucket(s3.bucket || (cfg as any).s3Bucket || "");
+      setFormS3Region(s3.region || (cfg as any).s3Region || "us-east-1");
+      setFormS3AccessKey(s3.accessKeyId || (cfg as any).s3AccessKeyId || "");
+      setFormS3SecretKey(s3.secretAccessKey || (cfg as any).s3SecretAccessKey || "");
     }
     setIsEditing(true);
   };
 
   const handleSaveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+    setFormSuccess(null);
+
     const config: Record<string, any> = { provider: formProvider };
 
     if (formProvider === "supabase") {
       if (!formSupabaseUrl.trim() || !formSupabaseKey.trim()) {
-        showToast("Supabase URL and API Key are required", "danger");
+        setFormError("Supabase Project URL and API Key are required.");
         return;
       }
+      config.supabase = {
+        supabaseUrl: formSupabaseUrl.trim(),
+        apiKey: formSupabaseKey.trim(),
+        bucket: formSupabaseBucket.trim() || "vault-encrypted-blobs",
+      };
       config.supabaseUrl = formSupabaseUrl.trim();
       config.supabaseKey = formSupabaseKey.trim();
-      config.supabaseBucket = formSupabaseBucket.trim() || "vault-blobs";
+      config.supabaseBucket = formSupabaseBucket.trim() || "vault-encrypted-blobs";
     } else if (formProvider === "s3") {
       if (!formS3Bucket.trim() || !formS3AccessKey.trim()) {
-        showToast("S3 Bucket and Access Key are required", "danger");
+        setFormError("S3 Bucket and Access Key ID are required.");
         return;
       }
+      config.s3 = {
+        bucket: formS3Bucket.trim(),
+        region: formS3Region.trim() || "us-east-1",
+        accessKeyId: formS3AccessKey.trim(),
+        secretAccessKey: formS3SecretKey.trim(),
+      };
       config.s3Bucket = formS3Bucket.trim();
       config.s3Region = formS3Region.trim() || "us-east-1";
       config.s3AccessKeyId = formS3AccessKey.trim();
@@ -88,8 +112,58 @@ export const CloudStorageView: React.FC = () => {
     };
     if (formId) payload.id = formId;
 
-    const ok = await saveProfile(payload);
-    if (ok) setIsEditing(false);
+    setIsSubmitting(true);
+    const res = await saveProfile(payload);
+    setIsSubmitting(false);
+
+    if (res.success) {
+      setIsEditing(false);
+    } else {
+      setFormError(res.error || "Failed to save cloud connection.");
+    }
+  };
+
+  const handleTestInModal = async () => {
+    setFormError(null);
+    setFormSuccess(null);
+
+    if (formProvider === "supabase") {
+      if (!formSupabaseUrl.trim() || !formSupabaseKey.trim()) {
+        setFormError("Please enter both Supabase Project URL and API Key before testing.");
+        return;
+      }
+    } else if (formProvider === "s3") {
+      if (!formS3Bucket.trim() || !formS3AccessKey.trim() || !formS3SecretKey.trim()) {
+        setFormError("Please enter S3 Bucket, Access Key ID, and Secret Access Key before testing.");
+        return;
+      }
+    }
+
+    setIsTestingInModal(true);
+    const testConfig = {
+      provider: formProvider,
+      supabase: {
+        supabaseUrl: formSupabaseUrl.trim(),
+        apiKey: formSupabaseKey.trim(),
+        bucket: formSupabaseBucket.trim() || "vault-encrypted-blobs",
+      },
+      s3: {
+        bucket: formS3Bucket.trim(),
+        region: formS3Region.trim() || "us-east-1",
+        accessKeyId: formS3AccessKey.trim(),
+        secretAccessKey: formS3SecretKey.trim(),
+      },
+      diskPath: "./.vault_storage",
+    };
+
+    const res = await testProfile(testConfig);
+    setIsTestingInModal(false);
+
+    if (res.ok || res.success) {
+      setFormSuccess(`Connection verified! Response time: ${res.latencyMs ?? res.health?.latencyMs ?? 25}ms`);
+    } else {
+      setFormError(res.error || res.health?.error || "Connection test failed. Please verify credentials.");
+    }
   };
 
   const handleTestPing = async (prof: CloudProfileMasked) => {
@@ -170,11 +244,11 @@ export const CloudStorageView: React.FC = () => {
                   <>
                     <div className="summary-row">
                       <span className="summary-label">Project URL:</span>
-                      <code>{prof.config?.supabaseUrl || "Not configured"}</code>
+                      <code>{prof.config?.supabase?.supabaseUrl || (prof.config as any)?.supabaseUrl || "Not configured"}</code>
                     </div>
                     <div className="summary-row">
                       <span className="summary-label">Storage Bucket:</span>
-                      <span>{prof.config?.supabaseBucket || "vault-blobs"}</span>
+                      <span>{prof.config?.supabase?.bucket || (prof.config as any)?.supabaseBucket || "vault-encrypted-blobs"}</span>
                     </div>
                   </>
                 )}
@@ -182,11 +256,11 @@ export const CloudStorageView: React.FC = () => {
                   <>
                     <div className="summary-row">
                       <span className="summary-label">Bucket:</span>
-                      <code>{prof.config?.s3Bucket}</code>
+                      <code>{prof.config?.s3?.bucket || (prof.config as any)?.s3Bucket || "vault-encrypted-blobs"}</code>
                     </div>
                     <div className="summary-row">
                       <span className="summary-label">Region:</span>
-                      <span>{prof.config?.s3Region}</span>
+                      <span>{prof.config?.s3?.region || (prof.config as any)?.s3Region || "us-east-1"}</span>
                     </div>
                   </>
                 )}
@@ -358,16 +432,63 @@ export const CloudStorageView: React.FC = () => {
                 </>
               )}
 
+              {formError && (
+                <div className="modal-error-banner" role="alert">
+                  <span className="error-badge-icon">⚠️</span>
+                  <div className="error-banner-content">
+                    <strong>Connection Error</strong>
+                    <p className="error-banner-msg">{formError}</p>
+                    {formProvider === "supabase" && (
+                      <div className="error-banner-hint">
+                        <strong>Supabase Configuration Guide:</strong>
+                        <ul>
+                          <li>
+                            <strong>API Key:</strong> Ensure you are using the full JWT key (starts with <code>eyJhbGci...</code>) from <em>Supabase Dashboard &gt; Project Settings &gt; API</em>. (Use <code>service_role</code> secret key or <code>anon public</code> key).
+                          </li>
+                          <li>
+                            <strong>Storage Bucket:</strong> Ensure the bucket exists in <em>Supabase Dashboard &gt; Storage</em>.
+                          </li>
+                          <li>
+                            <strong>Project URL:</strong> Use the format <code>https://&lt;project-ref&gt;.supabase.co</code>.
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {formSuccess && (
+                <div className="modal-success-banner" role="status">
+                  <span className="success-badge-icon">✓</span>
+                  <span>{formSuccess}</span>
+                </div>
+              )}
+
               <div className="modal-actions-row">
                 <button
                   type="button"
                   className="secondary-btn"
+                  disabled={isSubmitting || isTestingInModal}
+                  onClick={handleTestInModal}
+                  title="Test if these credentials connect successfully before saving"
+                >
+                  {isTestingInModal ? "Pinging Supabase..." : "⚡ Test Connection"}
+                </button>
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  disabled={isSubmitting || isTestingInModal}
                   onClick={() => setIsEditing(false)}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="primary-btn">
-                  Save Connection Profile
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={isSubmitting || isTestingInModal}
+                >
+                  {isSubmitting ? "Saving..." : "Save Connection Profile"}
                 </button>
               </div>
             </form>

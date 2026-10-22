@@ -40,22 +40,24 @@ export class CloudStorageFactory {
       diskPath: overrides?.diskPath || process.env.STORAGE_DISK_PATH || "./.vault_storage",
     };
 
-    if (overrides?.s3 || process.env.S3_BUCKET) {
+    const rawS3 = (overrides?.s3 || overrides || {}) as any;
+    if (overrides?.s3 || rawS3.s3Bucket || rawS3.s3AccessKeyId || process.env.S3_BUCKET) {
       config.s3 = {
-        bucket: overrides?.s3?.bucket || process.env.S3_BUCKET || "vault-encrypted-blobs",
-        region: overrides?.s3?.region || process.env.S3_REGION || process.env.AWS_REGION || "us-east-1",
-        endpoint: overrides?.s3?.endpoint || process.env.S3_ENDPOINT,
-        accessKeyId: overrides?.s3?.accessKeyId || process.env.S3_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || "",
-        secretAccessKey: overrides?.s3?.secretAccessKey || process.env.S3_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || "",
-        forcePathStyle: overrides?.s3?.forcePathStyle,
+        bucket: overrides?.s3?.bucket || rawS3.s3Bucket || rawS3.bucket || process.env.S3_BUCKET || "vault-encrypted-blobs",
+        region: overrides?.s3?.region || rawS3.s3Region || rawS3.region || process.env.S3_REGION || process.env.AWS_REGION || "us-east-1",
+        endpoint: overrides?.s3?.endpoint || rawS3.s3Endpoint || rawS3.endpoint || process.env.S3_ENDPOINT,
+        accessKeyId: overrides?.s3?.accessKeyId || rawS3.s3AccessKeyId || rawS3.accessKeyId || process.env.S3_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || "",
+        secretAccessKey: overrides?.s3?.secretAccessKey || rawS3.s3SecretAccessKey || rawS3.secretAccessKey || process.env.S3_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || "",
+        forcePathStyle: overrides?.s3?.forcePathStyle || rawS3.forcePathStyle,
       };
     }
 
-    if (overrides?.supabase || process.env.SUPABASE_URL) {
+    const rawSupabase = (overrides?.supabase || overrides || {}) as any;
+    if (overrides?.supabase || rawSupabase.supabaseUrl || rawSupabase.supabaseKey || rawSupabase.apiKey || process.env.SUPABASE_URL) {
       config.supabase = {
-        supabaseUrl: overrides?.supabase?.supabaseUrl || process.env.SUPABASE_URL || "",
-        apiKey: overrides?.supabase?.apiKey || process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "",
-        bucket: overrides?.supabase?.bucket || process.env.SUPABASE_BUCKET || "vault-encrypted-blobs",
+        supabaseUrl: overrides?.supabase?.supabaseUrl || rawSupabase.supabaseUrl || process.env.SUPABASE_URL || "",
+        apiKey: overrides?.supabase?.apiKey || rawSupabase.supabaseKey || rawSupabase.apiKey || process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+        bucket: overrides?.supabase?.bucket || rawSupabase.supabaseBucket || rawSupabase.bucket || process.env.SUPABASE_BUCKET || "vault-encrypted-blobs",
       };
     }
 
@@ -69,16 +71,32 @@ export class CloudStorageFactory {
     switch (config.provider) {
       case "disk":
         return new DiskStorageProvider(config.diskPath);
-      case "s3":
-        if (!config.s3) {
-          throw new Error("S3 provider requested but no S3 configuration provided");
+      case "s3": {
+        const rawS3 = (config.s3 || config || {}) as any;
+        const subS3 = config.s3 || {
+          bucket: rawS3.s3Bucket || rawS3.bucket || "vault-encrypted-blobs",
+          region: rawS3.s3Region || rawS3.region || "us-east-1",
+          endpoint: rawS3.s3Endpoint || rawS3.endpoint,
+          accessKeyId: rawS3.s3AccessKeyId || rawS3.accessKeyId || "",
+          secretAccessKey: rawS3.s3SecretAccessKey || rawS3.secretAccessKey || "",
+        };
+        if (!subS3.accessKeyId || !subS3.secretAccessKey) {
+          throw new Error("S3 provider requested but Access Key ID or Secret Access Key is missing");
         }
-        return new S3CloudStorageProvider(config.s3);
-      case "supabase":
-        if (!config.supabase) {
-          throw new Error("Supabase provider requested but no Supabase configuration provided");
+        return new S3CloudStorageProvider(subS3);
+      }
+      case "supabase": {
+        const rawSb = (config.supabase || config || {}) as any;
+        const subSb = config.supabase || {
+          supabaseUrl: rawSb.supabaseUrl || "",
+          apiKey: rawSb.supabaseKey || rawSb.apiKey || "",
+          bucket: rawSb.supabaseBucket || rawSb.bucket || "vault-encrypted-blobs",
+        };
+        if (!subSb.supabaseUrl || !subSb.apiKey) {
+          throw new Error("Supabase provider requested but Project URL or API Key is missing");
         }
-        return new SupabaseStorageProvider(config.supabase);
+        return new SupabaseStorageProvider(subSb);
+      }
       case "memory":
       default:
         return new InMemoryStorageProvider();

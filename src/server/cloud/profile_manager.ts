@@ -188,6 +188,18 @@ export class CloudProfileManager {
     if (clone.config.supabase?.apiKey) {
       clone.config.supabase.apiKey = "********";
     }
+    // Flat mirrors for client convenience
+    if (clone.config.supabase) {
+      (clone.config as any).supabaseUrl = clone.config.supabase.supabaseUrl;
+      (clone.config as any).supabaseBucket = clone.config.supabase.bucket;
+      (clone.config as any).supabaseKey = clone.config.supabase.apiKey;
+    }
+    if (clone.config.s3) {
+      (clone.config as any).s3Bucket = clone.config.s3.bucket;
+      (clone.config as any).s3Region = clone.config.s3.region;
+      (clone.config as any).s3AccessKeyId = clone.config.s3.accessKeyId;
+      (clone.config as any).s3SecretAccessKey = clone.config.s3.secretAccessKey;
+    }
     return clone;
   }
 
@@ -224,29 +236,51 @@ export class CloudProfileManager {
       provider: input.provider,
     };
 
+    const rawCfg = (input.config || {}) as any;
+
     if (input.provider === "disk") {
-      config.diskPath = input.config.diskPath?.trim() || "./.vault_storage";
+      config.diskPath = rawCfg.diskPath?.trim() || "./.vault_storage";
     } else if (input.provider === "s3") {
       const existingSecret = existing?.config.s3?.secretAccessKey || "";
       const existingKey = existing?.config.s3?.accessKeyId || "";
-      const newSecret = input.config.s3?.secretAccessKey?.trim();
-      const newKey = input.config.s3?.accessKeyId?.trim();
+      const newSecret = (rawCfg.s3?.secretAccessKey || rawCfg.s3SecretAccessKey || rawCfg.secretAccessKey)?.trim();
+      const newKey = (rawCfg.s3?.accessKeyId || rawCfg.s3AccessKeyId || rawCfg.accessKeyId)?.trim();
+      const bucket = (rawCfg.s3?.bucket || rawCfg.s3Bucket || rawCfg.bucket)?.trim() || "vault-encrypted-blobs";
+      const region = (rawCfg.s3?.region || rawCfg.s3Region || rawCfg.region)?.trim() || "us-east-1";
+      const endpoint = (rawCfg.s3?.endpoint || rawCfg.s3Endpoint || rawCfg.endpoint)?.trim() || undefined;
+
+      const finalKey = newKey && !newKey.includes("...") ? newKey : existingKey;
+      const finalSecret = newSecret && newSecret !== "********" ? newSecret : existingSecret;
+
+      if (!finalKey || !finalSecret) {
+        throw new Error("S3 configuration requires Access Key ID and Secret Access Key.");
+      }
 
       config.s3 = {
-        bucket: input.config.s3?.bucket?.trim() || "vault-encrypted-blobs",
-        region: input.config.s3?.region?.trim() || "us-east-1",
-        endpoint: input.config.s3?.endpoint?.trim() || undefined,
-        accessKeyId: newKey && !newKey.includes("...") ? newKey : existingKey,
-        secretAccessKey: newSecret && newSecret !== "********" ? newSecret : existingSecret,
+        bucket,
+        region,
+        endpoint,
+        accessKeyId: finalKey,
+        secretAccessKey: finalSecret,
       };
     } else if (input.provider === "supabase") {
       const existingKey = existing?.config.supabase?.apiKey || "";
-      const newKey = input.config.supabase?.apiKey?.trim();
+      const existingUrl = existing?.config.supabase?.supabaseUrl || "";
+      const newKey = (rawCfg.supabase?.apiKey || rawCfg.supabaseKey || rawCfg.apiKey)?.trim();
+      const newUrl = (rawCfg.supabase?.supabaseUrl || rawCfg.supabaseUrl)?.trim();
+      const bucket = (rawCfg.supabase?.bucket || rawCfg.supabaseBucket || rawCfg.bucket)?.trim() || "vault-encrypted-blobs";
+
+      const finalUrl = newUrl || existingUrl;
+      const finalKey = newKey && newKey !== "********" ? newKey : existingKey;
+
+      if (!finalUrl || !finalKey) {
+        throw new Error("Supabase connection requires both Project URL and API Key.");
+      }
 
       config.supabase = {
-        supabaseUrl: input.config.supabase?.supabaseUrl?.trim() || "",
-        bucket: input.config.supabase?.bucket?.trim() || "vault-encrypted-blobs",
-        apiKey: newKey && newKey !== "********" ? newKey : existingKey,
+        supabaseUrl: finalUrl,
+        bucket,
+        apiKey: finalKey,
       };
     }
 

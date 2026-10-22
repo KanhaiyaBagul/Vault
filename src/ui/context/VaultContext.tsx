@@ -62,9 +62,9 @@ interface VaultContextType {
   cloudLatency: number | null;
   loadProfiles: () => Promise<void>;
   activateProfile: (id: string) => Promise<boolean>;
-  saveProfile: (profile: Partial<CloudProfileMasked>) => Promise<boolean>;
+  saveProfile: (profile: Partial<CloudProfileMasked>) => Promise<{ success: boolean; error?: string }>;
   deleteProfile: (id: string) => Promise<boolean>;
-  testProfile: (profile: any) => Promise<{ ok: boolean; latencyMs?: number; error?: string }>;
+  testProfile: (profile: any) => Promise<{ ok: boolean; latencyMs?: number; error?: string; success?: boolean; health?: any }>;
 
   // Audit
   serverAuditEntries: any[];
@@ -217,25 +217,37 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [loadProfiles, showToast]);
 
-  const saveProfile = useCallback(async (prof: Partial<CloudProfileMasked>): Promise<boolean> => {
+  const saveProfile = useCallback(async (prof: Partial<CloudProfileMasked>): Promise<{ success: boolean; error?: string }> => {
     try {
       const res = await fetch("/api/v1/cloud/profiles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(prof),
       });
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        const text = await res.text();
+        const err = `Server error HTTP ${res.status}: ${text || "Malformed server response"}`;
+        showToast(err, "danger");
+        return { success: false, error: err };
+      }
       if (data.success) {
         showToast("Cloud connection saved", "success");
         await loadProfiles();
-        return true;
+        return { success: true };
       } else {
-        showToast(data.error || "Failed to save profile", "danger");
-        return false;
+        const err = data.error || "Failed to save profile";
+        showToast(err, "danger");
+        return { success: false, error: err };
       }
     } catch (err: any) {
-      showToast(err.message, "danger");
-      return false;
+      const errMsg = err.message?.includes("Failed to fetch")
+        ? "Cannot reach backend server. Please make sure the Vault server is running on http://localhost:3000."
+        : (err.message || "Failed to save profile");
+      showToast(errMsg, "danger");
+      return { success: false, error: errMsg };
     }
   }, [loadProfiles, showToast]);
 
@@ -257,16 +269,31 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [loadProfiles, showToast]);
 
-  const testProfile = useCallback(async (prof: any) => {
+  const testProfile = useCallback(async (prof: any): Promise<{ ok: boolean; latencyMs?: number; error?: string; success?: boolean; health?: any }> => {
     try {
-      const res = await fetch("/api/v1/cloud/profiles/test", {
+      const res = await fetch("/api/v1/cloud/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(prof),
       });
-      return await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        return { ok: false, error: `Server returned HTTP ${res.status}` };
+      }
+      return {
+        ok: Boolean(data.success || data.health?.ok),
+        latencyMs: data.health?.latencyMs,
+        error: data.error || data.health?.error,
+        success: data.success,
+        health: data.health,
+      };
     } catch (err: any) {
-      return { ok: false, error: err.message };
+      const errMsg = err.message?.includes("Failed to fetch")
+        ? "Backend server unreachable. Ensure the Vault server is active at http://localhost:3000."
+        : (err.message || "Unknown error");
+      return { ok: false, error: errMsg };
     }
   }, []);
 
