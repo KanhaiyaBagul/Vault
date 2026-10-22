@@ -131,4 +131,24 @@
   - [x] Task 3.4: Full test suite verification (`npm test` 149/149 green across 36 test suites)
   - [x] Task 3.5: Browser walkthrough via subagent recording (`doc_vault_logging_walkthrough`)
 
+---
+
+## Phase 15 Wave Status: Multi-Cloud Connection Profiles, Persistent Storage Engine & Search Index Durability
+
+- [x] **Wave 1: Core Profile Manager & Server Durability Engine**
+  - [x] Task 1.1: Build `src/server/cloud/profile_manager.ts` (`CloudProfileManager` with `./.vault_storage/cloud_profiles.json` persistence, secret masking, CRUD & activation)
+  - [x] Task 1.2: Add auto-persistence to `ServerBlindStore` (`./.vault_storage/blind_index.json`) and `ZeroKnowledgeAuditLogger` (`./.vault_storage/audit_log.json`)
+  - [x] Task 1.3: Expose `/api/v1/cloud/profiles` CRUD REST endpoints in `src/server/server_app.ts` and hydrate on server startup
+- [x] **Wave 2: Frontend Cloud Connection Hub**
+  - [x] Task 2.1: Semantic HTML markup in `public/index.html` (profiles card list, active badge, add connection button, connection editor)
+  - [x] Task 2.2: Luxury Editorial Styling in `public/styles.css`
+  - [x] Task 2.3: Frontend Controller in `public/app.js` (load profiles, 1-click activate, ping test, edit form, topbar sync)
+- [x] **Wave 3: Testing, Verification & Walkthrough**
+  - [x] Task 3.1: Unit tests in `tests/server/cloud_profiles.test.ts` (8 passing unit tests)
+  - [x] Task 3.2: Durability integration tests in `tests/server/server_app.test.ts`
+  - [x] Task 3.3: Full regression test (`npm test` 157/157 green across 37 test suites)
+  - [x] Task 3.4: Browser verification
+
+
+
 

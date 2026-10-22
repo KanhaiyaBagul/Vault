@@ -25,7 +25,7 @@ describe("Cloud REST API & Dynamic Provider Switching", () => {
   };
 
   before(async () => {
-    app = new VaultServerApp();
+    app = new VaultServerApp({ disablePersistence: true, cloudConfig: { provider: "memory" } });
     const port = await app.listen(0); // Ephemeral test port
     baseUrl = `http://localhost:${port}`;
   });

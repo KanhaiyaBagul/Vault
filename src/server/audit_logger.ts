@@ -6,6 +6,8 @@
  * Zero external dependencies.
  */
 
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { bytesToHex, constantTimeEqual, hexToBytes, utf8Encode } from "../crypto/utils.ts";
 
 export type AuditOperationType =
@@ -76,6 +78,45 @@ export async function computeAuditEntryHash(
 export class ZeroKnowledgeAuditLogger {
   private readonly chain: AuditLogEntry[] = [];
   private genesisInitialized = false;
+  private readonly persistenceFilePath?: string;
+
+  constructor(persistencePath?: string) {
+    this.persistenceFilePath = persistencePath;
+    if (this.persistenceFilePath) {
+      this.loadFromDisk();
+    }
+  }
+
+  private loadFromDisk(): void {
+    if (!this.persistenceFilePath) return;
+    try {
+      if (fs.existsSync(this.persistenceFilePath)) {
+        const raw = fs.readFileSync(this.persistenceFilePath, "utf8");
+        const entries = JSON.parse(raw);
+        if (Array.isArray(entries) && entries.length > 0) {
+          for (const e of entries) {
+            this.chain.push(e);
+          }
+          this.genesisInitialized = true;
+        }
+      }
+    } catch (err) {
+      console.warn("[ZeroKnowledgeAuditLogger] Failed to load persisted audit log:", err);
+    }
+  }
+
+  private persistToDisk(): void {
+    if (!this.persistenceFilePath) return;
+    try {
+      const dir = path.dirname(this.persistenceFilePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(this.persistenceFilePath, JSON.stringify(this.chain, null, 2), "utf8");
+    } catch (err) {
+      console.warn("[ZeroKnowledgeAuditLogger] Failed to persist audit log to disk:", err);
+    }
+  }
 
   /**
    * Initializes the immutable Genesis entry if not already present.
@@ -111,6 +152,9 @@ export class ZeroKnowledgeAuditLogger {
     });
 
     this.genesisInitialized = true;
+    if (this.persistenceFilePath) {
+      this.persistToDisk();
+    }
   }
 
   /**
@@ -151,6 +195,9 @@ export class ZeroKnowledgeAuditLogger {
     };
 
     this.chain.push(entry);
+    if (this.persistenceFilePath) {
+      this.persistToDisk();
+    }
     return entry;
   }
 

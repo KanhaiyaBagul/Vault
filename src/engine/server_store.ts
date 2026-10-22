@@ -5,6 +5,8 @@
  * Zero external dependencies.
  */
 
+import * as fs from "node:fs";
+import * as path from "node:path";
 import type { BlindIndexEntry } from "./blind_index.ts";
 import { computeIndexAddress } from "../crypto/trapdoors.ts";
 
@@ -35,6 +37,47 @@ export interface SearchQueryPayload {
 export class ServerBlindStore {
   // Primary multi-map storage: Map<addressHex (L_c), BlindIndexEntry>
   private readonly store: Map<string, BlindIndexEntry> = new Map();
+  private readonly persistenceFilePath?: string;
+
+  constructor(persistencePath?: string) {
+    this.persistenceFilePath = persistencePath;
+    if (this.persistenceFilePath) {
+      this.loadFromDisk();
+    }
+  }
+
+  private loadFromDisk(): void {
+    if (!this.persistenceFilePath) return;
+    try {
+      if (fs.existsSync(this.persistenceFilePath)) {
+        const raw = fs.readFileSync(this.persistenceFilePath, "utf8");
+        const entries = JSON.parse(raw);
+        if (Array.isArray(entries)) {
+          for (const entry of entries) {
+            if (entry.addressHex && entry.encryptedValueHex) {
+              this.store.set(entry.addressHex, entry);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[ServerBlindStore] Failed to load persisted blind index:", err);
+    }
+  }
+
+  private persistToDisk(): void {
+    if (!this.persistenceFilePath) return;
+    try {
+      const dir = path.dirname(this.persistenceFilePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      const entries = Array.from(this.store.values());
+      fs.writeFileSync(this.persistenceFilePath, JSON.stringify(entries, null, 2), "utf8");
+    } catch (err) {
+      console.warn("[ServerBlindStore] Failed to persist blind index to disk:", err);
+    }
+  }
 
   /**
    * Bulk inserts blind index records into the encrypted multi-map.
@@ -46,6 +89,9 @@ export class ServerBlindStore {
         throw new Error("Invalid BlindIndexEntry: addressHex and encryptedValueHex are required");
       }
       this.store.set(entry.addressHex, entry);
+    }
+    if (this.persistenceFilePath) {
+      this.persistToDisk();
     }
   }
 

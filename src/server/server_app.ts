@@ -13,15 +13,18 @@ import { ZeroKnowledgeAuditLogger } from "./audit_logger.ts";
 import { ServerBlindStore, type SearchTrapdoorToken } from "../engine/server_store.ts";
 import type { BlindIndexEntry } from "../engine/blind_index.ts";
 import { ServerSearchController } from "./search_controller.ts";
-import { CloudStorageFactory, type CloudStorageConfig } from "./cloud/index.ts";
+import { CloudStorageFactory, CloudProfileManager, type CloudStorageConfig, type CloudProfile } from "./cloud/index.ts";
 
 export interface VaultServerOptions {
   kAddr?: CryptoKey; // Optional: server-side trapdoor evaluation key (if delegated)
   cloudConfig?: Partial<CloudStorageConfig>;
+  storageDir?: string;
+  disablePersistence?: boolean;
 }
 
 export class VaultServerApp {
   public readonly cloudFactory: CloudStorageFactory;
+  public readonly profileManager: CloudProfileManager;
   public readonly blobStore: EncryptedBlobStore;
   public readonly blindStore: ServerBlindStore;
   public readonly auditLogger: ZeroKnowledgeAuditLogger;
@@ -30,10 +33,29 @@ export class VaultServerApp {
   private server?: http.Server;
 
   constructor(options: VaultServerOptions = {}) {
+    const storageDir = options.storageDir || path.resolve(process.cwd(), ".vault_storage");
+    const profilesPath = options.disablePersistence ? undefined : path.join(storageDir, "cloud_profiles.json");
+    const blindIndexPath = options.disablePersistence ? undefined : path.join(storageDir, "blind_index.json");
+    const auditLogPath = options.disablePersistence ? undefined : path.join(storageDir, "audit_log.json");
+
+    this.profileManager = new CloudProfileManager(profilesPath);
     this.cloudFactory = new CloudStorageFactory(options.cloudConfig);
+
+    // If no explicit cloudConfig was provided in options, check if an active saved profile exists
+    if (!options.cloudConfig) {
+      const activeProf = this.profileManager.getActiveProfile();
+      if (activeProf && activeProf.config) {
+        try {
+          this.cloudFactory.switchProvider(activeProf.config);
+        } catch (e) {
+          console.warn("[VaultServerApp] Auto-activating saved profile failed, using factory default:", e);
+        }
+      }
+    }
+
     this.blobStore = new EncryptedBlobStore(this.cloudFactory.getProvider());
-    this.blindStore = new ServerBlindStore();
-    this.auditLogger = new ZeroKnowledgeAuditLogger();
+    this.blindStore = new ServerBlindStore(blindIndexPath);
+    this.auditLogger = new ZeroKnowledgeAuditLogger(auditLogPath);
     this.searchController = new ServerSearchController(this.blindStore);
     this.kAddr = options.kAddr;
   }
@@ -279,6 +301,9 @@ export class VaultServerApp {
           health,
           config: this.cloudFactory.getConfig(),
           storedBlobs: this.blobStore.size(),
+          activeProfile: this.profileManager.getActiveProfile()
+            ? this.profileManager.maskProfile(this.profileManager.getActiveProfile()!)
+            : undefined,
         });
         return;
       }
@@ -328,6 +353,17 @@ export class VaultServerApp {
           const health = await this.cloudFactory.switchProvider(body);
           this.blobStore.setProvider(this.cloudFactory.getProvider());
 
+          const activeProf = this.profileManager.getActiveProfile();
+          if (activeProf && activeProf.provider === body.provider) {
+            this.profileManager.saveProfile({
+              id: activeProf.id,
+              name: activeProf.name,
+              provider: body.provider,
+              config: body,
+              makeActive: true,
+            });
+          }
+
           await this.auditLogger.logOperation("CLOUD_PROVIDER_SWITCHED", {
             provider: body.provider,
             bucket: health.bucket || "local",
@@ -347,6 +383,136 @@ export class VaultServerApp {
             error: error.message,
           });
         }
+        return;
+      }
+
+      // 4e. List Cloud Profiles: GET /api/v1/cloud/profiles
+      if (method === "GET" && pathname === "/api/v1/cloud/profiles") {
+        const { activeProfileId, profiles } = this.profileManager.listProfilesMasked();
+        const activeHealth = await this.cloudFactory.getProvider().healthCheck().catch(() => ({ ok: false, error: "Unavailable" }));
+        this.sendJson(res, 200, {
+          success: true,
+          activeProfileId,
+          profiles,
+          activeHealth,
+        });
+        return;
+      }
+
+      // 4f. Create or Update Cloud Profile: POST /api/v1/cloud/profiles
+      if (method === "POST" && pathname === "/api/v1/cloud/profiles") {
+        const body = await this.parseJsonBody<{
+          id?: string;
+          name: string;
+          provider: CloudProviderType;
+          config: CloudStorageConfig;
+          makeActive?: boolean;
+        }>(req);
+
+        if (!body.provider || !body.name) {
+          this.sendJson(res, 400, {
+            success: false,
+            error: "name and provider are required fields",
+          });
+          return;
+        }
+
+        try {
+          const saved = this.profileManager.saveProfile(body);
+          let health: CloudProviderHealth | undefined;
+          if (body.makeActive) {
+            const activation = await this.profileManager.activateProfile(saved.id, this.cloudFactory);
+            health = activation.health;
+            this.blobStore.setProvider(this.cloudFactory.getProvider());
+            await this.auditLogger.logOperation("CLOUD_PROVIDER_SWITCHED", {
+              profileId: saved.id,
+              provider: saved.provider,
+              status: health.ok ? "CONNECTED" : "FAILED",
+            });
+          }
+
+          this.sendJson(res, 200, {
+            success: true,
+            profile: this.profileManager.maskProfile(saved),
+            activeProfileId: this.profileManager.listProfilesMasked().activeProfileId,
+            health,
+          });
+        } catch (err: unknown) {
+          const error = err as Error;
+          this.sendJson(res, 400, {
+            success: false,
+            error: error.message,
+          });
+        }
+        return;
+      }
+
+      // 4g. Activate Cloud Profile: POST /api/v1/cloud/profiles/:id/activate
+      if (method === "POST" && pathname.startsWith("/api/v1/cloud/profiles/") && pathname.endsWith("/activate")) {
+        const parts = pathname.split("/");
+        const profileId = parts[parts.length - 2];
+        try {
+          const { profile, health } = await this.profileManager.activateProfile(profileId, this.cloudFactory);
+          this.blobStore.setProvider(this.cloudFactory.getProvider());
+          await this.auditLogger.logOperation("CLOUD_PROVIDER_SWITCHED", {
+            profileId: profile.id,
+            provider: profile.provider,
+            status: health.ok ? "CONNECTED" : "FAILED",
+          });
+          this.sendJson(res, 200, {
+            success: true,
+            activeProfileId: profile.id,
+            profile: this.profileManager.maskProfile(profile),
+            health,
+          });
+        } catch (err: unknown) {
+          const error = err as Error;
+          this.sendJson(res, 400, {
+            success: false,
+            error: error.message,
+          });
+        }
+        return;
+      }
+
+      // 4h. Test Cloud Profile Ping: POST /api/v1/cloud/profiles/:id/test
+      if (method === "POST" && pathname.startsWith("/api/v1/cloud/profiles/") && pathname.endsWith("/test")) {
+        const parts = pathname.split("/");
+        const profileId = parts[parts.length - 2];
+        try {
+          const health = await this.profileManager.testProfilePing(profileId, this.cloudFactory);
+          this.sendJson(res, 200, {
+            success: true,
+            profileId,
+            health,
+          });
+        } catch (err: unknown) {
+          const error = err as Error;
+          this.sendJson(res, 400, {
+            success: false,
+            error: error.message,
+          });
+        }
+        return;
+      }
+
+      // 4i. Delete Cloud Profile: DELETE /api/v1/cloud/profiles/:id
+      if (method === "DELETE" && pathname.startsWith("/api/v1/cloud/profiles/")) {
+        const parts = pathname.split("/");
+        const profileId = parts[parts.length - 1];
+        const result = this.profileManager.deleteProfile(profileId);
+        if (!result.success) {
+          this.sendJson(res, 400, {
+            success: false,
+            error: result.error,
+          });
+          return;
+        }
+        this.sendJson(res, 200, {
+          success: true,
+          deletedId: profileId,
+          activeProfileId: this.profileManager.listProfilesMasked().activeProfileId,
+        });
         return;
       }
 

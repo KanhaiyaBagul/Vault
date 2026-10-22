@@ -17,7 +17,7 @@ describe("Vault Cloud REST API & Audit Microservice (server_app.test.ts)", async
   const subkeys = await deriveVaultSubkeysFromPassword("ServerAppMasterKey2026!", salt, 10_000);
 
   it("end-to-end HTTP integration: index, search, retrieve blob, and verify audit chain", async () => {
-    const app = new VaultServerApp({ kAddr: subkeys.kAddr });
+    const app = new VaultServerApp({ kAddr: subkeys.kAddr, disablePersistence: true });
     const port = await app.listen(0);
     const baseUrl = `http://localhost:${port}`;
 
@@ -155,7 +155,7 @@ describe("Vault Cloud REST API & Audit Microservice (server_app.test.ts)", async
   });
 
   it("deletes stored blob via DELETE /api/v1/blobs/:ref and records in audit log", async () => {
-    const app = new VaultServerApp();
+    const app = new VaultServerApp({ disablePersistence: true });
     const port = await app.listen(0);
     const baseUrl = `http://localhost:${port}`;
 

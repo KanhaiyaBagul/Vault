@@ -615,6 +615,20 @@ class VaultAppController {
     this.modalPingStatus = document.getElementById("modalPingStatus");
     this.modalStoredBlobsCount = document.getElementById("modalStoredBlobsCount");
 
+    // Cloud Profiles Hub Elements
+    this.btnShowAddProfile = document.getElementById("btnShowAddProfile");
+    this.profilesCountBadge = document.getElementById("profilesCountBadge");
+    this.cloudProfilesList = document.getElementById("cloudProfilesList");
+    this.cloudProfileEditor = document.getElementById("cloudProfileEditor");
+    this.profileEditorTitle = document.getElementById("profileEditorTitle");
+    this.btnCloseProfileEditor = document.getElementById("btnCloseProfileEditor");
+    this.btnCancelProfileEditor = document.getElementById("btnCancelProfileEditor");
+    this.inputProfileId = document.getElementById("inputProfileId");
+    this.inputProfileName = document.getElementById("inputProfileName");
+    this.checkProfileMakeActive = document.getElementById("checkProfileMakeActive");
+    this.savedCloudProfiles = [];
+    this.activeProfileId = null;
+
     // Notifications & Validation Elements
     this.toastContainer = document.getElementById("toastContainer");
     this.masterPasswordError = document.getElementById("masterPasswordError");
@@ -787,6 +801,52 @@ class VaultAppController {
 
     if (this.btnSaveCloudConfig) {
       this.btnSaveCloudConfig.addEventListener("click", () => this.handleSaveCloudConfig());
+    }
+
+    // Cloud Profile Hub Event Listeners
+    if (this.btnShowAddProfile) {
+      this.btnShowAddProfile.addEventListener("click", () => this.showProfileEditor());
+    }
+
+    if (this.btnCloseProfileEditor) {
+      this.btnCloseProfileEditor.addEventListener("click", () => this.hideProfileEditor());
+    }
+
+    if (this.btnCancelProfileEditor) {
+      this.btnCancelProfileEditor.addEventListener("click", () => this.hideProfileEditor());
+    }
+
+    if (this.cloudProfilesList) {
+      this.cloudProfilesList.addEventListener("click", (e) => {
+        const activateBtn = e.target.closest(".btn-activate");
+        if (activateBtn) {
+          const id = activateBtn.dataset.id;
+          if (id) this.handleActivateProfile(id);
+          return;
+        }
+
+        const editBtn = e.target.closest(".btn-edit");
+        if (editBtn) {
+          const id = editBtn.dataset.id;
+          const prof = this.savedCloudProfiles.find((p) => p.id === id);
+          if (prof) this.showProfileEditor(prof);
+          return;
+        }
+
+        const testBtn = e.target.closest(".btn-test");
+        if (testBtn) {
+          const id = testBtn.dataset.id;
+          if (id) this.handleTestProfilePing(id);
+          return;
+        }
+
+        const deleteBtn = e.target.closest(".btn-delete");
+        if (deleteBtn) {
+          const id = deleteBtn.dataset.id;
+          if (id) this.handleDeleteProfile(id);
+          return;
+        }
+      });
     }
 
     // Client Security & Audit Activity Filter Pills
@@ -993,6 +1053,7 @@ class VaultAppController {
         this.blobsCount.textContent = data.storedBlobs;
       }
       await this.refreshCloudStorageStatus();
+      await this.loadCloudProfiles();
       this.refreshAuditChain();
     } catch (e) {
       console.warn("Server offline or not responding yet.");
@@ -1002,6 +1063,8 @@ class VaultAppController {
   openCloudModal() {
     if (this.cloudModalBackdrop) {
       this.cloudModalBackdrop.style.display = "flex";
+      this.loadCloudProfiles();
+      this.refreshCloudStorageStatus();
       if (this.selectCloudProvider) {
         this.updateCloudFieldVisibility(this.selectCloudProvider.value);
       }
@@ -1011,6 +1074,199 @@ class VaultAppController {
   closeCloudModal() {
     if (this.cloudModalBackdrop) {
       this.cloudModalBackdrop.style.display = "none";
+      this.hideProfileEditor();
+    }
+  }
+
+  async loadCloudProfiles() {
+    try {
+      const res = await fetch("/api/v1/cloud/profiles");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.success) return;
+      this.savedCloudProfiles = data.profiles || [];
+      this.activeProfileId = data.activeProfileId;
+      this.renderCloudProfiles();
+    } catch (err) {
+      console.warn("Could not load cloud profiles:", err);
+    }
+  }
+
+  renderCloudProfiles() {
+    if (!this.cloudProfilesList) return;
+    if (this.profilesCountBadge) {
+      const count = this.savedCloudProfiles.length;
+      this.profilesCountBadge.textContent = `${count} PROFILE${count === 1 ? "" : "S"}`;
+    }
+
+    if (this.savedCloudProfiles.length === 0) {
+      this.cloudProfilesList.innerHTML = `
+        <div class="log-feed-empty">No saved cloud connection profiles yet. Click '+ Add New Cloud' to configure.</div>
+      `;
+      return;
+    }
+
+    this.cloudProfilesList.innerHTML = this.savedCloudProfiles
+      .map((p) => {
+        const isActive = p.id === this.activeProfileId;
+        const providerName = (p.provider || "memory").toUpperCase();
+        let targetDetails = "In-Memory RAM (Ephemeral)";
+        if (p.provider === "s3") {
+          targetDetails = `Bucket: ${p.config?.s3?.bucket || "vault-encrypted-blobs"} (${p.config?.s3?.region || "us-east-1"})`;
+        } else if (p.provider === "supabase") {
+          targetDetails = `Bucket: ${p.config?.supabase?.bucket || "vault-encrypted-blobs"} | URL: ${p.config?.supabase?.supabaseUrl || "supabase.co"}`;
+        } else if (p.provider === "disk") {
+          targetDetails = `Directory: ${p.config?.diskPath || "./.vault_storage"}`;
+        }
+
+        const pingLatency = p.latencyMs !== undefined ? `${p.latencyMs.toFixed(1)}ms` : (isActive ? "Connected" : "Saved");
+        const statusDotClass = isActive ? "dot-emerald" : (p.lastStatus === "FAILED" ? "dot-crimson" : "dot-amber");
+
+        return `
+          <div class="cloud-profile-card ${isActive ? "is-active" : ""}" data-id="${escapeHtml(p.id)}">
+            <div class="cloud-profile-card-top">
+              <div class="cloud-profile-title-group">
+                <span class="status-dot ${statusDotClass}"></span>
+                <span class="cloud-profile-name">${escapeHtml(p.name)}</span>
+                <span class="badge badge-sm badge-cyan">${escapeHtml(providerName)}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span class="badge badge-sm ${isActive ? "badge-emerald" : "badge-outline"}">${isActive ? `● ACTIVE (${pingLatency})` : "INACTIVE"}</span>
+              </div>
+            </div>
+            <div class="cloud-profile-details">
+              <div class="cloud-profile-detail-item">
+                <span>Target:</span>
+                <code>${escapeHtml(targetDetails)}</code>
+              </div>
+            </div>
+            <div class="cloud-profile-actions">
+              ${
+                isActive
+                  ? `<button type="button" class="btn-profile-action btn-active-badge" disabled>✓ Active Provider</button>`
+                  : `<button type="button" class="btn-profile-action btn-activate" data-id="${escapeHtml(p.id)}">⚡ Activate</button>`
+              }
+              <button type="button" class="btn-profile-action btn-edit" data-id="${escapeHtml(p.id)}">✎ Edit</button>
+              <button type="button" class="btn-profile-action btn-test" data-id="${escapeHtml(p.id)}">📡 Test Ping</button>
+              ${
+                !isActive
+                  ? `<button type="button" class="btn-profile-action btn-delete" data-id="${escapeHtml(p.id)}">🗑 Delete</button>`
+                  : ""
+              }
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  showProfileEditor(profile) {
+    if (!this.cloudProfileEditor) return;
+    this.cloudProfileEditor.style.display = "block";
+    if (this.cloudFeedbackMsg) this.cloudFeedbackMsg.style.display = "none";
+
+    if (profile) {
+      if (this.profileEditorTitle) this.profileEditorTitle.textContent = `Edit Connection: ${profile.name}`;
+      if (this.inputProfileId) this.inputProfileId.value = profile.id;
+      if (this.inputProfileName) this.inputProfileName.value = profile.name;
+      if (this.selectCloudProvider) this.selectCloudProvider.value = profile.provider;
+      if (this.checkProfileMakeActive) this.checkProfileMakeActive.checked = profile.isActive;
+
+      if (profile.provider === "s3") {
+        if (this.inputS3Bucket) this.inputS3Bucket.value = profile.config?.s3?.bucket || "vault-encrypted-blobs";
+        if (this.inputS3Region) this.inputS3Region.value = profile.config?.s3?.region || "us-east-1";
+        if (this.inputS3Endpoint) this.inputS3Endpoint.value = profile.config?.s3?.endpoint || "";
+        if (this.inputS3AccessKey) this.inputS3AccessKey.value = profile.config?.s3?.accessKeyId || "";
+        if (this.inputS3SecretKey) this.inputS3SecretKey.value = profile.config?.s3?.secretAccessKey || "";
+      } else if (profile.provider === "supabase") {
+        if (this.inputSupabaseUrl) this.inputSupabaseUrl.value = profile.config?.supabase?.supabaseUrl || "";
+        if (this.inputSupabaseBucket) this.inputSupabaseBucket.value = profile.config?.supabase?.bucket || "vault-encrypted-blobs";
+        if (this.inputSupabaseKey) this.inputSupabaseKey.value = profile.config?.supabase?.apiKey || "";
+      } else if (profile.provider === "disk") {
+        if (this.inputDiskPath) this.inputDiskPath.value = profile.config?.diskPath || "./.vault_storage";
+      }
+    } else {
+      if (this.profileEditorTitle) this.profileEditorTitle.textContent = "Configure New Cloud Connection";
+      if (this.inputProfileId) this.inputProfileId.value = "";
+      if (this.inputProfileName) this.inputProfileName.value = "";
+      if (this.selectCloudProvider) this.selectCloudProvider.value = "supabase";
+      if (this.checkProfileMakeActive) this.checkProfileMakeActive.checked = true;
+    }
+
+    this.updateCloudFieldVisibility(this.selectCloudProvider ? this.selectCloudProvider.value : "memory");
+    this.cloudProfileEditor.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  hideProfileEditor() {
+    if (this.cloudProfileEditor) {
+      this.cloudProfileEditor.style.display = "none";
+    }
+    if (this.inputProfileId) this.inputProfileId.value = "";
+  }
+
+  async handleActivateProfile(id) {
+    try {
+      const res = await fetch(`/api/v1/cloud/profiles/${id}/activate`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        this.showToast("Cloud Connection Switched", `Active storage is now ${data.profile.name} (${data.health?.latencyMs !== undefined ? data.health.latencyMs.toFixed(1) : "-"}ms).`, "success");
+        await this.logClientSecurityEvent(
+          "CLOUD",
+          "CLOUD_PROVIDER_SWITCHED",
+          {
+            profileName: data.profile.name,
+            provider: data.profile.provider.toUpperCase(),
+            latencyMs: data.health?.latencyMs,
+          },
+          "SUCCESS",
+          { provider: data.profile.provider.toUpperCase() }
+        );
+        await this.refreshCloudStorageStatus();
+        await this.loadCloudProfiles();
+        await this.refreshCloudInspector();
+        this.refreshAuditChain();
+      } else {
+        this.showToast("Activation Failed", data.error || "Could not activate profile", "error");
+      }
+    } catch (err) {
+      this.showToast("Activation Failed", err.message, "error");
+    }
+  }
+
+  async handleDeleteProfile(id) {
+    const prof = this.savedCloudProfiles.find((p) => p.id === id);
+    const name = prof ? prof.name : "connection";
+    if (!confirm(`Delete cloud connection profile '${name}'?`)) return;
+
+    try {
+      const res = await fetch(`/api/v1/cloud/profiles/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        this.showToast("Profile Deleted", `'${name}' removed from saved connections.`, "success");
+        await this.loadCloudProfiles();
+      } else {
+        this.showToast("Delete Failed", data.error || "Could not delete profile", "error");
+      }
+    } catch (err) {
+      this.showToast("Delete Failed", err.message, "error");
+    }
+  }
+
+  async handleTestProfilePing(id) {
+    const prof = this.savedCloudProfiles.find((p) => p.id === id);
+    this.showToast("Testing Connection...", `Ping test running for ${prof?.name || id}...`, "info");
+    try {
+      const res = await fetch(`/api/v1/cloud/profiles/${id}/test`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.success && data.health?.ok) {
+        this.showToast("Ping Verified", `Connected to ${prof?.name || id} in ${data.health.latencyMs?.toFixed(1)}ms.`, "success");
+        await this.loadCloudProfiles();
+      } else {
+        this.showToast("Ping Failed", data.health?.error || data.error || "Connection rejected", "error");
+        await this.loadCloudProfiles();
+      }
+    } catch (err) {
+      this.showToast("Ping Failed", err.message, "error");
     }
   }
 
@@ -1021,12 +1277,13 @@ class VaultAppController {
       const data = await res.json();
       if (!data.success) return;
 
+      const activeProf = data.activeProfile;
       const provider = (data.provider || "memory").toUpperCase();
       const isOk = data.health?.ok ?? false;
       const latency = data.health?.latencyMs !== undefined ? `${data.health.latencyMs.toFixed(1)} ms` : "-";
 
       if (this.cloudStatusText) {
-        this.cloudStatusText.textContent = provider === "MEMORY" ? "LOCAL (SIM)" : provider;
+        this.cloudStatusText.textContent = activeProf?.name || (provider === "MEMORY" ? "LOCAL (SIM)" : provider);
       }
       if (this.cloudStatusDot) {
         this.cloudStatusDot.className = `status-dot ${isOk ? "dot-emerald" : "dot-crimson"}`;
@@ -1040,10 +1297,10 @@ class VaultAppController {
         this.modalCloudProviderBadge.className = `badge ${isOk ? "badge-emerald" : "badge-crimson"}`;
       }
       if (this.cloudActiveProviderName) {
-        this.cloudActiveProviderName.textContent = provider;
+        this.cloudActiveProviderName.textContent = activeProf ? `${activeProf.name} (${provider})` : provider;
       }
       if (this.modalActiveProviderName) {
-        this.modalActiveProviderName.textContent = provider;
+        this.modalActiveProviderName.textContent = activeProf ? `${activeProf.name} (${provider})` : provider;
       }
 
       let uri = "memory://vault";
@@ -1152,7 +1409,7 @@ class VaultAppController {
             <div class="feedback-icon">✓</div>
             <div class="feedback-text">
               <strong>Connection Success: ${payload.provider.toUpperCase()} Reachable!</strong>
-              <div>Verified healthy bucket in ${data.health.latencyMs?.toFixed(1)}ms. Click 'Save &amp; Switch Provider' to activate.</div>
+              <div>Verified healthy bucket in ${data.health.latencyMs?.toFixed(1)}ms. Click 'Save Profile' to store.</div>
             </div>
           </div>
         `;
@@ -1202,13 +1459,19 @@ class VaultAppController {
     if (!payload) return;
     this.userSelectedProvider = true;
 
+    const profileId = this.inputProfileId ? this.inputProfileId.value.trim() : "";
+    const profileName = this.inputProfileName && this.inputProfileName.value.trim()
+      ? this.inputProfileName.value.trim()
+      : `${payload.provider.toUpperCase()} Connection`;
+    const makeActive = this.checkProfileMakeActive ? this.checkProfileMakeActive.checked : true;
+
     this.cloudFeedbackMsg.style.display = "block";
     this.cloudFeedbackMsg.innerHTML = `
       <div class="cloud-feedback-card is-loading">
         <div class="feedback-icon">⏳</div>
         <div class="feedback-text">
-          <strong>Activating ${payload.provider.toUpperCase()}...</strong>
-          <div>Reconfiguring server storage driver and running health check.</div>
+          <strong>Saving Connection Profile '${escapeHtml(profileName)}'...</strong>
+          <div>Validating credentials and persisting to local storage vault.</div>
         </div>
       </div>
     `;
@@ -1219,10 +1482,16 @@ class VaultAppController {
         this.btnSaveCloudConfig.disabled = true;
       }
 
-      const res = await fetch("/api/v1/cloud/config", {
+      const res = await fetch("/api/v1/cloud/profiles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          id: profileId || undefined,
+          name: profileName,
+          provider: payload.provider,
+          config: payload,
+          makeActive: makeActive,
+        }),
       });
 
       const data = await res.json();
@@ -1231,29 +1500,39 @@ class VaultAppController {
           <div class="cloud-feedback-card is-success">
             <div class="feedback-icon">✓</div>
             <div class="feedback-text">
-              <strong>Active Storage Switched to ${payload.provider.toUpperCase()}</strong>
-              <div>Future document encryptions will be committed to ${payload.provider.toUpperCase()} (${data.health?.latencyMs?.toFixed(1)}ms).</div>
+              <strong>Connection Profile Saved: ${escapeHtml(profileName)}</strong>
+              <div>${makeActive ? "Profile activated and set as active storage destination." : "Profile saved and ready for activation."}</div>
             </div>
           </div>
         `;
-        this.showToast(`Cloud Provider Switched to ${payload.provider.toUpperCase()}`, "success");
-        await this.logClientSecurityEvent(
-          "CLOUD",
-          "CLOUD_PROVIDER_SWITCHED",
-          {
-            provider: payload.provider.toUpperCase(),
-            latencyMs: data.health?.latencyMs,
-            bucket: data.health?.bucket || payload.s3?.bucket || payload.supabase?.bucket,
-          },
-          "SUCCESS",
-          { provider: payload.provider.toUpperCase() }
-        );
+        this.showToast("Cloud Profile Saved", `'${profileName}' successfully persisted.`, "success");
+
+        if (makeActive) {
+          await this.logClientSecurityEvent(
+            "CLOUD",
+            "CLOUD_PROVIDER_SWITCHED",
+            {
+              provider: payload.provider.toUpperCase(),
+              profileName,
+              latencyMs: data.health?.latencyMs,
+              bucket: data.health?.bucket || payload.s3?.bucket || payload.supabase?.bucket,
+            },
+            "SUCCESS",
+            { provider: payload.provider.toUpperCase() }
+          );
+        }
+
         await this.saveEncryptedVaultState();
         await this.refreshCloudStorageStatus();
+        await this.loadCloudProfiles();
         await this.refreshCloudInspector();
         this.refreshAuditChain();
+
+        setTimeout(() => {
+          this.hideProfileEditor();
+        }, 1200);
       } else {
-        const translated = translateCloudError(data.error || "Failed to switch provider", payload.provider, {
+        const translated = translateCloudError(data.error || "Failed to save profile", payload.provider, {
           bucket: payload.s3?.bucket || payload.supabase?.bucket,
           region: payload.s3?.region,
           url: payload.supabase?.supabaseUrl || payload.s3?.endpoint,
@@ -1272,17 +1551,7 @@ class VaultAppController {
         this.showToast(translated.title, translated.message, "error");
       }
     } catch (err) {
-      const translated = translateCloudError(err.message, payload.provider);
-      this.cloudFeedbackMsg.innerHTML = `
-        <div class="cloud-feedback-card is-error">
-          <div class="feedback-icon">✗</div>
-          <div class="feedback-text">
-            <strong>${escapeHtml(translated.title)}</strong>
-            <div>${escapeHtml(translated.message)}</div>
-          </div>
-        </div>
-      `;
-      this.showToast(translated.title, translated.message, "error");
+      this.showToast("Save Failed", err.message, "error");
     } finally {
       if (this.btnSaveCloudConfig) {
         this.btnSaveCloudConfig.classList.remove("is-loading");
