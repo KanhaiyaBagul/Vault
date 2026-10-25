@@ -38,6 +38,15 @@
   --accent-red-subtle: rgba(221, 2, 0, 0.08);
   --accent-red-border: rgba(221, 2, 0, 0.35);
 
+  /* Burnished Amber Gold (#C5A059) - Sovereign Enclave & Cryptographic Seals */
+  --accent-gold: #C5A059;
+  --accent-gold-hover: #B48F48;
+  --accent-gold-subtle: rgba(197, 160, 89, 0.12);
+  --accent-gold-border: rgba(197, 160, 89, 0.45);
+  --accent-gold-glow: rgba(197, 160, 89, 0.35);
+  --shadow-gold-halo: 0 0 16px rgba(197, 160, 89, 0.28);
+  --shadow-glass: 0 8px 32px rgba(26, 7, 6, 0.08);
+
   /* Functional Status Colors */
   --status-verified: #166534;      /* Green for verified cryptographic integrity */
   --status-verified-bg: #DCFCE7;

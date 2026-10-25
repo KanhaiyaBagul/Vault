@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useVault } from "../../context/VaultContext";
 import { formatBytes, highlightText } from "../../crypto/vault_engine";
 import {
@@ -9,11 +9,67 @@ import {
   ShieldIcon,
   LockIcon,
 } from "../icons";
+import { MerkleProofVisualizer } from "./MerkleProofVisualizer";
 
 export const DocumentViewer: React.FC = () => {
   const { selectedDoc, searchQuery, showToast } = useVault();
   const [copied, setCopied] = useState(false);
   const [showProofDetails, setShowProofDetails] = useState(false);
+  const [isScrambling, setIsScrambling] = useState(false);
+  const [scrambledPreview, setScrambledPreview] = useState("");
+
+  const scrambleGlyphs = "01#&%*§∅⬡$@~^<>{}[]/\\";
+
+  useEffect(() => {
+    if (!selectedDoc || !selectedDoc.plaintext) {
+      setIsScrambling(false);
+      setScrambledPreview("");
+      return;
+    }
+
+    const plaintext = selectedDoc.plaintext;
+    const previewLength = Math.min(plaintext.length, 360);
+    const duration = 240; // ms
+    const fps = 60;
+    const totalFrames = Math.round((duration / 1000) * fps);
+    let currentFrame = 0;
+    let animationId: number;
+
+    setIsScrambling(true);
+
+    const animate = () => {
+      currentFrame++;
+      const progress = currentFrame / totalFrames;
+      const lockedChars = Math.floor(progress * previewLength);
+
+      let result = "";
+      for (let i = 0; i < previewLength; i++) {
+        if (i < lockedChars) {
+          result += plaintext[i];
+        } else if (plaintext[i] === "\n") {
+          result += "\n";
+        } else if (plaintext[i] === " ") {
+          result += " ";
+        } else {
+          result += scrambleGlyphs[Math.floor(Math.random() * scrambleGlyphs.length)];
+        }
+      }
+
+      setScrambledPreview(result);
+
+      if (currentFrame < totalFrames) {
+        animationId = requestAnimationFrame(animate);
+      } else {
+        setIsScrambling(false);
+      }
+    };
+
+    animationId = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationId) cancelAnimationFrame(animationId);
+    };
+  }, [selectedDoc?.id, selectedDoc?.plaintext]);
 
   if (!selectedDoc) {
     return (
@@ -83,6 +139,7 @@ export const DocumentViewer: React.FC = () => {
                 {(selectedDoc.provider || "CLOUD").toUpperCase()}
               </span>
               <span className="meta-chip highlight-chip">AES-256-GCM Verified</span>
+              <span className="meta-chip gold-seal-chip">[AES-256-GCM SEAL]</span>
               <span className="meta-chip">
                 {new Date(selectedDoc.ingestedAt).toLocaleDateString()}
               </span>
@@ -113,12 +170,22 @@ export const DocumentViewer: React.FC = () => {
         </div>
       </div>
 
-      {/* Live Decrypted Text Body */}
+      {/* Live Decrypted Text Body with Ciphertext Scramble Stream */}
       <div className="viewer-content-container">
-        <div
-          className="decrypted-text-body"
-          dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-        />
+        {isScrambling ? (
+          <div className="decrypted-text-body scrambling">
+            <div className="scramble-indicator-banner">
+              <span className="pulse-dot ready gold-pulse" />
+              <span className="scramble-banner-text">AES-256-GCM Hardware Decryption Stream Active...</span>
+            </div>
+            <pre className="scramble-glyphs">{scrambledPreview}</pre>
+          </div>
+        ) : (
+          <div
+            className="decrypted-text-body"
+            dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+          />
+        )}
       </div>
 
       {/* Zero-Knowledge Proof & Cryptographic Accordion */}
@@ -129,7 +196,7 @@ export const DocumentViewer: React.FC = () => {
           onClick={() => setShowProofDetails(!showProofDetails)}
         >
           <div className="proof-trigger-left">
-            <ShieldIcon size={14} color="var(--accent-cherry)" />
+            <ShieldIcon size={14} color="var(--accent-gold)" />
             <span>Cryptographic Proof & Zero-Knowledge Verification</span>
           </div>
           <span className="accordion-arrow">{showProofDetails ? "▲" : "▼"}</span>
@@ -137,6 +204,14 @@ export const DocumentViewer: React.FC = () => {
 
         {showProofDetails && (
           <div className="proof-details-body">
+            {/* Visual Merkle Proof Tree Diagram */}
+            <MerkleProofVisualizer
+              docName={selectedDoc.name}
+              docRef={selectedDoc.docRef}
+              queryToken={searchQuery || "trapdoor_w"}
+              verified={true}
+            />
+
             <div className="proof-grid">
               <div className="proof-cell">
                 <span className="cell-label">Cloud Blob Storage Reference:</span>

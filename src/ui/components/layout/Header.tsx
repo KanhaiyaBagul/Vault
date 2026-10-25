@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useVault, ViewMode } from "../../context/VaultContext";
-import { ShieldIcon, CloudIcon, FolderIcon, TerminalIcon, KeyIcon, LockIcon } from "../icons";
+import { ShieldIcon, CloudIcon, FolderIcon, TerminalIcon, KeyIcon, LockIcon, SearchIcon } from "../icons";
 
 export const Header: React.FC = () => {
   const {
@@ -23,6 +23,26 @@ export const Header: React.FC = () => {
     { id: "lab", label: "Diagnostics Lab", icon: <TerminalIcon size={16} /> },
   ];
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setActiveView("workspace");
+        setTimeout(() => {
+          const input = document.getElementById("vaultSearchInput");
+          if (input) {
+            input.focus();
+            if (input instanceof HTMLInputElement) {
+              input.select();
+            }
+          }
+        }, 50);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [setActiveView]);
+
   const handleReKey = (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassphrase.trim()) {
@@ -32,9 +52,22 @@ export const Header: React.FC = () => {
     }
   };
 
+  const focusSearch = () => {
+    setActiveView("workspace");
+    setTimeout(() => {
+      const input = document.getElementById("vaultSearchInput");
+      if (input) {
+        input.focus();
+        if (input instanceof HTMLInputElement) {
+          input.select();
+        }
+      }
+    }, 50);
+  };
+
   return (
     <>
-      <header className="vault-header">
+      <header className="vault-header glassmorphic-dock">
         <div className="header-brand">
           <div className="brand-logo">
             <LockIcon size={18} color="var(--accent-red)" />
@@ -62,6 +95,18 @@ export const Header: React.FC = () => {
         </nav>
 
         <div className="header-actions">
+          {/* Global Quick Search Launcher */}
+          <button
+            type="button"
+            className="header-search-launcher"
+            onClick={focusSearch}
+            title="Focus Vault Search (Ctrl+K)"
+          >
+            <SearchIcon size={13} color="var(--ink-secondary)" />
+            <span className="launcher-text">Quick Search...</span>
+            <kbd className="kbd-shortcut">Ctrl+K</kbd>
+          </button>
+
           {/* Active Cloud Indicator */}
           <button
             type="button"
@@ -77,13 +122,13 @@ export const Header: React.FC = () => {
           {/* Enclave Status Pill */}
           <button
             type="button"
-            className="status-pill enclave-pill"
+            className="status-pill enclave-pill gold-enclave-pill"
             onClick={() => setShowKeyModal(true)}
             title="Inspect Hardware Isolated Enclave"
           >
-            <span className={`pulse-dot ${isEnclaveReady ? "ready" : ""}`} />
+            <span className={`pulse-dot ${isEnclaveReady ? "ready gold-pulse" : ""}`} />
             <span className="pill-title">Enclave</span>
-            <span className="pill-meta">AES-256</span>
+            <span className="pill-meta gold-text">AES-256</span>
           </button>
         </div>
       </header>
@@ -94,7 +139,7 @@ export const Header: React.FC = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title-group">
-                <ShieldIcon size={20} color="var(--accent-cherry)" />
+                <ShieldIcon size={20} color="var(--accent-gold)" />
                 <h3>Client Cryptographic Enclave</h3>
               </div>
               <button
@@ -117,12 +162,12 @@ export const Header: React.FC = () => {
 
               <div className="meta-row">
                 <span className="meta-label">Enclave Status:</span>
-                <span className="status-badge verified">Hardware Sealed (SubtleCrypto)</span>
+                <span className="status-badge verified gold-seal">Hardware Sealed (SubtleCrypto)</span>
               </div>
 
               <div className="meta-row">
                 <span className="meta-label">Enclave Fingerprint:</span>
-                <code className="fp-code">{keyFingerprint}</code>
+                <code className="fp-code gold-seal">{keyFingerprint}</code>
               </div>
 
               <div className="meta-row">

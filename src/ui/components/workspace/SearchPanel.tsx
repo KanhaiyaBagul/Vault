@@ -36,6 +36,7 @@ export const SearchPanel: React.FC = () => {
         <div className="search-input-wrapper">
           <SearchIcon size={18} color="var(--ink-secondary)" className="search-icon-adornment" />
           <input
+            id="vaultSearchInput"
             type="text"
             className="main-search-input"
             placeholder="Search encrypted vault using keywords or substrings (e.g. tax, audit, 2025)..."
