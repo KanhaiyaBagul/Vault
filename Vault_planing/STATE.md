@@ -18,9 +18,9 @@
 - Phase 15 — Multi-Cloud Connection Profiles, Persistent Storage Engine & Search Index Durability (157/157 tests)
 - Phase 16 — React Modular Architecture, Side-by-Side Studio Workspace & Custom Color System (157/157 tests)
 - Phase 17 — Cloud-Aware Document Synchronization, Provider-Isolated State & Full Lifecycle Working Flow (158/158 tests)
-**Active Phase:** None (All Phases Completed)  
-**Execution Mode:** Completed  
-**Status:** Ready / Milestone Complete & Fully Verified (158/158 Tests Passing)  
+**Active Phase:** Phase 18 — Interactive Luxury Studio UI/UX, Burnished Gold Palette & Cryptographic Visualizers  
+**Execution Mode:** Planned / Ready to Execute  
+**Status:** In Progress (158/158 Tests Passing)  
 
 ---
 
@@ -45,6 +45,7 @@
 | **Phase 15** | Multi-Cloud Connection Profiles, Persistent Storage Engine & Durability | **COMPLETED** | 157 / 157 |
 | **Phase 16** | React Modular Architecture, Side-by-Side Studio Workspace & Custom Colors | **COMPLETED** | 157 / 157 |
 | **Phase 17** | Cloud-Aware Document Synchronization, Provider-Isolated State & Full Working Flow | **COMPLETED** | 158 / 158 |
+| **Phase 18** | Interactive Luxury Studio UI/UX, Burnished Gold Palette & Cryptographic Visualizers | **PLANNED** | Pending |
 
 ---
 
@@ -198,4 +199,25 @@
   - [x] Task 4.1: Vite compilation bundle (`npm run build`)
   - [x] Task 4.2: Full test suite regression (`npm test` 158/158 passing across 37 test suites)
   - [x] Task 4.3: End-to-end verification of switching between Supabase and Disk without document bleed
+
+---
+
+## Phase 18 Wave Status: Interactive Luxury Studio UI/UX, Burnished Gold Palette & Cryptographic Visualizers
+
+- [ ] **Wave 1: Design System Expansion & Glassmorphic Studio Header**
+  - [ ] Task 1.1: Define Burnished Amber Gold (`#C5A059`) tokens in `src/ui/styles/theme.css`
+  - [ ] Task 1.2: Upgrade `Header.tsx` to glassmorphic floating dock with golden enclave pulse & `Ctrl+K` hotkey
+  - [ ] Task 1.3: Update `components.css` with glassmorphic styles and gold accent outlines
+- [ ] **Wave 2: Ciphertext-to-Plaintext Live Scramble Decryption Animation**
+  - [ ] Task 2.1: Implement 60 FPS text scramble effect in `DocumentViewer.tsx`
+  - [ ] Task 2.2: Add gold verification badge and cryptographic lockbox icon to document viewer
+- [ ] **Wave 3: Interactive Visual Merkle Proof Tree Visualizer**
+  - [ ] Task 3.1: Create `MerkleProofVisualizer.tsx` (zero-dependency SVG inclusion proof tree)
+  - [ ] Task 3.2: Embed `MerkleProofVisualizer` inside `DocumentViewer.tsx` proof accordion
+  - [ ] Task 3.3: Interactive verification cascade with golden root hash (`#C5A059`)
+- [ ] **Wave 4: Integration, Verification & Automated Testing**
+  - [ ] Task 4.1: Vite compilation bundle (`npm run build`)
+  - [ ] Task 4.2: Full regression test (`npm test` 158/158 passing)
+  - [ ] Task 4.3: End-to-end browser walkthrough verifying glassmorphic dock, scramble effect & Merkle tree
+
 
