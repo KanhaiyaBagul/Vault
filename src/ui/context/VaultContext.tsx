@@ -355,6 +355,11 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         data = await res.json();
       } catch {
+        if (res.status === 502 || res.status === 504) {
+          const err = "Backend server is offline (HTTP 502 Bad Gateway). Please ensure the Vault server is running on http://localhost:3000.";
+          showToast(err, "danger");
+          return { success: false, error: err };
+        }
         const text = await res.text();
         const err = `Server error HTTP ${res.status}: ${text || "Malformed server response"}`;
         showToast(err, "danger");
@@ -407,6 +412,12 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         data = await res.json();
       } catch {
+        if (res.status === 502 || res.status === 504) {
+          return {
+            ok: false,
+            error: "Backend server is offline (HTTP 502 Bad Gateway). The Vault backend daemon on http://localhost:3000 was stopped and has now been restarted.",
+          };
+        }
         return { ok: false, error: `Server returned HTTP ${res.status}` };
       }
       return {
